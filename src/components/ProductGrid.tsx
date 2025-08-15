@@ -3,6 +3,8 @@ import { ProductCard } from './ProductCard';
 import { ProductModal } from './ProductModal';
 import { FilterSection } from './FilterSection';
 import { products, Product } from '@/data/products';
+import { Button } from '@/components/ui/button';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface ProductGridProps {
   selectedCategory: string;
@@ -12,12 +14,26 @@ interface ProductGridProps {
 export const ProductGrid = ({ selectedCategory, onCategoryChange }: ProductGridProps) => {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showAll, setShowAll] = useState(false);
+  const isMobile = useIsMobile();
 
   const filteredProducts = useMemo(() => {
     if (selectedCategory === 'All') {
       return products;
     }
     return products.filter(product => product.category === selectedCategory);
+  }, [selectedCategory]);
+
+  const displayedProducts = useMemo(() => {
+    if (!isMobile || showAll) {
+      return filteredProducts;
+    }
+    return filteredProducts.slice(0, 5);
+  }, [filteredProducts, isMobile, showAll]);
+
+  // Reset showAll when category changes
+  useMemo(() => {
+    setShowAll(false);
   }, [selectedCategory]);
 
   const handleViewDetails = (product: Product) => {
@@ -49,7 +65,7 @@ export const ProductGrid = ({ selectedCategory, onCategoryChange }: ProductGridP
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-            {filteredProducts.map((product) => (
+            {displayedProducts.map((product) => (
               <ProductCard
                 key={product.id}
                 product={product}
@@ -57,6 +73,19 @@ export const ProductGrid = ({ selectedCategory, onCategoryChange }: ProductGridP
               />
             ))}
           </div>
+
+          {/* View More button for mobile */}
+          {isMobile && !showAll && filteredProducts.length > 5 && (
+            <div className="text-center mt-8">
+              <Button 
+                variant="outline" 
+                onClick={() => setShowAll(true)}
+                className="px-8 py-2"
+              >
+                View More ({filteredProducts.length - 5} more products)
+              </Button>
+            </div>
+          )}
 
           {filteredProducts.length === 0 && (
             <div className="text-center py-16">
