@@ -26,6 +26,7 @@ export const ProductCard = ({ product, onViewDetails }: ProductCardProps) => {
 
   return (
     <Card 
+      id={`product-${product.id}`}
       className="group cursor-pointer transition-all duration-300 hover:shadow-luxury border-0 shadow-card"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}

@@ -4,8 +4,11 @@ import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
 import { useCart } from '@/contexts/CartContext';
 import { CartSheet } from './CartSheet';
+import { products } from '@/data/products';
 
 interface HeaderProps {
   onCategoryChange?: (category: string) => void;
@@ -14,9 +17,31 @@ interface HeaderProps {
 
 export const Header = ({ onCategoryChange, selectedCategory = 'All' }: HeaderProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
   const { itemCount } = useCart();
 
   const categories = ['All', 'Totes', 'Crossbody', 'Shoulder', 'Clutches'];
+
+  // Search functionality
+  const searchResults = searchTerm.trim() 
+    ? products.filter(product => 
+        product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product.features.some(feature => feature.toLowerCase().includes(searchTerm.toLowerCase()))
+      )
+    : [];
+
+  const handleSearchSelect = (product: any) => {
+    // Scroll to product or navigate to product
+    const element = document.getElementById(`product-${product.id}`);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+    setSearchOpen(false);
+    setSearchTerm('');
+  };
 
   return (
     <header className="bg-background border-b border-border sticky top-0 z-50 backdrop-blur-sm bg-background/95">
@@ -69,9 +94,63 @@ export const Header = ({ onCategoryChange, selectedCategory = 'All' }: HeaderPro
 
           {/* Actions */}
           <div className="flex items-center space-x-4">
-            <Button variant="ghost" size="icon" className="hidden md:flex">
-              <Search className="h-4 w-4" />
-            </Button>
+            {/* Search Dialog */}
+            <Dialog open={searchOpen} onOpenChange={setSearchOpen}>
+              <DialogTrigger asChild>
+                <Button variant="ghost" size="icon" className="hidden md:flex">
+                  <Search className="h-4 w-4" />
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                  <DialogTitle className="font-playfair">Search Products</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <Input
+                    placeholder="Search by bag name, collection, or features..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full"
+                    autoFocus
+                  />
+                  
+                  {searchTerm.trim() && (
+                    <div className="max-h-60 overflow-y-auto space-y-2">
+                      {searchResults.length > 0 ? (
+                        <>
+                          <p className="text-sm text-muted-foreground font-inter">
+                            {searchResults.length} result{searchResults.length !== 1 ? 's' : ''} found
+                          </p>
+                          {searchResults.map((product) => (
+                            <div
+                              key={product.id}
+                              onClick={() => handleSearchSelect(product)}
+                              className="flex items-center space-x-3 p-3 rounded-lg hover:bg-secondary cursor-pointer transition-colors"
+                            >
+                              <img 
+                                src={product.image} 
+                                alt={product.name}
+                                className="w-12 h-12 object-cover rounded-md"
+                              />
+                              <div className="flex-1">
+                                <h4 className="font-medium font-inter text-sm">{product.name}</h4>
+                                <p className="text-xs text-muted-foreground font-inter">
+                                  {product.category} • ${product.price}
+                                </p>
+                              </div>
+                            </div>
+                          ))}
+                        </>
+                      ) : (
+                        <p className="text-sm text-muted-foreground font-inter py-4 text-center">
+                          No products found matching "{searchTerm}"
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </DialogContent>
+            </Dialog>
             
             <CartSheet>
               <Button variant="ghost" size="icon" className="relative">
