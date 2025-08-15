@@ -44,6 +44,10 @@ export default {
 					DEFAULT: 'hsl(var(--accent))',
 					foreground: 'hsl(var(--accent-foreground))'
 				},
+				luxury: {
+					DEFAULT: 'hsl(var(--luxury))',
+					foreground: 'hsl(var(--luxury-foreground))'
+				},
 				popover: {
 					DEFAULT: 'hsl(var(--popover))',
 					foreground: 'hsl(var(--popover-foreground))'
@@ -62,6 +66,19 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				}
+			},
+			backgroundImage: {
+				'gradient-luxury': 'var(--gradient-luxury)',
+				'gradient-elegant': 'var(--gradient-elegant)',
+				'gradient-dark': 'var(--gradient-dark)'
+			},
+			boxShadow: {
+				'luxury': 'var(--shadow-luxury)',
+				'elegant': 'var(--shadow-elegant)',
+				'card': 'var(--shadow-card)'
+			},
+			transitionProperty: {
+				'luxury': 'var(--transition-luxury)'
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
