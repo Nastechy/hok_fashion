@@ -48,11 +48,15 @@ export const ProductGrid = ({ selectedCategory, onCategoryChange }: ProductGridP
 
   return (
     <>
-      <FilterSection 
-        selectedCategory={selectedCategory}
-        onCategoryChange={onCategoryChange}
-        productCount={filteredProducts.length}
-      />
+      {/* Desktop Filter Section */}
+      {!isMobile && (
+        <FilterSection 
+          selectedCategory={selectedCategory}
+          onCategoryChange={onCategoryChange}
+          productCount={filteredProducts.length}
+        />
+      )}
+      
       <section className="py-16 bg-background">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
