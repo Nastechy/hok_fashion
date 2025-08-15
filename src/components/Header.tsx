@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { ShoppingBag, Menu, X, Search } from 'lucide-react';
+import { ShoppingBag, Menu, X, Search, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Badge } from '@/components/ui/badge';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useCart } from '@/contexts/CartContext';
 import { CartSheet } from './CartSheet';
 
@@ -37,19 +38,30 @@ export const Header = ({ onCategoryChange, selectedCategory = 'All' }: HeaderPro
             <a href="/lookbook" className="text-sm font-medium transition-colors hover:text-red font-inter text-muted-foreground">
               Lookbook
             </a>
-            {categories.map((category) => (
-              <button
-                key={category}
-                onClick={() => onCategoryChange?.(category)}
-                className={`text-sm font-medium transition-colors hover:text-red font-inter ${
-                  selectedCategory === category
-                    ? 'text-red border-b-2 border-red pb-1'
-                    : 'text-muted-foreground'
-                }`}
-              >
-                {category}
-              </button>
-            ))}
+            
+            {/* Collections Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="text-sm font-medium font-inter text-muted-foreground hover:text-red p-0 h-auto">
+                  All Collections
+                  <ChevronDown className="ml-1 h-3 w-3" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-48 bg-background border border-border shadow-lg">
+                {categories.map((category) => (
+                  <DropdownMenuItem
+                    key={category}
+                    onClick={() => onCategoryChange?.(category)}
+                    className={`cursor-pointer font-inter transition-colors hover:bg-secondary ${
+                      selectedCategory === category ? 'text-red bg-secondary' : 'text-muted-foreground'
+                    }`}
+                  >
+                    {category}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+            
             <a href="/contact" className="text-sm font-medium transition-colors hover:text-red font-inter text-muted-foreground">
               Contact
             </a>
@@ -80,7 +92,7 @@ export const Header = ({ onCategoryChange, selectedCategory = 'All' }: HeaderPro
                 </Button>
               </SheetTrigger>
                 <SheetContent side="right" className="w-[300px]">
-                  <div className="flex flex-col space-y-4 mt-8">
+                  <div className="flex flex-col space-y-2 mt-8">
                     <a href="/" className="text-left p-3 text-sm font-medium transition-colors hover:bg-secondary rounded-md font-inter text-muted-foreground">
                       Home
                     </a>
@@ -90,22 +102,30 @@ export const Header = ({ onCategoryChange, selectedCategory = 'All' }: HeaderPro
                     <a href="/lookbook" className="text-left p-3 text-sm font-medium transition-colors hover:bg-secondary rounded-md font-inter text-muted-foreground">
                       Lookbook
                     </a>
-                    {categories.map((category) => (
-                      <button
-                        key={category}
-                        onClick={() => {
-                          onCategoryChange?.(category);
-                          setIsMenuOpen(false);
-                        }}
-                        className={`text-left p-3 text-sm font-medium transition-colors hover:bg-secondary rounded-md font-inter ${
-                          selectedCategory === category
-                            ? 'text-red bg-secondary'
-                            : 'text-muted-foreground'
-                        }`}
-                      >
-                        {category}
-                      </button>
-                    ))}
+                    
+                    {/* Collections Section */}
+                    <div className="py-2">
+                      <p className="px-3 text-xs font-semibold text-muted-foreground/70 uppercase tracking-wider font-inter mb-2">
+                        Collections
+                      </p>
+                      {categories.map((category) => (
+                        <button
+                          key={category}
+                          onClick={() => {
+                            onCategoryChange?.(category);
+                            setIsMenuOpen(false);
+                          }}
+                          className={`w-full text-left p-3 text-sm font-medium transition-colors hover:bg-secondary rounded-md font-inter ${
+                            selectedCategory === category
+                              ? 'text-red bg-secondary'
+                              : 'text-muted-foreground'
+                          }`}
+                        >
+                          {category}
+                        </button>
+                      ))}
+                    </div>
+                    
                     <a href="/contact" className="text-left p-3 text-sm font-medium transition-colors hover:bg-secondary rounded-md font-inter text-muted-foreground">
                       Contact
                     </a>
