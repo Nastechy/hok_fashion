@@ -1,13 +1,15 @@
 import { useState, useMemo } from 'react';
 import { ProductCard } from './ProductCard';
 import { ProductModal } from './ProductModal';
+import { FilterSection } from './FilterSection';
 import { products, Product } from '@/data/products';
 
 interface ProductGridProps {
   selectedCategory: string;
+  onCategoryChange: (category: string) => void;
 }
 
-export const ProductGrid = ({ selectedCategory }: ProductGridProps) => {
+export const ProductGrid = ({ selectedCategory, onCategoryChange }: ProductGridProps) => {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -30,6 +32,11 @@ export const ProductGrid = ({ selectedCategory }: ProductGridProps) => {
 
   return (
     <>
+      <FilterSection 
+        selectedCategory={selectedCategory}
+        onCategoryChange={onCategoryChange}
+        productCount={filteredProducts.length}
+      />
       <section className="py-16 bg-background">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">

@@ -35,6 +35,7 @@ export const Hero = ({ onExploreClick }: HeroProps) => {
                 variant="elegant" 
                 size="lg" 
                 className="text-lg px-8 py-6 font-inter font-medium"
+                onClick={() => window.location.href = '/lookbook'}
               >
                 View Lookbook
               </Button>

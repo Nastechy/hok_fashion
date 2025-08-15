@@ -26,7 +26,10 @@ const Index = () => {
       <NewArrivals />
       <BestSellers />
       <div ref={productGridRef}>
-        <ProductGrid selectedCategory={selectedCategory} />
+        <ProductGrid 
+          selectedCategory={selectedCategory} 
+          onCategoryChange={setSelectedCategory}
+        />
       </div>
       <CustomerReviews />
       <Features />

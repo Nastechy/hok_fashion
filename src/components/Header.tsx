@@ -34,6 +34,9 @@ export const Header = ({ onCategoryChange, selectedCategory = 'All' }: HeaderPro
             <a href="/about" className="text-sm font-medium transition-colors hover:text-red font-inter text-muted-foreground">
               About
             </a>
+            <a href="/lookbook" className="text-sm font-medium transition-colors hover:text-red font-inter text-muted-foreground">
+              Lookbook
+            </a>
             {categories.map((category) => (
               <button
                 key={category}
@@ -76,35 +79,38 @@ export const Header = ({ onCategoryChange, selectedCategory = 'All' }: HeaderPro
                   <Menu className="h-4 w-4" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-[300px]">
-                <div className="flex flex-col space-y-4 mt-8">
-                  <a href="/" className="text-left p-3 text-sm font-medium transition-colors hover:bg-secondary rounded-md font-inter text-muted-foreground">
-                    Home
-                  </a>
-                  <a href="/about" className="text-left p-3 text-sm font-medium transition-colors hover:bg-secondary rounded-md font-inter text-muted-foreground">
-                    About
-                  </a>
-                  {categories.map((category) => (
-                    <button
-                      key={category}
-                      onClick={() => {
-                        onCategoryChange?.(category);
-                        setIsMenuOpen(false);
-                      }}
-                      className={`text-left p-3 text-sm font-medium transition-colors hover:bg-secondary rounded-md font-inter ${
-                        selectedCategory === category
-                          ? 'text-red bg-secondary'
-                          : 'text-muted-foreground'
-                      }`}
-                    >
-                      {category}
-                    </button>
-                  ))}
-                  <a href="/contact" className="text-left p-3 text-sm font-medium transition-colors hover:bg-secondary rounded-md font-inter text-muted-foreground">
-                    Contact
-                  </a>
-                </div>
-              </SheetContent>
+                <SheetContent side="right" className="w-[300px]">
+                  <div className="flex flex-col space-y-4 mt-8">
+                    <a href="/" className="text-left p-3 text-sm font-medium transition-colors hover:bg-secondary rounded-md font-inter text-muted-foreground">
+                      Home
+                    </a>
+                    <a href="/about" className="text-left p-3 text-sm font-medium transition-colors hover:bg-secondary rounded-md font-inter text-muted-foreground">
+                      About
+                    </a>
+                    <a href="/lookbook" className="text-left p-3 text-sm font-medium transition-colors hover:bg-secondary rounded-md font-inter text-muted-foreground">
+                      Lookbook
+                    </a>
+                    {categories.map((category) => (
+                      <button
+                        key={category}
+                        onClick={() => {
+                          onCategoryChange?.(category);
+                          setIsMenuOpen(false);
+                        }}
+                        className={`text-left p-3 text-sm font-medium transition-colors hover:bg-secondary rounded-md font-inter ${
+                          selectedCategory === category
+                            ? 'text-red bg-secondary'
+                            : 'text-muted-foreground'
+                        }`}
+                      >
+                        {category}
+                      </button>
+                    ))}
+                    <a href="/contact" className="text-left p-3 text-sm font-medium transition-colors hover:bg-secondary rounded-md font-inter text-muted-foreground">
+                      Contact
+                    </a>
+                  </div>
+                </SheetContent>
             </Sheet>
           </div>
         </div>
