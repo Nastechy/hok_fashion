@@ -39,10 +39,24 @@ export const ProductCard = ({ product, onViewDetails }: ProductCardProps) => {
             className="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105"
           />
           <Badge 
-            className="absolute top-3 left-3 bg-gold text-gold-foreground font-inter font-medium"
+            className="absolute top-3 left-3 bg-red text-red-foreground font-inter font-medium"
           >
             {product.category}
           </Badge>
+          {product.isBestSeller && (
+            <Badge 
+              className="absolute top-3 right-3 bg-primary text-primary-foreground font-inter font-medium"
+            >
+              Best Seller
+            </Badge>
+          )}
+          {product.isNewArrival && (
+            <Badge 
+              className="absolute top-12 right-3 bg-accent text-accent-foreground font-inter font-medium"
+            >
+              New
+            </Badge>
+          )}
           {isHovered && (
             <div className="absolute inset-0 bg-primary/20 flex items-center justify-center transition-opacity duration-300">
               <Button 

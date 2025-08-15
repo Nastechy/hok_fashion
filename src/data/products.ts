@@ -6,6 +6,8 @@ export interface Product {
   category: string;
   description: string;
   features: string[];
+  isBestSeller?: boolean;
+  isNewArrival?: boolean;
 }
 
 export const products: Product[] = [
@@ -15,8 +17,10 @@ export const products: Product[] = [
     price: 299,
     image: '/src/assets/hero-bag.jpg',
     category: 'Totes',
-    description: 'Elegant black leather tote bag with gold hardware. Perfect for work or everyday use.',
-    features: ['Genuine leather', 'Gold-tone hardware', 'Interior pockets', 'Spacious main compartment']
+    description: 'Elegant black leather tote bag with premium hardware. Perfect for work or everyday use.',
+    features: ['Genuine leather', 'Premium hardware', 'Interior pockets', 'Spacious main compartment'],
+    isBestSeller: true,
+    isNewArrival: false
   },
   {
     id: '2',
@@ -25,7 +29,9 @@ export const products: Product[] = [
     image: '/src/assets/bag-1.jpg',
     category: 'Crossbody',
     description: 'Chic beige crossbody bag with chain strap. Ideal for day-to-night styling.',
-    features: ['Adjustable chain strap', 'Compact design', 'Secure closure', 'Multiple compartments']
+    features: ['Adjustable chain strap', 'Compact design', 'Secure closure', 'Multiple compartments'],
+    isBestSeller: false,
+    isNewArrival: true
   },
   {
     id: '3',
@@ -34,7 +40,9 @@ export const products: Product[] = [
     image: '/src/assets/bag-2.jpg',
     category: 'Shoulder',
     description: 'Sophisticated black shoulder bag with premium leather and elegant hardware.',
-    features: ['Premium leather', 'Comfortable shoulder strap', 'Organized interior', 'Timeless design']
+    features: ['Premium leather', 'Comfortable shoulder strap', 'Organized interior', 'Timeless design'],
+    isBestSeller: true,
+    isNewArrival: false
   },
   {
     id: '4',
@@ -42,8 +50,10 @@ export const products: Product[] = [
     price: 149,
     image: '/src/assets/bag-3.jpg',
     category: 'Clutches',
-    description: 'Luxurious cream evening clutch with gold chain. Perfect for special occasions.',
-    features: ['Evening design', 'Removable chain', 'Silk lining', 'Magnetic closure']
+    description: 'Luxurious cream evening clutch with chain. Perfect for special occasions.',
+    features: ['Evening design', 'Removable chain', 'Silk lining', 'Magnetic closure'],
+    isBestSeller: false,
+    isNewArrival: true
   },
   {
     id: '5',
@@ -52,7 +62,9 @@ export const products: Product[] = [
     image: '/src/assets/bag-4.jpg',
     category: 'Totes',
     description: 'Spacious brown leather tote with sturdy handles. Ideal for shopping or travel.',
-    features: ['Large capacity', 'Durable handles', 'Interior organizer', 'Natural leather']
+    features: ['Large capacity', 'Durable handles', 'Interior organizer', 'Natural leather'],
+    isBestSeller: true,
+    isNewArrival: false
   }
 ];
 

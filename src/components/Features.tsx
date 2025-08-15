@@ -30,7 +30,7 @@ export const Features = () => {
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold text-foreground mb-4 font-playfair">
-            Why Choose Luxe Bags
+            Why Choose HOK Fashion
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto font-inter">
             We're committed to providing exceptional quality and service that exceeds your expectations.

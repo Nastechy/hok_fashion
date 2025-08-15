@@ -23,11 +23,17 @@ export const Header = ({ onCategoryChange, selectedCategory = 'All' }: HeaderPro
         <div className="flex items-center justify-between">
           {/* Logo */}
           <div className="flex items-center">
-            <h1 className="text-2xl font-bold text-foreground font-playfair">Luxe Bags</h1>
+            <h1 className="text-2xl font-bold text-foreground font-playfair">HOK Fashion</h1>
           </div>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
+            <a href="/" className="text-sm font-medium transition-colors hover:text-red font-inter text-muted-foreground">
+              Home
+            </a>
+            <a href="/about" className="text-sm font-medium transition-colors hover:text-red font-inter text-muted-foreground">
+              About
+            </a>
             {categories.map((category) => (
               <button
                 key={category}
@@ -41,6 +47,9 @@ export const Header = ({ onCategoryChange, selectedCategory = 'All' }: HeaderPro
                 {category}
               </button>
             ))}
+            <a href="/contact" className="text-sm font-medium transition-colors hover:text-red font-inter text-muted-foreground">
+              Contact
+            </a>
           </nav>
 
           {/* Actions */}
@@ -69,6 +78,12 @@ export const Header = ({ onCategoryChange, selectedCategory = 'All' }: HeaderPro
               </SheetTrigger>
               <SheetContent side="right" className="w-[300px]">
                 <div className="flex flex-col space-y-4 mt-8">
+                  <a href="/" className="text-left p-3 text-sm font-medium transition-colors hover:bg-secondary rounded-md font-inter text-muted-foreground">
+                    Home
+                  </a>
+                  <a href="/about" className="text-left p-3 text-sm font-medium transition-colors hover:bg-secondary rounded-md font-inter text-muted-foreground">
+                    About
+                  </a>
                   {categories.map((category) => (
                     <button
                       key={category}
@@ -85,6 +100,9 @@ export const Header = ({ onCategoryChange, selectedCategory = 'All' }: HeaderPro
                       {category}
                     </button>
                   ))}
+                  <a href="/contact" className="text-left p-3 text-sm font-medium transition-colors hover:bg-secondary rounded-md font-inter text-muted-foreground">
+                    Contact
+                  </a>
                 </div>
               </SheetContent>
             </Sheet>

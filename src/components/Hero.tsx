@@ -32,7 +32,7 @@ export const Hero = ({ onExploreClick }: HeroProps) => {
                 Explore Collection
               </Button>
               <Button 
-                variant="gold" 
+                variant="elegant" 
                 size="lg" 
                 className="text-lg px-8 py-6 font-inter font-medium"
               >

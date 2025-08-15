@@ -39,7 +39,7 @@ export const ProductModal = ({ product, isOpen, onClose }: ProductModalProps) =>
                 alt={product.name}
                 className="w-full h-96 object-cover rounded-lg shadow-elegant"
               />
-              <Badge className="absolute top-4 left-4 bg-gold text-gold-foreground font-inter font-medium">
+              <Badge className="absolute top-4 left-4 bg-red text-red-foreground font-inter font-medium">
                 {product.category}
               </Badge>
             </div>
@@ -56,7 +56,7 @@ export const ProductModal = ({ product, isOpen, onClose }: ProductModalProps) =>
             <div className="flex items-center space-x-2">
               <div className="flex items-center">
                 {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="h-4 w-4 fill-gold text-gold" />
+                  <Star key={i} className="h-4 w-4 fill-red text-red" />
                 ))}
               </div>
               <span className="text-sm text-muted-foreground">(127 reviews)</span>
@@ -106,7 +106,7 @@ export const ProductModal = ({ product, isOpen, onClose }: ProductModalProps) =>
                 Add to Cart - ${product.price}
               </Button>
               <Button
-                variant="gold"
+                variant="elegant"
                 size="lg"
                 className="w-full"
               >
