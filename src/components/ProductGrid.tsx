@@ -1,7 +1,6 @@
 import { useState, useMemo } from 'react';
 import { ProductCard } from './ProductCard';
 import { ProductModal } from './ProductModal';
-import { FilterSection } from './FilterSection';
 import { products, Product } from '@/data/products';
 import { Button } from '@/components/ui/button';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -48,12 +47,6 @@ export const ProductGrid = ({ selectedCategory, onCategoryChange }: ProductGridP
 
   return (
     <>
-      <FilterSection 
-        selectedCategory={selectedCategory}
-        onCategoryChange={onCategoryChange}
-        productCount={filteredProducts.length}
-      />
-      
       <section className="py-16 bg-background">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
