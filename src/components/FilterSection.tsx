@@ -27,43 +27,51 @@ export const FilterSection = ({ selectedCategory, onCategoryChange, productCount
   ];
 
   return (
-    <section className="py-8 bg-secondary/20">
+    <section className="py-12 bg-gradient-subtle border-b border-border/50">
       <div className="container mx-auto px-4">
-        <Card className="border-0 shadow-sm">
-          <CardContent className="p-6">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div className="bg-card rounded-2xl border border-border/50 shadow-elegant backdrop-blur-sm">
+          <div className="p-8">
+            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
               {/* Filter Info */}
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-red/10 rounded-full flex items-center justify-center">
-                  <Filter className="h-5 w-5 text-red" />
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-gradient-primary rounded-xl flex items-center justify-center shadow-glow">
+                  <Filter className="h-6 w-6 text-primary-foreground" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-foreground font-playfair">
-                    Filter Products
-                  </h3>
-                  <p className="text-sm text-muted-foreground font-inter">
-                    {productCount} products found in {selectedCategory === 'All' ? 'all categories' : selectedCategory}
+                  <h2 className="text-2xl font-bold text-foreground mb-1 font-playfair">
+                    Collection Filter
+                  </h2>
+                  <p className="text-muted-foreground font-inter">
+                    {productCount} {productCount === 1 ? 'product' : 'products'} found
+                    {selectedCategory !== 'All' && (
+                      <span className="ml-1">in <span className="text-primary font-medium">{selectedCategory}</span></span>
+                    )}
                   </p>
                 </div>
               </div>
 
               {/* Filter Controls */}
-              <div className="flex flex-wrap gap-3">
+              <div className="flex flex-wrap gap-3 w-full lg:w-auto">
                 {/* Category Filter */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="outline" className="font-inter">
+                    <Button 
+                      variant="outline" 
+                      className="font-inter bg-background/50 hover:bg-background border-border/50 hover:border-primary/20 transition-all duration-300"
+                    >
                       Category: {selectedCategory}
                       <ChevronDown className="ml-2 h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent>
+                  <DropdownMenuContent className="bg-background/95 backdrop-blur-sm border-border/50">
                     {categories.map((category) => (
                       <DropdownMenuItem
                         key={category}
                         onClick={() => onCategoryChange(category)}
-                        className={`font-inter ${
-                          selectedCategory === category ? 'bg-red/10 text-red' : ''
+                        className={`font-inter transition-colors ${
+                          selectedCategory === category 
+                            ? 'bg-primary/10 text-primary font-medium' 
+                            : 'hover:bg-muted/50'
                         }`}
                       >
                         {category}
@@ -75,18 +83,23 @@ export const FilterSection = ({ selectedCategory, onCategoryChange, productCount
                 {/* Sort Filter */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="outline" className="font-inter">
-                      Sort by: {sortOptions.find(option => option.value === sortBy)?.label}
+                    <Button 
+                      variant="outline" 
+                      className="font-inter bg-background/50 hover:bg-background border-border/50 hover:border-primary/20 transition-all duration-300"
+                    >
+                      Sort: {sortOptions.find(option => option.value === sortBy)?.label}
                       <ChevronDown className="ml-2 h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent>
+                  <DropdownMenuContent className="bg-background/95 backdrop-blur-sm border-border/50">
                     {sortOptions.map((option) => (
                       <DropdownMenuItem
                         key={option.value}
                         onClick={() => setSortBy(option.value)}
-                        className={`font-inter ${
-                          sortBy === option.value ? 'bg-red/10 text-red' : ''
+                        className={`font-inter transition-colors ${
+                          sortBy === option.value 
+                            ? 'bg-primary/10 text-primary font-medium' 
+                            : 'hover:bg-muted/50'
                         }`}
                       >
                         {option.label}
@@ -100,15 +113,15 @@ export const FilterSection = ({ selectedCategory, onCategoryChange, productCount
                   <Button
                     variant="ghost"
                     onClick={() => onCategoryChange('All')}
-                    className="text-red hover:text-red hover:bg-red/10 font-inter"
+                    className="text-primary hover:text-primary hover:bg-primary/10 font-inter transition-all duration-300"
                   >
                     Clear Filters
                   </Button>
                 )}
               </div>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     </section>
   );
