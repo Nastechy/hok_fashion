@@ -23,7 +23,7 @@ export const Header = ({ onCategoryChange, selectedCategory = 'All' }: HeaderPro
         <div className="flex items-center justify-between">
           {/* Logo */}
           <div className="flex items-center">
-            <h1 className="text-2xl font-bold text-foreground">Luxe Bags</h1>
+            <h1 className="text-2xl font-bold text-foreground font-playfair">Luxe Bags</h1>
           </div>
 
           {/* Desktop Navigation */}
@@ -32,9 +32,9 @@ export const Header = ({ onCategoryChange, selectedCategory = 'All' }: HeaderPro
               <button
                 key={category}
                 onClick={() => onCategoryChange?.(category)}
-                className={`text-sm font-medium transition-colors hover:text-luxury ${
+                className={`text-sm font-medium transition-colors hover:text-red font-inter ${
                   selectedCategory === category
-                    ? 'text-luxury border-b-2 border-luxury pb-1'
+                    ? 'text-red border-b-2 border-red pb-1'
                     : 'text-muted-foreground'
                 }`}
               >
@@ -53,7 +53,7 @@ export const Header = ({ onCategoryChange, selectedCategory = 'All' }: HeaderPro
               <Button variant="ghost" size="icon" className="relative">
                 <ShoppingBag className="h-4 w-4" />
                 {itemCount > 0 && (
-                  <Badge className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 text-xs bg-luxury">
+                  <Badge className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 text-xs bg-red">
                     {itemCount}
                   </Badge>
                 )}
@@ -76,9 +76,9 @@ export const Header = ({ onCategoryChange, selectedCategory = 'All' }: HeaderPro
                         onCategoryChange?.(category);
                         setIsMenuOpen(false);
                       }}
-                      className={`text-left p-3 text-sm font-medium transition-colors hover:bg-secondary rounded-md ${
+                      className={`text-left p-3 text-sm font-medium transition-colors hover:bg-secondary rounded-md font-inter ${
                         selectedCategory === category
-                          ? 'text-luxury bg-secondary'
+                          ? 'text-red bg-secondary'
                           : 'text-muted-foreground'
                       }`}
                     >

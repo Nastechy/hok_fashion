@@ -44,7 +44,7 @@ export const CartSheet = ({ children }: CartSheetProps) => {
                   />
                   <div className="flex-1 min-w-0">
                     <h4 className="font-medium text-sm truncate">{item.name}</h4>
-                    <p className="text-luxury font-semibold">${item.price}</p>
+                    <p className="text-red font-semibold font-playfair">${item.price}</p>
                     <div className="flex items-center space-x-2 mt-2">
                       <Button
                         variant="outline"
@@ -93,7 +93,7 @@ export const CartSheet = ({ children }: CartSheetProps) => {
               <Separator />
               <div className="flex justify-between font-semibold text-lg">
                 <span>Total</span>
-                <span className="text-luxury">${total.toFixed(2)}</span>
+                <span className="text-red font-playfair">${total.toFixed(2)}</span>
               </div>
             </div>
             <div className="space-y-2">

@@ -18,6 +18,10 @@ export default {
 			}
 		},
 		extend: {
+			fontFamily: {
+				'playfair': ['Playfair Display', 'serif'],
+				'inter': ['Inter', 'sans-serif'],
+			},
 			colors: {
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
@@ -48,6 +52,14 @@ export default {
 					DEFAULT: 'hsl(var(--luxury))',
 					foreground: 'hsl(var(--luxury-foreground))'
 				},
+				red: {
+					DEFAULT: 'hsl(var(--red))',
+					foreground: 'hsl(var(--red-foreground))'
+				},
+				gold: {
+					DEFAULT: 'hsl(var(--gold))',
+					foreground: 'hsl(var(--gold-foreground))'
+				},
 				popover: {
 					DEFAULT: 'hsl(var(--popover))',
 					foreground: 'hsl(var(--popover-foreground))'
@@ -69,11 +81,14 @@ export default {
 			},
 			backgroundImage: {
 				'gradient-luxury': 'var(--gradient-luxury)',
+				'gradient-gold': 'var(--gradient-gold)',
 				'gradient-elegant': 'var(--gradient-elegant)',
-				'gradient-dark': 'var(--gradient-dark)'
+				'gradient-dark': 'var(--gradient-dark)',
+				'gradient-hero': 'var(--gradient-hero)'
 			},
 			boxShadow: {
 				'luxury': 'var(--shadow-luxury)',
+				'gold': 'var(--shadow-gold)',
 				'elegant': 'var(--shadow-elegant)',
 				'card': 'var(--shadow-card)'
 			},

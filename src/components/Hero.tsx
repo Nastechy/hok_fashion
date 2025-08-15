@@ -12,29 +12,29 @@ export const Hero = ({ onExploreClick }: HeroProps) => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <div className="space-y-8">
             <div className="space-y-4">
-              <h1 className="text-5xl lg:text-6xl font-bold text-foreground leading-tight">
-                Luxury
-                <span className="text-luxury block">Handbags</span>
-                Collection
-              </h1>
-              <p className="text-xl text-muted-foreground max-w-lg">
-                Discover our exquisite collection of handcrafted leather bags, 
-                designed for the modern woman who values both style and functionality.
-              </p>
+            <h1 className="text-5xl lg:text-6xl font-bold text-foreground leading-tight font-playfair">
+              Luxury
+              <span className="text-red block">Handbags</span>
+              Collection
+            </h1>
+            <p className="text-xl text-muted-foreground max-w-lg font-inter">
+              Discover our exquisite collection of handcrafted leather bags, 
+              designed for the modern woman who values both style and functionality.
+            </p>
             </div>
             <div className="flex flex-col sm:flex-row gap-4">
               <Button 
                 variant="luxury" 
                 size="lg" 
-                className="text-lg px-8 py-6"
+                className="text-lg px-8 py-6 font-inter font-medium"
                 onClick={onExploreClick}
               >
                 Explore Collection
               </Button>
               <Button 
-                variant="elegant" 
+                variant="gold" 
                 size="lg" 
-                className="text-lg px-8 py-6"
+                className="text-lg px-8 py-6 font-inter font-medium"
               >
                 View Lookbook
               </Button>

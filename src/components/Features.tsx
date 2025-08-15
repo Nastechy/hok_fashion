@@ -29,10 +29,10 @@ export const Features = () => {
     <section className="py-20 bg-secondary/30">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold text-foreground mb-4">
+          <h2 className="text-4xl font-bold text-foreground mb-4 font-playfair">
             Why Choose Luxe Bags
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto font-inter">
             We're committed to providing exceptional quality and service that exceeds your expectations.
           </p>
         </div>
@@ -41,13 +41,13 @@ export const Features = () => {
           {features.map((feature, index) => (
             <Card key={index} className="text-center border-0 shadow-card hover:shadow-elegant transition-all duration-300">
               <CardContent className="p-8">
-                <div className="w-16 h-16 bg-gradient-luxury rounded-full flex items-center justify-center mx-auto mb-6">
-                  <feature.icon className="h-8 w-8 text-luxury-foreground" />
+                <div className="w-16 h-16 bg-gradient-hero rounded-full flex items-center justify-center mx-auto mb-6">
+                  <feature.icon className="h-8 w-8 text-red-foreground" />
                 </div>
-                <h3 className="text-xl font-semibold text-foreground mb-3">
+                <h3 className="text-xl font-semibold text-foreground mb-3 font-playfair">
                   {feature.title}
                 </h3>
-                <p className="text-muted-foreground leading-relaxed">
+                <p className="text-muted-foreground leading-relaxed font-inter">
                   {feature.description}
                 </p>
               </CardContent>

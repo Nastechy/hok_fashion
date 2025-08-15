@@ -39,7 +39,7 @@ export const ProductModal = ({ product, isOpen, onClose }: ProductModalProps) =>
                 alt={product.name}
                 className="w-full h-96 object-cover rounded-lg shadow-elegant"
               />
-              <Badge className="absolute top-4 left-4 bg-luxury text-luxury-foreground">
+              <Badge className="absolute top-4 left-4 bg-gold text-gold-foreground font-inter font-medium">
                 {product.category}
               </Badge>
             </div>
@@ -48,37 +48,37 @@ export const ProductModal = ({ product, isOpen, onClose }: ProductModalProps) =>
           {/* Product Details */}
           <div className="space-y-6">
             <DialogHeader>
-              <DialogTitle className="text-3xl font-bold text-foreground">
-                {product.name}
-              </DialogTitle>
+            <DialogTitle className="text-3xl font-bold text-foreground font-playfair">
+              {product.name}
+            </DialogTitle>
             </DialogHeader>
 
             <div className="flex items-center space-x-2">
               <div className="flex items-center">
                 {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="h-4 w-4 fill-luxury text-luxury" />
+                  <Star key={i} className="h-4 w-4 fill-gold text-gold" />
                 ))}
               </div>
               <span className="text-sm text-muted-foreground">(127 reviews)</span>
             </div>
 
-            <div className="text-3xl font-bold text-luxury">
+            <div className="text-3xl font-bold text-red font-playfair">
               ${product.price}
             </div>
 
-            <p className="text-muted-foreground leading-relaxed">
+            <p className="text-muted-foreground leading-relaxed font-inter">
               {product.description}
             </p>
 
             <Separator />
 
             <div className="space-y-4">
-              <h3 className="font-semibold text-lg">Features</h3>
+              <h3 className="font-semibold text-lg font-playfair">Features</h3>
               <ul className="space-y-2">
                 {product.features.map((feature, index) => (
                   <li key={index} className="flex items-center space-x-2">
-                    <Check className="h-4 w-4 text-luxury" />
-                    <span className="text-sm">{feature}</span>
+                    <Check className="h-4 w-4 text-red" />
+                    <span className="text-sm font-inter">{feature}</span>
                   </li>
                 ))}
               </ul>
@@ -87,8 +87,8 @@ export const ProductModal = ({ product, isOpen, onClose }: ProductModalProps) =>
             <Separator />
 
             <div className="space-y-4">
-              <h3 className="font-semibold text-lg">Shipping & Returns</h3>
-              <div className="text-sm text-muted-foreground space-y-1">
+              <h3 className="font-semibold text-lg font-playfair">Shipping & Returns</h3>
+              <div className="text-sm text-muted-foreground space-y-1 font-inter">
                 <p>• Free shipping on orders over $200</p>
                 <p>• 30-day return policy</p>
                 <p>• Authentic guarantee</p>
@@ -106,7 +106,7 @@ export const ProductModal = ({ product, isOpen, onClose }: ProductModalProps) =>
                 Add to Cart - ${product.price}
               </Button>
               <Button
-                variant="elegant"
+                variant="gold"
                 size="lg"
                 className="w-full"
               >

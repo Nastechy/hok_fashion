@@ -39,7 +39,7 @@ export const ProductCard = ({ product, onViewDetails }: ProductCardProps) => {
             className="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105"
           />
           <Badge 
-            className="absolute top-3 left-3 bg-luxury text-luxury-foreground"
+            className="absolute top-3 left-3 bg-gold text-gold-foreground font-inter font-medium"
           >
             {product.category}
           </Badge>
@@ -56,14 +56,14 @@ export const ProductCard = ({ product, onViewDetails }: ProductCardProps) => {
           )}
         </div>
         <div className="p-6">
-          <h3 className="text-lg font-semibold text-foreground mb-2 group-hover:text-luxury transition-colors">
+          <h3 className="text-lg font-semibold text-foreground mb-2 group-hover:text-red transition-colors font-playfair">
             {product.name}
           </h3>
-          <p className="text-muted-foreground text-sm mb-3 line-clamp-2">
+          <p className="text-muted-foreground text-sm mb-3 line-clamp-2 font-inter">
             {product.description}
           </p>
           <div className="flex items-center justify-between">
-            <span className="text-2xl font-bold text-luxury">
+            <span className="text-2xl font-bold text-red font-playfair">
               ${product.price}
             </span>
           </div>

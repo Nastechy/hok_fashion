@@ -33,10 +33,10 @@ export const ProductGrid = ({ selectedCategory }: ProductGridProps) => {
       <section className="py-16 bg-background">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-foreground mb-4">
+            <h2 className="text-4xl font-bold text-foreground mb-4 font-playfair">
               {selectedCategory === 'All' ? 'Our Collection' : selectedCategory}
             </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto font-inter">
               Discover handcrafted luxury bags that combine timeless elegance with modern functionality.
             </p>
           </div>
