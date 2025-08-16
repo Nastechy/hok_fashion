@@ -41,20 +41,20 @@ export const ProductCard = ({ product, onViewDetails }: ProductCardProps) => {
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           <Badge 
-            className="absolute top-3 left-3 bg-primary/90 text-primary-foreground font-inter font-medium backdrop-blur-sm"
+            className="absolute top-3 left-3 bg-primary/90 text-primary-foreground font-inter font-medium backdrop-blur-sm text-xs"
           >
             {product.category}
           </Badge>
           {product.isBestSeller && (
             <Badge 
-              className="absolute top-3 right-3 bg-red/90 text-red-foreground font-inter font-medium backdrop-blur-sm"
+              className="absolute top-3 right-3 bg-red/90 text-red-foreground font-inter font-medium backdrop-blur-sm text-xs"
             >
               Best Seller
             </Badge>
           )}
           {product.isNewArrival && (
             <Badge 
-              className="absolute top-12 right-3 bg-accent/90 text-accent-foreground font-inter font-medium backdrop-blur-sm"
+              className="absolute top-12 right-3 bg-accent/90 text-accent-foreground font-inter font-medium backdrop-blur-sm text-xs"
             >
               New
             </Badge>
