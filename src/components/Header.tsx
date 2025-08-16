@@ -67,7 +67,7 @@ export const Header = ({ onCategoryChange, selectedCategory = 'All' }: HeaderPro
             {/* Collections Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="text-sm font-medium font-inter text-muted-foreground hover:text-red p-0 h-auto">
+                <Button variant="ghost" className="text-sm font-medium font-inter text-muted-foreground hover:text-foreground hover:bg-transparent p-0 h-auto">
                   All Collections
                   <ChevronDown className="ml-1 h-3 w-3" />
                 </Button>
