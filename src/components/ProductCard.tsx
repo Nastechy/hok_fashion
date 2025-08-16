@@ -27,7 +27,7 @@ export const ProductCard = ({ product, onViewDetails }: ProductCardProps) => {
   return (
     <Card 
       id={`product-${product.id}`}
-      className="group cursor-pointer transition-all duration-300 hover:shadow-luxury border-0 shadow-card"
+      className="group cursor-pointer transition-all duration-500 hover:shadow-elegant border-0 shadow-card bg-gradient-subtle"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onClick={() => onViewDetails(product)}
@@ -37,49 +37,50 @@ export const ProductCard = ({ product, onViewDetails }: ProductCardProps) => {
           <img
             src={product.image}
             alt={product.name}
-            className="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105"
+            className="w-full h-64 object-cover transition-transform duration-500 group-hover:scale-105"
           />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           <Badge 
-            className="absolute top-3 left-3 bg-red text-red-foreground font-inter font-medium"
+            className="absolute top-3 left-3 bg-primary/90 text-primary-foreground font-inter font-medium backdrop-blur-sm"
           >
             {product.category}
           </Badge>
           {product.isBestSeller && (
             <Badge 
-              className="absolute top-3 right-3 bg-primary text-primary-foreground font-inter font-medium"
+              className="absolute top-3 right-3 bg-red/90 text-red-foreground font-inter font-medium backdrop-blur-sm"
             >
               Best Seller
             </Badge>
           )}
           {product.isNewArrival && (
             <Badge 
-              className="absolute top-12 right-3 bg-accent text-accent-foreground font-inter font-medium"
+              className="absolute top-12 right-3 bg-accent/90 text-accent-foreground font-inter font-medium backdrop-blur-sm"
             >
               New
             </Badge>
           )}
         </div>
         <div className="p-6">
-          <div className="flex justify-between items-start mb-2">
-            <h3 className="text-lg font-semibold text-foreground group-hover:text-red transition-colors font-playfair">
+          <div className="flex justify-between items-start mb-3">
+            <h3 className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors font-playfair leading-tight">
               {product.name}
             </h3>
-            <span className="text-xs text-muted-foreground font-mono bg-muted/30 px-2 py-1 rounded">
+            <span className="text-xs text-muted-foreground font-mono bg-muted/50 px-2 py-1 rounded-md ml-3 shrink-0">
               {product.productCode}
             </span>
           </div>
-          <p className="text-muted-foreground text-sm mb-3 line-clamp-2 font-inter">
+          <p className="text-muted-foreground text-sm mb-4 line-clamp-2 font-inter leading-relaxed">
             {product.description}
           </p>
           <div className="flex items-center justify-between">
-            <span className="text-2xl font-bold text-red font-playfair">
+            <span className="text-2xl font-bold text-primary font-playfair">
               ${product.price}
             </span>
             <Button 
               variant="luxury"
               size="sm"
               onClick={handleAddToCart}
-              className="transform transition-all duration-300 hover:scale-105"
+              className="transform transition-all duration-300 hover:scale-105 hover:shadow-glow"
             >
               Add to Cart
             </Button>

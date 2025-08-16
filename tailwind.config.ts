@@ -75,12 +75,14 @@ export default {
 				'gradient-luxury': 'var(--gradient-luxury)',
 				'gradient-elegant': 'var(--gradient-elegant)',
 				'gradient-dark': 'var(--gradient-dark)',
-				'gradient-hero': 'var(--gradient-hero)'
+				'gradient-hero': 'var(--gradient-hero)',
+				'gradient-subtle': 'var(--gradient-subtle)'
 			},
 			boxShadow: {
 				'luxury': 'var(--shadow-luxury)',
 				'elegant': 'var(--shadow-elegant)',
-				'card': 'var(--shadow-card)'
+				'card': 'var(--shadow-card)',
+				'glow': 'var(--shadow-glow)'
 			},
 			transitionProperty: {
 				'luxury': 'var(--transition-luxury)'
