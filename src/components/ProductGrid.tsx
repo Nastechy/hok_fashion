@@ -8,20 +8,31 @@ import { useIsMobile } from '@/hooks/use-mobile';
 interface ProductGridProps {
   selectedCategory: string;
   onCategoryChange: (category: string) => void;
+  searchQuery?: string;
 }
 
-export const ProductGrid = ({ selectedCategory, onCategoryChange }: ProductGridProps) => {
+export const ProductGrid = ({ selectedCategory, onCategoryChange, searchQuery = '' }: ProductGridProps) => {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showAll, setShowAll] = useState(false);
   const isMobile = useIsMobile();
 
   const filteredProducts = useMemo(() => {
-    if (selectedCategory === 'All') {
-      return products;
+    let filtered = products;
+    
+    if (selectedCategory !== 'All') {
+      filtered = filtered.filter(product => product.category === selectedCategory);
     }
-    return products.filter(product => product.category === selectedCategory);
-  }, [selectedCategory]);
+    
+    if (searchQuery) {
+      filtered = filtered.filter(product => 
+        product.productCode.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        product.name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+    
+    return filtered;
+  }, [selectedCategory, searchQuery]);
 
   const displayedProducts = useMemo(() => {
     if (!isMobile || showAll) {
@@ -30,10 +41,10 @@ export const ProductGrid = ({ selectedCategory, onCategoryChange }: ProductGridP
     return filteredProducts.slice(0, 5);
   }, [filteredProducts, isMobile, showAll]);
 
-  // Reset showAll when category changes
+  // Reset showAll when category or search changes
   useMemo(() => {
     setShowAll(false);
-  }, [selectedCategory]);
+  }, [selectedCategory, searchQuery]);
 
   const handleViewDetails = (product: Product) => {
     setSelectedProduct(product);

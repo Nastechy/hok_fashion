@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { Filter, ChevronDown } from 'lucide-react';
+import { Filter, ChevronDown, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,9 +15,11 @@ interface FilterSectionProps {
   selectedCategory: string;
   onCategoryChange: (category: string) => void;
   productCount: number;
+  searchQuery: string;
+  onSearchChange: (query: string) => void;
 }
 
-export const FilterSection = ({ selectedCategory, onCategoryChange, productCount }: FilterSectionProps) => {
+export const FilterSection = ({ selectedCategory, onCategoryChange, productCount, searchQuery, onSearchChange }: FilterSectionProps) => {
   const [sortBy, setSortBy] = useState('featured');
 
   const sortOptions = [
@@ -52,6 +55,17 @@ export const FilterSection = ({ selectedCategory, onCategoryChange, productCount
 
               {/* Filter Controls */}
               <div className="flex flex-wrap gap-3 w-full lg:w-auto">
+                {/* Search by Product Code */}
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search by product code..."
+                    value={searchQuery}
+                    onChange={(e) => onSearchChange(e.target.value)}
+                    className="pl-10 font-inter bg-background/50 border-border/50 focus:border-primary/20 transition-all duration-300"
+                  />
+                </div>
+
                 {/* Category Filter */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -109,10 +123,13 @@ export const FilterSection = ({ selectedCategory, onCategoryChange, productCount
                 </DropdownMenu>
 
                 {/* Clear Filters */}
-                {selectedCategory !== 'All' && (
+                {(selectedCategory !== 'All' || searchQuery) && (
                   <Button
                     variant="ghost"
-                    onClick={() => onCategoryChange('All')}
+                    onClick={() => {
+                      onCategoryChange('All');
+                      onSearchChange('');
+                    }}
                     className="text-primary hover:text-primary hover:bg-primary/10 font-inter transition-all duration-300"
                   >
                     Clear Filters

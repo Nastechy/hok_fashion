@@ -13,15 +13,26 @@ import { products } from '@/data/products';
 
 const Index = () => {
   const [selectedCategory, setSelectedCategory] = useState('All');
+  const [searchQuery, setSearchQuery] = useState('');
   const productGridRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
 
   const filteredProductsCount = useMemo(() => {
-    if (selectedCategory === 'All') {
-      return products.length;
+    let filtered = products;
+    
+    if (selectedCategory !== 'All') {
+      filtered = filtered.filter(product => product.category === selectedCategory);
     }
-    return products.filter(product => product.category === selectedCategory).length;
-  }, [selectedCategory]);
+    
+    if (searchQuery) {
+      filtered = filtered.filter(product => 
+        product.productCode.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        product.name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+    
+    return filtered.length;
+  }, [selectedCategory, searchQuery]);
 
   const handleExploreClick = () => {
     productGridRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -41,6 +52,8 @@ const Index = () => {
         selectedCategory={selectedCategory}
         onCategoryChange={setSelectedCategory}
         productCount={filteredProductsCount}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
       />
       
       <NewArrivals />
@@ -49,6 +62,7 @@ const Index = () => {
         <ProductGrid 
           selectedCategory={selectedCategory} 
           onCategoryChange={setSelectedCategory}
+          searchQuery={searchQuery}
         />
       </div>
       <CustomerReviews />

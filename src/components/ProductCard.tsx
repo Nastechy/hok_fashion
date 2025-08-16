@@ -60,9 +60,14 @@ export const ProductCard = ({ product, onViewDetails }: ProductCardProps) => {
           )}
         </div>
         <div className="p-6">
-          <h3 className="text-lg font-semibold text-foreground mb-2 group-hover:text-red transition-colors font-playfair">
-            {product.name}
-          </h3>
+          <div className="flex justify-between items-start mb-2">
+            <h3 className="text-lg font-semibold text-foreground group-hover:text-red transition-colors font-playfair">
+              {product.name}
+            </h3>
+            <span className="text-xs text-muted-foreground font-mono bg-muted/30 px-2 py-1 rounded">
+              {product.productCode}
+            </span>
+          </div>
           <p className="text-muted-foreground text-sm mb-3 line-clamp-2 font-inter">
             {product.description}
           </p>
