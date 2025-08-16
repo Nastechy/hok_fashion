@@ -11,8 +11,8 @@ export const Footer = () => {
           <div className="space-y-4">
             <h3 className="text-2xl font-bold font-playfair">HOK Fashion</h3>
             <p className="text-primary-foreground/80 leading-relaxed font-inter">
-              Crafting luxury handbags for the modern woman since 1998. 
-              Each piece tells a story of elegance and sophistication.
+              Nigeria's premier luxury handbag brand. Crafting exquisite pieces 
+              for the modern African woman since 1998.
             </p>
             <div className="flex space-x-4">
               <Button variant="ghost" size="icon" className="text-primary-foreground hover:text-red">
@@ -61,15 +61,15 @@ export const Footer = () => {
             <div className="space-y-3">
               <div className="flex items-center space-x-2 text-sm text-primary-foreground/80 font-inter">
                 <Mail className="h-4 w-4" />
-                <span>hello@hokfashion.com</span>
+                <span>hello@hokfashion.ng</span>
               </div>
               <div className="flex items-center space-x-2 text-sm text-primary-foreground/80 font-inter">
                 <Phone className="h-4 w-4" />
-                <span>+1 (555) 123-4567</span>
+                <span>+234 802 123 4567</span>
               </div>
               <div className="flex items-center space-x-2 text-sm text-primary-foreground/80 font-inter">
                 <MapPin className="h-4 w-4" />
-                <span>New York, NY</span>
+                <span>Lagos, Nigeria</span>
               </div>
             </div>
             <div className="space-y-2">

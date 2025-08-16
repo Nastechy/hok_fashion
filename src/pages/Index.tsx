@@ -56,15 +56,31 @@ const Index = () => {
         onSearchChange={setSearchQuery}
       />
       
-      <NewArrivals />
-      <BestSellers />
-      <div ref={productGridRef}>
-        <ProductGrid 
-          selectedCategory={selectedCategory} 
-          onCategoryChange={setSelectedCategory}
-          searchQuery={searchQuery}
-        />
-      </div>
+      {/* Filtered Results - show only when there are active filters */}
+      {(selectedCategory !== 'All' || searchQuery) && (
+        <div ref={productGridRef}>
+          <ProductGrid 
+            selectedCategory={selectedCategory} 
+            onCategoryChange={setSelectedCategory}
+            searchQuery={searchQuery}
+          />
+        </div>
+      )}
+      
+      {/* Default sections - show only when no filters are active */}
+      {selectedCategory === 'All' && !searchQuery && (
+        <>
+          <NewArrivals />
+          <BestSellers />
+          <div ref={productGridRef}>
+            <ProductGrid 
+              selectedCategory={selectedCategory} 
+              onCategoryChange={setSelectedCategory}
+              searchQuery={searchQuery}
+            />
+          </div>
+        </>
+      )}
       <CustomerReviews />
       <Features />
       <Footer />
