@@ -34,25 +34,14 @@ const Index = () => {
         selectedCategory={selectedCategory}
       />
       
-      {/* Filter Section for Desktop - after header */}
-      {!isMobile && (
-        <FilterSection 
-          selectedCategory={selectedCategory}
-          onCategoryChange={setSelectedCategory}
-          productCount={filteredProductsCount}
-        />
-      )}
-      
       <Hero onExploreClick={handleExploreClick} />
       
-      {/* Filter Section for Mobile - after hero */}
-      {isMobile && (
-        <FilterSection 
-          selectedCategory={selectedCategory}
-          onCategoryChange={setSelectedCategory}
-          productCount={filteredProductsCount}
-        />
-      )}
+      {/* Filter Section - after hero */}
+      <FilterSection 
+        selectedCategory={selectedCategory}
+        onCategoryChange={setSelectedCategory}
+        productCount={filteredProductsCount}
+      />
       
       <NewArrivals />
       <BestSellers />

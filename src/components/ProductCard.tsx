@@ -58,17 +58,6 @@ export const ProductCard = ({ product, onViewDetails }: ProductCardProps) => {
               New
             </Badge>
           )}
-          {isHovered && (
-            <div className="absolute inset-0 bg-primary/20 flex items-center justify-center transition-opacity duration-300">
-              <Button 
-                variant="luxury"
-                onClick={handleAddToCart}
-                className="transform transition-all duration-300 hover:scale-105"
-              >
-                Add to Cart
-              </Button>
-            </div>
-          )}
         </div>
         <div className="p-6">
           <h3 className="text-lg font-semibold text-foreground mb-2 group-hover:text-red transition-colors font-playfair">
@@ -81,6 +70,14 @@ export const ProductCard = ({ product, onViewDetails }: ProductCardProps) => {
             <span className="text-2xl font-bold text-red font-playfair">
               ${product.price}
             </span>
+            <Button 
+              variant="luxury"
+              size="sm"
+              onClick={handleAddToCart}
+              className="transform transition-all duration-300 hover:scale-105"
+            >
+              Add to Cart
+            </Button>
           </div>
         </div>
       </CardContent>
