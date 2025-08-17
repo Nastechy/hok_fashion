@@ -1,3 +1,10 @@
+// Import all bag images
+import heroImg from '@/assets/hero-bag.jpg';
+import bag1Img from '@/assets/bag-1.jpg';
+import bag2Img from '@/assets/bag-2.jpg';
+import bag3Img from '@/assets/bag-3.jpg';
+import bag4Img from '@/assets/bag-4.jpg';
+
 export interface Product {
   id: string;
   name: string;
@@ -16,7 +23,7 @@ export const products: Product[] = [
     id: '1',
     name: 'Classic Black Tote',
     price: 299,
-    image: '/src/assets/hero-bag.jpg',
+    image: heroImg,
     category: 'Totes',
     description: 'Elegant black leather tote bag with premium hardware. Perfect for work or everyday use.',
     features: ['Genuine leather', 'Premium hardware', 'Interior pockets', 'Spacious main compartment'],
@@ -28,7 +35,7 @@ export const products: Product[] = [
     id: '2',
     name: 'Beige Crossbody',
     price: 199,
-    image: '/src/assets/bag-1.jpg',
+    image: bag1Img,
     category: 'Crossbody',
     description: 'Chic beige crossbody bag with chain strap. Ideal for day-to-night styling.',
     features: ['Adjustable chain strap', 'Compact design', 'Secure closure', 'Multiple compartments'],
@@ -40,7 +47,7 @@ export const products: Product[] = [
     id: '3',
     name: 'Shoulder Bag Deluxe',
     price: 249,
-    image: '/src/assets/bag-2.jpg',
+    image: bag2Img,
     category: 'Shoulder',
     description: 'Sophisticated black shoulder bag with premium leather and elegant hardware.',
     features: ['Premium leather', 'Comfortable shoulder strap', 'Organized interior', 'Timeless design'],
@@ -52,7 +59,7 @@ export const products: Product[] = [
     id: '4',
     name: 'Evening Clutch',
     price: 149,
-    image: '/src/assets/bag-3.jpg',
+    image: bag3Img,
     category: 'Clutches',
     description: 'Luxurious cream evening clutch with chain. Perfect for special occasions.',
     features: ['Evening design', 'Removable chain', 'Silk lining', 'Magnetic closure'],
@@ -64,7 +71,7 @@ export const products: Product[] = [
     id: '5',
     name: 'Brown Leather Tote',
     price: 329,
-    image: '/src/assets/bag-4.jpg',
+    image: bag4Img,
     category: 'Totes',
     description: 'Spacious brown leather tote with sturdy handles. Ideal for shopping or travel.',
     features: ['Large capacity', 'Durable handles', 'Interior organizer', 'Natural leather'],
@@ -76,7 +83,7 @@ export const products: Product[] = [
     id: '6',
     name: 'Red Leather Crossbody',
     price: 259,
-    image: '/src/assets/bag-1.jpg',
+    image: bag1Img,
     category: 'Crossbody',
     description: 'Bold red crossbody bag that makes a statement. Perfect for adding color to any outfit.',
     features: ['Vibrant red leather', 'Adjustable strap', 'Secure zipper closure', 'Lightweight design'],
@@ -88,7 +95,7 @@ export const products: Product[] = [
     id: '7',
     name: 'Executive Briefcase',
     price: 449,
-    image: '/src/assets/bag-2.jpg',
+    image: bag2Img,
     category: 'Shoulder',
     description: 'Professional leather briefcase with laptop compartment. Ideal for business meetings.',
     features: ['Laptop compartment', 'Document organizer', 'Premium leather', 'Business card slots'],
@@ -100,7 +107,7 @@ export const products: Product[] = [
     id: '8',
     name: 'Mini Evening Clutch',
     price: 129,
-    image: '/src/assets/bag-3.jpg',
+    image: bag3Img,
     category: 'Clutches',
     description: 'Compact clutch for evening events. Features elegant beading and secure closure.',
     features: ['Beaded design', 'Magnetic closure', 'Removable wrist strap', 'Satin lining'],
@@ -112,7 +119,7 @@ export const products: Product[] = [
     id: '9',
     name: 'Weekend Travel Tote',
     price: 379,
-    image: '/src/assets/bag-4.jpg',
+    image: bag4Img,
     category: 'Totes',
     description: 'Large capacity tote perfect for weekend getaways. Durable and stylish.',
     features: ['Extra large capacity', 'Reinforced handles', 'Interior zip pocket', 'Water-resistant'],
@@ -124,7 +131,7 @@ export const products: Product[] = [
     id: '10',
     name: 'Vintage Shoulder Bag',
     price: 219,
-    image: '/src/assets/hero-bag.jpg',
+    image: heroImg,
     category: 'Shoulder',
     description: 'Vintage-inspired shoulder bag with brass hardware. Timeless elegance meets modern function.',
     features: ['Vintage brass hardware', 'Soft leather', 'Multiple pockets', 'Comfortable strap'],
@@ -136,7 +143,7 @@ export const products: Product[] = [
     id: '11',
     name: 'Sports Crossbody',
     price: 179,
-    image: '/src/assets/bag-1.jpg',
+    image: bag1Img,
     category: 'Crossbody',
     description: 'Active lifestyle crossbody with water-resistant material. Perfect for workouts and outdoor activities.',
     features: ['Water-resistant', 'Reflective accents', 'Multiple compartments', 'Breathable strap'],
@@ -148,7 +155,7 @@ export const products: Product[] = [
     id: '12',
     name: 'Luxury Evening Clutch',
     price: 199,
-    image: '/src/assets/bag-3.jpg',
+    image: bag3Img,
     category: 'Clutches',
     description: 'Premium evening clutch with crystal embellishments. Perfect for formal occasions.',
     features: ['Crystal embellishments', 'Silk interior', 'Gold chain', 'Mirror included'],
