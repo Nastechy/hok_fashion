@@ -1,13 +1,28 @@
 import { ProductCard } from './ProductCard';
-import { products, Product } from '@/data/products';
-import { useState } from 'react';
+import { productService, Product } from '@/services/productService';
+import { useState, useEffect } from 'react';
 import { ProductModal } from './ProductModal';
 
 export const NewArrivals = () => {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [newArrivals, setNewArrivals] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const newArrivals = products.filter(product => product.isNewArrival);
+  useEffect(() => {
+    const fetchNewArrivals = async () => {
+      try {
+        const data = await productService.getNewArrivals();
+        setNewArrivals(data);
+      } catch (error) {
+        console.error('Error fetching new arrivals:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchNewArrivals();
+  }, []);
 
   const handleViewDetails = (product: Product) => {
     setSelectedProduct(product);
@@ -19,6 +34,7 @@ export const NewArrivals = () => {
     setSelectedProduct(null);
   };
 
+  if (loading) return <div className="text-center py-16"><p className="text-xl text-muted-foreground">Loading new arrivals...</p></div>;
   if (newArrivals.length === 0) return null;
 
   return (

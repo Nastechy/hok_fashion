@@ -1,13 +1,28 @@
 import { ProductCard } from './ProductCard';
-import { products, Product } from '@/data/products';
-import { useState } from 'react';
+import { productService, Product } from '@/services/productService';
+import { useState, useEffect } from 'react';
 import { ProductModal } from './ProductModal';
 
 export const BestSellers = () => {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [bestSellers, setBestSellers] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const bestSellers = products.filter(product => product.isBestSeller);
+  useEffect(() => {
+    const fetchBestSellers = async () => {
+      try {
+        const data = await productService.getBestSellers();
+        setBestSellers(data);
+      } catch (error) {
+        console.error('Error fetching best sellers:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBestSellers();
+  }, []);
 
   const handleViewDetails = (product: Product) => {
     setSelectedProduct(product);
@@ -19,6 +34,7 @@ export const BestSellers = () => {
     setSelectedProduct(null);
   };
 
+  if (loading) return <div className="text-center py-16"><p className="text-xl text-muted-foreground">Loading best sellers...</p></div>;
   if (bestSellers.length === 0) return null;
 
   return (

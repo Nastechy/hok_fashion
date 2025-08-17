@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useCart } from '@/contexts/CartContext';
-import { Product } from '@/data/products';
+import { Product } from '@/services/productService';
 import { useState } from 'react';
 
 interface ProductCardProps {
@@ -20,7 +20,7 @@ export const ProductCard = ({ product, onViewDetails }: ProductCardProps) => {
       id: product.id,
       name: product.name,
       price: product.price,
-      image: product.image,
+      image: product.image_url || '',
     });
   };
 
@@ -35,7 +35,7 @@ export const ProductCard = ({ product, onViewDetails }: ProductCardProps) => {
       <CardContent className="p-0">
         <div className="relative overflow-hidden rounded-t-lg">
           <img
-            src={product.image}
+            src={product.image_url || ''}
             alt={product.name}
             className="w-full h-64 object-cover transition-transform duration-500 group-hover:scale-105"
           />
@@ -45,14 +45,14 @@ export const ProductCard = ({ product, onViewDetails }: ProductCardProps) => {
           >
             {product.category}
           </Badge>
-          {product.isBestSeller && (
+          {product.is_best_seller && (
             <Badge 
               className="absolute top-3 right-3 bg-red/90 text-red-foreground font-inter font-medium backdrop-blur-sm text-xs"
             >
               Best Seller
             </Badge>
           )}
-          {product.isNewArrival && (
+          {product.is_new_arrival && (
             <Badge 
               className="absolute top-12 right-3 bg-accent/90 text-accent-foreground font-inter font-medium backdrop-blur-sm text-xs"
             >
@@ -66,7 +66,7 @@ export const ProductCard = ({ product, onViewDetails }: ProductCardProps) => {
               {product.name}
             </h3>
             <span className="text-xs text-muted-foreground font-mono bg-muted/50 px-2 py-1 rounded-md ml-3 shrink-0">
-              {product.productCode}
+              {product.id.slice(0, 8)}
             </span>
           </div>
           <p className="text-muted-foreground text-sm mb-4 line-clamp-2 font-inter leading-relaxed">
@@ -74,7 +74,7 @@ export const ProductCard = ({ product, onViewDetails }: ProductCardProps) => {
           </p>
           <div className="flex items-center justify-between">
             <span className="text-2xl font-bold text-primary font-playfair">
-              ₦{product.price.toLocaleString()}
+              ${product.price.toLocaleString()}
             </span>
             <Button 
               variant="luxury"

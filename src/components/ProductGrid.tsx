@@ -1,7 +1,7 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { ProductCard } from './ProductCard';
 import { ProductModal } from './ProductModal';
-import { products, Product } from '@/data/products';
+import { productService, Product } from '@/services/productService';
 import { Button } from '@/components/ui/button';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -15,7 +15,34 @@ export const ProductGrid = ({ selectedCategory, onCategoryChange, searchQuery = 
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showAll, setShowAll] = useState(false);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
   const isMobile = useIsMobile();
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      setLoading(true);
+      try {
+        if (searchQuery) {
+          const searchResults = await productService.searchProducts(searchQuery);
+          setProducts(searchResults);
+        } else if (selectedCategory !== 'All') {
+          const categoryProducts = await productService.getProductsByCategory(selectedCategory);
+          setProducts(categoryProducts);
+        } else {
+          const allProducts = await productService.getAllProducts();
+          setProducts(allProducts);
+        }
+      } catch (error) {
+        console.error('Error fetching products:', error);
+        setProducts([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, [selectedCategory, searchQuery]);
 
   const filteredProducts = useMemo(() => {
     let filtered = products;
@@ -24,12 +51,7 @@ export const ProductGrid = ({ selectedCategory, onCategoryChange, searchQuery = 
       filtered = filtered.filter(product => product.category === selectedCategory);
     }
     
-    if (searchQuery) {
-      filtered = filtered.filter(product => 
-        product.productCode.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        product.name.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }
+    // Filtering is now handled in useEffect above
     
     return filtered;
   }, [selectedCategory, searchQuery]);
@@ -69,15 +91,21 @@ export const ProductGrid = ({ selectedCategory, onCategoryChange, searchQuery = 
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-            {displayedProducts.map((product) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                onViewDetails={handleViewDetails}
-              />
-            ))}
-          </div>
+          {loading ? (
+            <div className="text-center py-16">
+              <p className="text-xl text-muted-foreground">Loading products...</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+              {displayedProducts.map((product) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  onViewDetails={handleViewDetails}
+                />
+              ))}
+            </div>
+          )}
 
           {/* View More button for mobile */}
           {isMobile && !showAll && filteredProducts.length > 5 && (

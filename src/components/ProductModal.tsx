@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { useCart } from '@/contexts/CartContext';
-import { Product } from '@/data/products';
+import { Product } from '@/services/productService';
 import { Check, Star } from 'lucide-react';
 
 interface ProductModalProps {
@@ -22,7 +22,7 @@ export const ProductModal = ({ product, isOpen, onClose }: ProductModalProps) =>
       id: product.id,
       name: product.name,
       price: product.price,
-      image: product.image,
+      image: product.image_url || '',
     });
     onClose();
   };
@@ -35,7 +35,7 @@ export const ProductModal = ({ product, isOpen, onClose }: ProductModalProps) =>
           <div className="space-y-4">
             <div className="relative">
               <img
-                src={product.image}
+                src={product.image_url || ''}
                 alt={product.name}
                 className="w-full h-96 object-cover rounded-lg shadow-elegant"
               />
@@ -75,7 +75,7 @@ export const ProductModal = ({ product, isOpen, onClose }: ProductModalProps) =>
             <div className="space-y-4">
               <h3 className="font-semibold text-lg font-playfair">Features</h3>
               <ul className="space-y-2">
-                {product.features.map((feature, index) => (
+                {product.features && product.features.map((feature, index) => (
                   <li key={index} className="flex items-center space-x-2">
                     <Check className="h-4 w-4 text-red" />
                     <span className="text-sm font-inter">{feature}</span>
