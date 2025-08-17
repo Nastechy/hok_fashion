@@ -1,12 +1,13 @@
 import { useState } from 'react';
-import { ShoppingBag, Menu, X, Search, ChevronDown } from 'lucide-react';
+import { ShoppingBag, Menu, X, Search, ChevronDown, User, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Badge } from '@/components/ui/badge';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { useCart } from '@/contexts/CartContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { CartSheet } from './CartSheet';
 import { products } from '@/data/products';
 
@@ -20,6 +21,7 @@ export const Header = ({ onCategoryChange, selectedCategory = 'All' }: HeaderPro
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const { itemCount } = useCart();
+  const { user, signOut } = useAuth();
 
   const categories = ['All', 'Totes', 'Crossbody', 'Shoulder', 'Clutches'];
 
@@ -151,6 +153,39 @@ export const Header = ({ onCategoryChange, selectedCategory = 'All' }: HeaderPro
                 </div>
               </DialogContent>
             </Dialog>
+
+            {/* User Account */}
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="hidden md:flex">
+                    <User className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <div className="px-2 py-1.5 text-sm font-medium">
+                    {user.email}
+                  </div>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => window.location.href = '/billing'}>
+                    Order History
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => signOut()}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Sign Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => window.location.href = '/auth'}
+                className="hidden md:flex"
+              >
+                Sign In
+              </Button>
+            )}
             
             <CartSheet>
               <Button variant="ghost" size="icon" className="relative">
@@ -208,6 +243,45 @@ export const Header = ({ onCategoryChange, selectedCategory = 'All' }: HeaderPro
                     <a href="/contact" className="text-left p-3 text-sm font-medium transition-colors hover:bg-secondary rounded-md font-inter text-muted-foreground">
                       Contact
                     </a>
+
+                    {/* Auth Section */}
+                    <div className="pt-4 border-t border-border">
+                      {user ? (
+                        <div className="space-y-2">
+                          <div className="px-3 text-xs text-muted-foreground font-inter">
+                            {user.email}
+                          </div>
+                          <button
+                            onClick={() => {
+                              window.location.href = '/billing';
+                              setIsMenuOpen(false);
+                            }}
+                            className="w-full text-left p-3 text-sm font-medium transition-colors hover:bg-secondary rounded-md font-inter text-muted-foreground"
+                          >
+                            Order History
+                          </button>
+                          <button
+                            onClick={() => {
+                              signOut();
+                              setIsMenuOpen(false);
+                            }}
+                            className="w-full text-left p-3 text-sm font-medium transition-colors hover:bg-secondary rounded-md font-inter text-muted-foreground"
+                          >
+                            Sign Out
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => {
+                            window.location.href = '/auth';
+                            setIsMenuOpen(false);
+                          }}
+                          className="w-full text-left p-3 text-sm font-medium transition-colors hover:bg-secondary rounded-md font-inter text-muted-foreground"
+                        >
+                          Sign In
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </SheetContent>
             </Sheet>
