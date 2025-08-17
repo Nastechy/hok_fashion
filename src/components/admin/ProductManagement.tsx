@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ImageUpload } from '@/components/ui/image-upload';
 
 interface Product {
   id: string;
@@ -271,11 +272,11 @@ const ProductManagement = () => {
               </div>
 
               <div>
-                <Label htmlFor="image_url">Image URL</Label>
-                <Input
-                  id="image_url"
+                <ImageUpload
                   value={formData.image_url}
-                  onChange={(e) => setFormData(prev => ({ ...prev, image_url: e.target.value }))}
+                  onChange={(url) => setFormData(prev => ({ ...prev, image_url: url }))}
+                  label="Product Image"
+                  placeholder="Enter image URL or upload a file"
                 />
               </div>
 
