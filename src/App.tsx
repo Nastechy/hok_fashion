@@ -12,6 +12,7 @@ import Lookbook from "./pages/Lookbook";
 import Payment from "./pages/Payment";
 import Billing from "./pages/Billing";
 import Auth from "./pages/Auth";
+import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -32,6 +33,7 @@ const App = () => (
             <Route path="/payment" element={<Payment />} />
             <Route path="/billing" element={<Billing />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/admin" element={<Admin />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

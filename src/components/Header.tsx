@@ -6,8 +6,10 @@ import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { useCart } from '@/hooks/useCart';
+import { useAdmin } from '@/hooks/useAdmin';
+import { Link } from 'react-router-dom';
 import { CartSheet } from './CartSheet';
 import { products } from '@/data/products';
 
@@ -22,6 +24,7 @@ export const Header = ({ onCategoryChange, selectedCategory = 'All' }: HeaderPro
   const [searchTerm, setSearchTerm] = useState('');
   const { itemCount } = useCart();
   const { user, signOut } = useAuth();
+  const { isAdmin } = useAdmin();
 
   const categories = ['All', 'Totes', 'Crossbody', 'Shoulder', 'Clutches'];
 
@@ -167,6 +170,16 @@ export const Header = ({ onCategoryChange, selectedCategory = 'All' }: HeaderPro
                     {user.email}
                   </div>
                   <DropdownMenuSeparator />
+                  {isAdmin && (
+                    <>
+                      <DropdownMenuItem asChild>
+                        <Link to="/admin" className="cursor-pointer">
+                          Admin Dashboard
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                    </>
+                  )}
                   <DropdownMenuItem onClick={() => window.location.href = '/billing'}>
                     Order History
                   </DropdownMenuItem>
@@ -251,6 +264,17 @@ export const Header = ({ onCategoryChange, selectedCategory = 'All' }: HeaderPro
                           <div className="px-3 text-xs text-muted-foreground font-inter">
                             {user.email}
                           </div>
+                          {isAdmin && (
+                            <button
+                              onClick={() => {
+                                window.location.href = '/admin';
+                                setIsMenuOpen(false);
+                              }}
+                              className="w-full text-left p-3 text-sm font-medium transition-colors hover:bg-secondary rounded-md font-inter text-muted-foreground"
+                            >
+                              Admin Dashboard
+                            </button>
+                          )}
                           <button
                             onClick={() => {
                               window.location.href = '/billing';
