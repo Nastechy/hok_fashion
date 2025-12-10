@@ -61,8 +61,8 @@ export const ProductGrid = ({ selectedCategory, onCategoryChange, searchQuery = 
 
   return (
     <>
-      <section className="py-16 bg-background">
-        <div className="container mx-auto px-4">
+      <section className="py-6 md:py-16 bg-background">
+        <div className="container px-6  md:px-16">
           <div className="text-center mb-12">
             <h2 className="text-4xl font-bold text-foreground mb-4 font-playfair">
               {selectedCategory === 'All' ? 'Our Collection' : selectedCategory}
@@ -73,7 +73,7 @@ export const ProductGrid = ({ selectedCategory, onCategoryChange, searchQuery = 
           </div>
 
           {isLoading ? (
-            <div className="text-center py-16">
+            <div className="text-center py-6 md:py-16">
               <p className="text-xl text-muted-foreground">Loading products...</p>
             </div>
           ) : (
@@ -102,7 +102,7 @@ export const ProductGrid = ({ selectedCategory, onCategoryChange, searchQuery = 
           )}
 
           {filteredProducts.length === 0 && (
-            <div className="text-center py-16">
+            <div className="text-center py-6 lg:py-16">
               <p className="text-xl text-muted-foreground">
                 No products found in this category.
               </p>

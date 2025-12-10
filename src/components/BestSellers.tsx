@@ -19,13 +19,13 @@ export const BestSellers = () => {
     setSelectedProduct(null);
   };
 
-  if (loading) return <div className="text-center py-16"><p className="text-xl text-muted-foreground">Loading best sellers...</p></div>;
+  if (loading) return <div className="text-center py-10 md:py-16"><p className="text-xl text-muted-foreground">Loading best sellers...</p></div>;
   if (bestSellers.length === 0) return null;
 
   return (
     <>
       <section className="py-20 bg-background">
-        <div className="container mx-auto px-4">
+        <div className="container px-6  md:px-16">
           <div className="text-center mb-12">
             <h2 className="text-4xl font-bold text-foreground mb-4 font-playfair">
               Best Sellers

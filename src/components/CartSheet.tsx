@@ -13,6 +13,8 @@ interface CartSheetProps {
 export const CartSheet = ({ children }: CartSheetProps) => {
   const { items, updateQuantity, removeItem, total, clearCart } = useCart();
   const navigate = useNavigate();
+  const formatCurrency = (value: number) =>
+    value.toLocaleString('en-NG', { style: 'currency', currency: 'NGN', minimumFractionDigits: 0 });
 
   const handleCheckout = () => {
     navigate('/payment');
@@ -45,7 +47,7 @@ export const CartSheet = ({ children }: CartSheetProps) => {
                   />
                   <div className="flex-1 min-w-0">
                     <h4 className="font-medium text-sm truncate">{item.name}</h4>
-                    <p className="text-red font-semibold font-playfair">${item.price}</p>
+                    <p className="text-red font-semibold font-playfair">{formatCurrency(item.price)}</p>
                     <div className="flex items-center space-x-2 mt-2">
                       <Button
                         variant="outline"
@@ -85,7 +87,7 @@ export const CartSheet = ({ children }: CartSheetProps) => {
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
                 <span>Subtotal</span>
-                <span>${total.toFixed(2)}</span>
+                <span>{formatCurrency(total)}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span>Shipping</span>
@@ -94,7 +96,7 @@ export const CartSheet = ({ children }: CartSheetProps) => {
               <Separator />
               <div className="flex justify-between font-semibold text-lg">
                 <span>Total</span>
-                <span className="text-red font-playfair">${total.toFixed(2)}</span>
+                <span className="text-red font-playfair">{formatCurrency(total)}</span>
               </div>
             </div>
             <div className="space-y-2">

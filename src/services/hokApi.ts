@@ -6,10 +6,13 @@ export interface Product {
   id: string;
   name: string;
   price: number;
-  imageUrls: string[];
+  images?: string[];
+  videos?: string[];
+  imageUrls?: string[];
   videoUrls?: string[];
   productCode?: string;
   collectionType?: string;
+  classification?: string;
   quantity?: number;
   description?: string;
   features?: string[];
@@ -63,13 +66,19 @@ export interface CreateProductInput {
   category: string;
   description?: string;
   features?: string[];
-  imageUrls?: string[];
-  videoUrls?: string[];
+  images?: File[];
+  videos?: File[];
   collectionType?: string;
   isFeatured?: boolean;
   isAvailable?: boolean;
   isBestSeller?: boolean;
   isNewArrival?: boolean;
+  variants?: Array<{
+    name: string;
+    priceDelta?: number;
+    sku?: string;
+    quantity?: number;
+  }>;
 }
 
 export interface OrderItemInput {
@@ -168,11 +177,13 @@ const normalizeProduct = (product: any): Product => {
       ? rawFeatures.split(',').map((f: string) => f.trim()).filter(Boolean)
       : [];
 
-  const imageUrls = product.imageUrls || product.image_url ? [product.image_url, ...(product.imageUrls || [])].filter(Boolean) : (product.imageUrls || []);
+  const images = product.images || product.imageUrls || product.image_url ? [product.image_url, ...(product.images || product.imageUrls || [])].filter(Boolean) : [];
+  const videos = product.videos || product.videoUrls || product.video_urls || [];
 
   return {
     ...product,
-    imageUrls,
+    images,
+    videos,
     features,
     isBestSeller: product.isBestSeller ?? product.is_best_seller,
     isNewArrival: product.isNewArrival ?? product.is_new_arrival,
@@ -227,7 +238,7 @@ export const hokApi = {
     form.append('name', input.name);
     form.append('price', String(input.price));
     form.append('productCode', input.productCode);
-    form.append('quantity', String(input.quantity));
+    form.append('quantity', String(Math.max(0, input.quantity)));
     form.append('category', input.category);
     if (input.collectionType) form.append('collectionType', input.collectionType);
     if (input.description) form.append('description', input.description);
@@ -236,8 +247,9 @@ export const hokApi = {
     if (typeof input.isAvailable === 'boolean') form.append('isAvailable', String(input.isAvailable));
     if (typeof input.isBestSeller === 'boolean') form.append('isBestSeller', String(input.isBestSeller));
     if (typeof input.isNewArrival === 'boolean') form.append('isNewArrival', String(input.isNewArrival));
-    input.imageUrls?.forEach((url) => form.append('imageUrls', url));
-    input.videoUrls?.forEach((url) => form.append('videoUrls', url));
+    if (input.variants?.length) form.append('variants', JSON.stringify(input.variants));
+    input.images?.forEach((file) => form.append('images', file));
+    input.videos?.forEach((file) => form.append('videos', file));
 
     const result = await apiRequest<Product>('/products', {
       method: 'POST',
@@ -248,9 +260,13 @@ export const hokApi = {
   },
 
   async updateProduct(id: string, input: Partial<CreateProductInput>) {
+    const payload = { ...input };
+    if (typeof payload.quantity === 'number') {
+      payload.quantity = Math.max(0, payload.quantity);
+    }
     const result = await apiRequest<Product>(`/products/${id}`, {
       method: 'PATCH',
-      body: JSON.stringify(input),
+      body: JSON.stringify(payload),
     });
     return normalizeProduct(result);
   },

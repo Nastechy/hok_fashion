@@ -18,7 +18,7 @@ const Contact = () => {
       <Header />
       
       <main className="py-20">
-        <div className="container mx-auto px-4">
+        <div className="container px-6  md:px-16">
           <div className="text-center mb-16">
             <h1 className="text-5xl font-bold text-foreground mb-4 font-playfair">
               Contact Us
@@ -62,7 +62,7 @@ const Contact = () => {
                     </div>
                     <div>
                       <p className="font-semibold font-inter">Address</p>
-                      <p className="text-muted-foreground font-inter">Gishiri by Ecwa Church off Nicon Junction, Abuja<br />New York, NY 10001</p>
+                      <p className="text-muted-foreground font-inter">Gishiri by Ecwa Church off Nicon Junction, Abuja</p>
                     </div>
                   </div>
                   

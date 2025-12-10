@@ -19,8 +19,8 @@ export default {
 		},
 		extend: {
 			fontFamily: {
-				'playfair': ['Playfair Display', 'serif'],
-				'inter': ['Inter', 'sans-serif'],
+				'playfair': ['"Cormorant Garamond"', 'serif'],
+				'inter': ['"Manrope"', 'sans-serif'],
 			},
 			colors: {
 				border: 'hsl(var(--border))',
@@ -108,11 +108,21 @@ export default {
 					to: {
 						height: '0'
 					}
+				},
+				'fade-up': {
+					'0%': { opacity: '0', transform: 'translateY(12px) scale(0.99)' },
+					'100%': { opacity: '1', transform: 'translateY(0) scale(1)' }
+				},
+				'float': {
+					'0%, 100%': { transform: 'translateY(0)' },
+					'50%': { transform: 'translateY(-6px)' }
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'fade-up': 'fade-up 0.9s ease forwards',
+				'float-slow': 'float 6s ease-in-out infinite'
 			}
 		}
 	},

@@ -33,7 +33,7 @@ export const FilterSection = ({ selectedCategory, onCategoryChange, productCount
 
   return (
     <section className="py-12 bg-gradient-subtle border-b border-border/50">
-      <div className="container mx-auto px-4">
+      <div className="container px-6  md:px-16">
         <div className="bg-card rounded-2xl border border-border/50 shadow-elegant backdrop-blur-sm">
           <div className="p-8">
             <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">

@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCart } from '@/hooks/useCart';
 import { useAdmin } from '@/hooks/useAdmin';
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { CartSheet } from './CartSheet';
 import { useQuery } from '@tanstack/react-query';
 import { hokApi, Product } from '@/services/hokApi';
@@ -20,6 +20,9 @@ interface HeaderProps {
 }
 
 export const Header = ({ onCategoryChange, selectedCategory = 'All' }: HeaderProps) => {
+  const location = useLocation();
+  const pathname = location.pathname;
+  const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -38,6 +41,8 @@ export const Header = ({ onCategoryChange, selectedCategory = 'All' }: HeaderPro
   const searchResults: Product[] = searchData?.data ?? [];
 
   const getImage = (product: Product) => product.imageUrls?.[0] || '';
+  const formatCurrency = (value: number) =>
+    value.toLocaleString('en-NG', { style: 'currency', currency: 'NGN', minimumFractionDigits: 0 });
 
   const handleSearchSelect = (product: any) => {
     // Scroll to product or navigate to product
@@ -50,41 +55,60 @@ export const Header = ({ onCategoryChange, selectedCategory = 'All' }: HeaderPro
   };
 
   return (
-    <header className="bg-background border-b border-border sticky top-0 z-50 backdrop-blur-sm bg-background/95">
-      <div className="container mx-auto px-4 py-4">
-        <div className="flex items-center justify-between">
+    <header className="sticky top-0 z-50 bg-gradient-to-r from-white/90 via-white/80 to-white/70 border-b border-border/60 backdrop-blur-xl shadow-sm">
+      <div className="container mx-auto px-4 py-3">
+        <div className="flex items-center justify-between gap-6">
           {/* Logo */}
-          <div className="flex items-center">
-            <h1 className="text-2xl font-bold text-foreground font-playfair">HOK Fashion</h1>
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-full bg-gradient-to-br from-red/80 to-primary shadow-glow flex items-center justify-center motion-float">
+              <span className="text-sm font-semibold text-primary-foreground">H</span>
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-foreground font-playfair leading-tight">HOK Fashion</h1>
+              <p className="text-xs text-muted-foreground font-inter tracking-wide uppercase">Luxury Handbags</p>
+            </div>
           </div>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-8">
-            <a href="/" className="text-sm font-medium transition-colors hover:text-red font-inter text-muted-foreground">
-              Home
-            </a>
-            <a href="/about" className="text-sm font-medium transition-colors hover:text-red font-inter text-muted-foreground">
-              About
-            </a>
-            <a href="/lookbook" className="text-sm font-medium transition-colors hover:text-red font-inter text-muted-foreground">
-              Lookbook
-            </a>
-            
+          <nav className="hidden md:flex items-center space-x-6">
+            {[
+              { href: '/', label: 'Home' },
+              { href: '/about', label: 'About' },
+              { href: '/lookbook', label: 'Lookbook' },
+              { href: '/contact', label: 'Contact' },
+            ].map((link) => (
+              <a
+                key={link.href}
+                href={link.href}
+                className={`relative text-sm font-semibold font-inter transition-all duration-200 group px-3 py-2 rounded-full border ${
+                  pathname === link.href
+                    ? 'border-red/60 bg-red text-primary-foreground shadow-elegant'
+                    : 'border-transparent text-muted-foreground hover:text-primary-foreground hover:bg-red hover:border-red hover:text-base'
+                }`}
+              >
+                {link.label}
+              </a>
+            ))}
+
             {/* Collections Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="text-sm font-medium font-inter text-muted-foreground hover:text-foreground hover:bg-transparent p-0 h-auto">
-                  All Collections
+                <Button variant="ghost" className="text-sm font-semibold font-inter text-foreground px-3 py-2 rounded-full transition-all hover:scale-105">
+                  Collections
                   <ChevronDown className="ml-1 h-3 w-3" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-48 bg-background border border-border shadow-lg">
+              <DropdownMenuContent className="w-52 bg-background/95 backdrop-blur border border-border shadow-lg">
                 {categories.map((category) => (
                   <DropdownMenuItem
                     key={category}
                     onClick={() => onCategoryChange?.(category)}
-                    className={`cursor-pointer font-inter transition-colors hover:bg-secondary ${
-                      selectedCategory === category ? 'text-red bg-secondary' : 'text-muted-foreground'
+                    onSelect={() => {
+                      onCategoryChange?.(category);
+                      navigate(`/collections/${encodeURIComponent(category)}`);
+                    }}
+                    className={`cursor-pointer font-inter transition-colors ${
+                      selectedCategory === category ? 'bg-primary/10 text-primary font-medium' : 'hover:bg-muted/50'
                     }`}
                   >
                     {category}
@@ -92,18 +116,14 @@ export const Header = ({ onCategoryChange, selectedCategory = 'All' }: HeaderPro
                 ))}
               </DropdownMenuContent>
             </DropdownMenu>
-            
-            <a href="/contact" className="text-sm font-medium transition-colors hover:text-red font-inter text-muted-foreground">
-              Contact
-            </a>
           </nav>
 
           {/* Actions */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-3">
             {/* Search Dialog */}
             <Dialog open={searchOpen} onOpenChange={setSearchOpen}>
               <DialogTrigger asChild>
-                <Button variant="ghost" size="icon" className="hidden md:flex">
+                <Button variant="ghost" size="icon" className="hidden md:flex rounded-full bg-secondary/70 hover:bg-secondary shadow-sm">
                   <Search className="h-4 w-4" />
                 </Button>
               </DialogTrigger>
@@ -141,7 +161,7 @@ export const Header = ({ onCategoryChange, selectedCategory = 'All' }: HeaderPro
                               <div className="flex-1">
                                 <h4 className="font-medium font-inter text-sm">{product.name}</h4>
                                 <p className="text-xs text-muted-foreground font-inter">
-                                  {product.category} • ${product.price}
+                                  {product.category} • {formatCurrency(product.price)}
                                 </p>
                               </div>
                             </div>
@@ -162,7 +182,7 @@ export const Header = ({ onCategoryChange, selectedCategory = 'All' }: HeaderPro
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="hidden md:flex">
+                  <Button variant="ghost" size="icon" className="hidden md:flex rounded-full bg-secondary/70 hover:bg-secondary shadow-sm">
                     <User className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
@@ -195,17 +215,23 @@ export const Header = ({ onCategoryChange, selectedCategory = 'All' }: HeaderPro
                 variant="ghost" 
                 size="sm" 
                 onClick={() => window.location.href = '/auth'}
-                className="hidden md:flex"
+                className="hidden md:flex rounded-full bg-primary text-primary-foreground hover:bg-primary/90 px-4"
               >
                 Sign In
               </Button>
             )}
             
             <CartSheet>
-              <Button variant="ghost" size="icon" className="relative">
+              <Button
+                variant="ghost"
+                size="icon"
+                className={`relative rounded-full shadow-sm transition-all ${
+                  itemCount > 0 ? 'bg-red text-red-foreground hover:bg-red/90 scale-105' : 'bg-secondary/70 hover:bg-secondary'
+                }`}
+              >
                 <ShoppingBag className="h-4 w-4" />
                 {itemCount > 0 && (
-                  <Badge className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 text-xs bg-red">
+                  <Badge className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 text-xs bg-primary text-primary-foreground">
                     {itemCount}
                   </Badge>
                 )}
@@ -215,12 +241,12 @@ export const Header = ({ onCategoryChange, selectedCategory = 'All' }: HeaderPro
             {/* Mobile menu button */}
             <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
               <SheetTrigger asChild className="md:hidden">
-                <Button variant="ghost" size="icon">
+                <Button variant="ghost" size="icon" className="rounded-full bg-secondary/70 hover:bg-secondary shadow-sm">
                   <Menu className="h-4 w-4" />
                 </Button>
               </SheetTrigger>
-                <SheetContent side="right" className="w-[300px]">
-                  <div className="flex flex-col space-y-2 mt-8">
+            <SheetContent side="right" className="w-[300px] bg-gradient-to-b from-white via-white/95 to-white/90">
+              <div className="flex flex-col space-y-2 mt-8">
                     <a href="/" className="text-left p-3 text-sm font-medium transition-colors hover:bg-secondary rounded-md font-inter text-muted-foreground">
                       Home
                     </a>

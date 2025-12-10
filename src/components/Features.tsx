@@ -27,7 +27,7 @@ const features = [
 export const Features = () => {
   return (
     <section className="py-20 bg-secondary/30">
-      <div className="container mx-auto px-4">
+      <div className="container px-6  md:px-16">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold text-foreground mb-4 font-playfair">
             Why Choose HOK Fashion

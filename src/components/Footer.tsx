@@ -1,16 +1,17 @@
 import { Facebook, Instagram, Twitter, Mail, Phone, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Link, useNavigate } from 'react-router-dom';
 
 export const Footer = () => {
 
   const currentYear = new Date().getFullYear();
+  const navigate = useNavigate();
 
   return (
     <footer className="bg-primary text-primary-foreground">
-      <div className="container mx-auto px-4 py-16">
+      <div className="container mx-auto px-4 py-10 md:py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {/* Company Info */}
           <div className="space-y-4">
             <h3 className="text-2xl font-bold font-playfair">HOK Fashion</h3>
             <p className="text-primary-foreground/80 leading-relaxed font-inter">
@@ -34,13 +35,26 @@ export const Footer = () => {
           <div className="space-y-4">
             <h4 className="text-lg font-semibold font-playfair">Quick Links</h4>
             <ul className="space-y-2">
-              {['About Us', 'Collections', 'Size Guide', 'Care Instructions', 'Lookbook'].map((link) => (
-                <li key={link}>
-                  <a href="#" className="text-primary-foreground/80 hover:text-red transition-colors font-inter">
-                    {link}
-                  </a>
-                </li>
-              ))}
+              <li>
+                <Link to="/about" className="text-primary-foreground/80 hover:text-red transition-colors font-inter">
+                  About Us
+                </Link>
+              </li>
+              <li>
+                <Link to="/collections/All" className="text-primary-foreground/80 hover:text-red transition-colors font-inter">
+                  Collections
+                </Link>
+              </li>
+              <li>
+                <Link to="/lookbook" className="text-primary-foreground/80 hover:text-red transition-colors font-inter">
+                  Lookbook
+                </Link>
+              </li>
+              <li>
+                <Link to="/" className="text-primary-foreground/80 hover:text-red transition-colors font-inter">
+                  Home
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -48,17 +62,24 @@ export const Footer = () => {
           <div className="space-y-4">
             <h4 className="text-lg font-semibold font-playfair">Customer Service</h4>
             <ul className="space-y-2">
-              {['Contact Us', 'Shipping Info', 'Returns & Exchanges', 'Size Guide', 'FAQ'].map((link) => (
-                <li key={link}>
-                  <a href="#" className="text-primary-foreground/80 hover:text-red transition-colors font-inter">
-                    {link}
-                  </a>
-                </li>
-              ))}
+              <li>
+                <Link to="/contact" className="text-primary-foreground/80 hover:text-red transition-colors font-inter">
+                  Contact Us
+                </Link>
+              </li>
+              <li>
+                <Link to="/auth" className="text-primary-foreground/80 hover:text-red transition-colors font-inter">
+                  Sign In
+                </Link>
+              </li>
+              <li>
+                <Link to="/faq" className="text-primary-foreground/80 hover:text-red transition-colors font-inter">
+                  FAQ & Support
+                </Link>
+              </li>
             </ul>
           </div>
 
-          {/* Contact & Newsletter */}
           <div className="space-y-4">
             <h4 className="text-lg font-semibold font-playfair">Stay Connected</h4>
             <div className="space-y-3">

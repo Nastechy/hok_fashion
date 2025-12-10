@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,9 +11,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ImageUpload } from '@/components/ui/image-upload';
 import { hokApi, Product, CreateProductInput } from '@/services/hokApi';
 import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMemo } from 'react';
 
 const ProductManagement = () => {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
@@ -23,7 +24,6 @@ const ProductManagement = () => {
     name: '',
     description: '',
     price: '',
-    imageUrl: '',
     productCode: '',
     collectionType: '',
     category: 'AVAILABLE',
@@ -32,7 +32,11 @@ const ProductManagement = () => {
     isFeatured: false,
     isAvailable: true,
     stock_quantity: '',
-    features: ''
+    features: '',
+    images: [] as File[],
+    videos: [] as File[],
+    variants: [] as { name: string; sku: string; priceDelta: string; quantity: string }[],
+    newVariant: { name: '', sku: '', priceDelta: '', quantity: '' },
   });
 
   const categories = ['AVAILABLE', 'BEST_SELLER', 'NEW_ARRIVAL', 'FEATURE', 'INCOMING'];
@@ -82,7 +86,6 @@ const ProductManagement = () => {
       name: '',
       description: '',
       price: '',
-      imageUrl: '',
       productCode: '',
       collectionType: '',
       category: 'AVAILABLE',
@@ -91,7 +94,11 @@ const ProductManagement = () => {
       isFeatured: false,
       isAvailable: true,
       stock_quantity: '',
-      features: ''
+      features: '',
+      images: [],
+      videos: [],
+      variants: [],
+      newVariant: { name: '', sku: '', priceDelta: '', quantity: '' },
     });
     setEditingProduct(null);
   };
@@ -103,7 +110,6 @@ const ProductManagement = () => {
         name: product.name,
         description: product.description || '',
         price: product.price.toString(),
-        imageUrl: product.imageUrls?.[0] || '',
         productCode: product.productCode || '',
         collectionType: product.collectionType || '',
         category: product.category || 'AVAILABLE',
@@ -112,7 +118,16 @@ const ProductManagement = () => {
         isFeatured: product.isFeatured || false,
         isAvailable: product.isAvailable ?? true,
         stock_quantity: product.quantity?.toString() || '0',
-        features: product.features?.join(', ') || ''
+        features: product.features?.join(', ') || '',
+        images: [],
+        videos: [],
+        variants: product.variants?.map(v => ({
+          name: v.name || '',
+          sku: v.sku || '',
+          priceDelta: (v.priceDelta ?? 0).toString(),
+          quantity: (v.quantity ?? 0).toString(),
+        })) || [],
+        newVariant: { name: '', sku: '', priceDelta: '', quantity: '' },
       });
     } else {
       resetForm();
@@ -125,6 +140,22 @@ const ProductManagement = () => {
     resetForm();
   };
 
+  const addVariant = () => {
+    if (!formData.newVariant.name || !formData.newVariant.sku) return;
+    setFormData(prev => ({
+      ...prev,
+      variants: [...prev.variants, { ...prev.newVariant }],
+      newVariant: { name: '', sku: '', priceDelta: '', quantity: '' },
+    }));
+  };
+
+  const removeVariant = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      variants: prev.variants.filter((_, i) => i !== index),
+    }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -132,7 +163,6 @@ const ProductManagement = () => {
       name: formData.name,
       description: formData.description,
       price: parseFloat(formData.price),
-      imageUrls: formData.imageUrl ? [formData.imageUrl] : [],
       productCode: formData.productCode,
       collectionType: formData.collectionType,
       category: formData.category,
@@ -140,8 +170,18 @@ const ProductManagement = () => {
       isNewArrival: formData.isNewArrival,
       isFeatured: formData.isFeatured,
       isAvailable: formData.isAvailable,
-      quantity: parseInt(formData.stock_quantity) || 0,
-      features: formData.features.split(',').map(f => f.trim()).filter(f => f)
+      quantity: Math.max(0, parseInt(formData.stock_quantity) || 0),
+      features: formData.features,
+      images: formData.images,
+      videos: formData.videos,
+      variants: formData.variants
+        .filter(v => v.name && v.sku)
+        .map(v => ({
+          name: v.name,
+          sku: v.sku,
+          priceDelta: Number(v.priceDelta) || 0,
+          quantity: Math.max(0, Number(v.quantity) || 0),
+        })),
     };
 
     if (editingProduct) {
@@ -158,6 +198,7 @@ const ProductManagement = () => {
   };
 
   const products = productsQuery.data?.data ?? [];
+  const selectedImageNames = useMemo(() => formData.images.map((f) => f.name), [formData.images]);
 
   if (productsQuery.isLoading) {
     return <div>Loading products...</div>;
@@ -192,7 +233,7 @@ const ProductManagement = () => {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="price">Price ($)</Label>
+                  <Label htmlFor="price">Price (₦)</Label>
                   <Input
                     id="price"
                     type="number"
@@ -224,7 +265,6 @@ const ProductManagement = () => {
                   />
                 </div>
               </div>
-
               <div>
                 <Label htmlFor="description">Description</Label>
                 <Textarea
@@ -263,13 +303,52 @@ const ProductManagement = () => {
                 </div>
               </div>
 
-              <div>
-                <ImageUpload
-                  value={formData.imageUrl}
-                  onChange={(url) => setFormData(prev => ({ ...prev, imageUrl: url }))}
-                  label="Primary Image"
-                  placeholder="Enter hosted image URL"
-                />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="images">Images (files)</Label>
+                  <Input
+                    id="images"
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    onChange={(e) => {
+                      const files = Array.from(e.target.files || []);
+                      setFormData(prev => ({ ...prev, images: files }));
+                    }}
+                  />
+                  {formData.images.length > 0 && (
+                    <div className="space-y-2">
+                      <p className="text-xs text-muted-foreground">
+                        {formData.images.length} file(s) selected
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {selectedImageNames.map((name) => (
+                          <span key={name} className="text-[11px] px-2 py-1 rounded-md bg-secondary text-foreground border border-border">
+                            {name}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="videos">Videos (files)</Label>
+                  <Input
+                    id="videos"
+                    type="file"
+                    multiple
+                    accept="video/*"
+                    onChange={(e) => {
+                      const files = Array.from(e.target.files || []);
+                      setFormData(prev => ({ ...prev, videos: files }));
+                    }}
+                  />
+                  {formData.videos.length > 0 && (
+                    <p className="text-xs text-muted-foreground">
+                      {formData.videos.length} file(s) selected
+                    </p>
+                  )}
+                </div>
               </div>
 
               <div>
@@ -280,6 +359,54 @@ const ProductManagement = () => {
                   onChange={(e) => setFormData(prev => ({ ...prev, features: e.target.value }))}
                   placeholder="Premium leather, Spacious interior, Elegant finish"
                 />
+              </div>
+
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <Label className="text-base">Variants</Label>
+                  <Button type="button" size="sm" variant="outline" onClick={addVariant}>
+                    Add Variant
+                  </Button>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  <Input
+                    placeholder="Name"
+                    value={formData.newVariant.name}
+                    onChange={(e) => setFormData(prev => ({ ...prev, newVariant: { ...prev.newVariant, name: e.target.value } }))}
+                  />
+                  <Input
+                    placeholder="SKU"
+                    value={formData.newVariant.sku}
+                    onChange={(e) => setFormData(prev => ({ ...prev, newVariant: { ...prev.newVariant, sku: e.target.value } }))}
+                  />
+                  <Input
+                    placeholder="Price Delta"
+                    type="number"
+                    value={formData.newVariant.priceDelta}
+                    onChange={(e) => setFormData(prev => ({ ...prev, newVariant: { ...prev.newVariant, priceDelta: e.target.value } }))}
+                  />
+                  <Input
+                    placeholder="Quantity"
+                    type="number"
+                    value={formData.newVariant.quantity}
+                    onChange={(e) => setFormData(prev => ({ ...prev, newVariant: { ...prev.newVariant, quantity: e.target.value } }))}
+                  />
+                </div>
+                {formData.variants.length > 0 && (
+                  <div className="space-y-2">
+                    {formData.variants.map((variant, idx) => (
+                      <div key={`${variant.sku}-${idx}`} className="flex items-center justify-between bg-secondary/40 rounded-md px-3 py-2">
+                        <div className="space-y-1">
+                          <p className="text-sm font-semibold">{variant.name} ({variant.sku})</p>
+                          <p className="text-xs text-muted-foreground">Δ₦{variant.priceDelta || '0'} • Qty {variant.quantity || '0'}</p>
+                        </div>
+                        <Button type="button" size="sm" variant="ghost" onClick={() => removeVariant(idx)}>
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <div className="flex items-center space-x-6">
@@ -334,7 +461,7 @@ const ProductManagement = () => {
 
       <div className="grid gap-4">
         {products.map((product) => (
-          <Card key={product.id}>
+          <Card key={product.id} className="shadow-elegant hover:shadow-luxury transition-shadow">
             <CardHeader>
               <div className="flex justify-between items-start">
                 <div>
@@ -345,8 +472,25 @@ const ProductManagement = () => {
                     {product.isFeatured && <Badge variant="outline">Featured</Badge>}
                   </CardTitle>
                   <p className="text-sm text-muted-foreground mt-1">
-                    {product.category} • ${product.price} • Stock: {product.quantity ?? 0}
+                    {product.category} • ₦{product.price.toLocaleString('en-NG')} • Stock: {product.quantity ?? 0}
                   </p>
+                  {product.images && product.images.length > 0 && (
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {product.images.slice(0, 4).map((img, idx) => (
+                        <img
+                          key={img + idx}
+                          src={img}
+                          alt={`${product.name}-${idx}`}
+                          className="h-16 w-16 rounded-md object-cover border"
+                        />
+                      ))}
+                      {product.images.length > 4 && (
+                        <Badge variant="outline" className="text-[11px]">
+                          +{product.images.length - 4} more
+                        </Badge>
+                      )}
+                    </div>
+                  )}
                 </div>
                 <div className="flex gap-2">
                   <Button

@@ -11,6 +11,7 @@ import { Footer } from '@/components/Footer';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useProducts } from '@/hooks/useProducts';
 import { SortOption } from '@/services/hokApi';
+import { useNavigate } from 'react-router-dom';
 
 const Index = () => {
   const [selectedCategory, setSelectedCategory] = useState('All');
@@ -18,10 +19,12 @@ const Index = () => {
   const [sortBy, setSortBy] = useState<SortOption>('featured');
   const productGridRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
   const { products, isLoading, meta } = useProducts({
     category: selectedCategory,
     search: searchQuery,
-    sortOption: sortBy,
+    sortOption: sortBy || 'newest',
+    limit: 12,
   });
 
   const filteredProductsCount = meta?.total ?? products.length;
@@ -58,9 +61,17 @@ const Index = () => {
           products={products}
           isLoading={isLoading}
         />
+        <div className="flex justify-center mt-6">
+          <button
+            onClick={() => navigate('/collections/All')}
+            className="px-6 py-3 text-sm font-semibold rounded-full border border-border bg-background hover:bg-secondary transition-all shadow-card"
+          >
+            View All Collections
+          </button>
+        </div>
       </div>
 
-      <NewArrivals />
+      {/* <NewArrivals /> */}
       <BestSellers />
       <CustomerReviews />
       <Features />

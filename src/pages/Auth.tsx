@@ -17,7 +17,8 @@ export default function Auth() {
   // Redirect if already authenticated
   useEffect(() => {
     if (!loading && user) {
-      navigate('/');
+      const target = (user.role || '').toUpperCase() === 'ADMIN' ? '/admin' : '/';
+      navigate(target, { replace: true });
     }
   }, [user, loading, navigate]);
 
@@ -42,7 +43,6 @@ export default function Auth() {
         title: "Welcome back!",
         description: "You have successfully signed in.",
       });
-      navigate('/');
     }
 
     setIsLoading(false);

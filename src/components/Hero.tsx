@@ -7,10 +7,10 @@ interface HeroProps {
 
 export const Hero = ({ onExploreClick }: HeroProps) => {
   return (
-    <section className="relative min-h-[90vh] flex items-center justify-center bg-gradient-elegant">
-      <div className="container mx-auto px-4 py-20">
+    <section className="relative min-h-[90vh] flex items-center justify-center bg-gradient-elegant overflow-hidden">
+      <div className="container px-6 md:px-16 py-20">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          <div className="space-y-8">
+          <div className="space-y-8 motion-fade">
             <div className="space-y-4">
               <h1 className="text-5xl lg:text-6xl font-bold text-foreground leading-tight font-playfair">
                 Luxury
@@ -26,7 +26,7 @@ export const Hero = ({ onExploreClick }: HeroProps) => {
               <Button
                 variant="luxury"
                 size="lg"
-                className="text-lg px-8 py-6 font-inter font-medium"
+                className="text-lg px-8 py-4 font-inter font-medium"
                 onClick={onExploreClick}
               >
                 Explore Collection
@@ -34,7 +34,7 @@ export const Hero = ({ onExploreClick }: HeroProps) => {
               <Button
                 variant="elegant"
                 size="lg"
-                className="text-lg px-8 py-6 font-inter font-medium"
+                className="text-lg px-8 py-4 font-inter font-medium"
                 onClick={() => window.location.href = '/lookbook'}
               >
                 View Lookbook
@@ -42,8 +42,8 @@ export const Hero = ({ onExploreClick }: HeroProps) => {
             </div>
           </div>
 
-          <div className="relative">
-            <div className="relative z-10">
+          <div className="relative motion-float">
+            <div className="relative z-10 shadow-luxury rounded-2xl overflow-hidden">
               <img
                 src={heroImage}
                 alt="Luxury handbag collection"

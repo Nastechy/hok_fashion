@@ -108,6 +108,8 @@ const OrderManagement = () => {
   const totalRevenue = metricsQuery.data?.totalRevenue ?? orders.reduce((sum, order) => sum + Number(order.totalAmount || 0), 0);
   const totalOrders = metricsQuery.data?.totalOrders ?? orders.length;
   const pendingOrders = metricsQuery.data?.pendingOrders ?? orders.filter(order => (order.status || '').toLowerCase() === 'pending').length;
+  const formatCurrency = (value: number) =>
+    value.toLocaleString('en-NG', { style: 'currency', currency: 'NGN', minimumFractionDigits: 0 });
 
   return (
     <div className="space-y-6">
@@ -123,7 +125,7 @@ const OrderManagement = () => {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${Number(totalRevenue).toFixed(2)}</div>
+            <div className="text-2xl font-bold">{formatCurrency(Number(totalRevenue))}</div>
           </CardContent>
         </Card>
 
@@ -266,7 +268,7 @@ const OrderManagement = () => {
                     </div>
                   </TableCell>
                   <TableCell className="font-medium">
-                    ${Number(order.totalAmount || 0).toFixed(2)}
+                    {formatCurrency(Number(order.totalAmount || 0))}
                   </TableCell>
                   <TableCell>
                     <Badge variant={getStatusColor(order.status || '')}>

@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { useCart } from '@/contexts/CartContext';
-import { CreditCard, Lock, Truck } from 'lucide-react';
+import { CreditCard, Lock, Truck, Upload } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { hokApi } from '@/services/hokApi';
 import { useMutation } from '@tanstack/react-query';
@@ -17,7 +17,6 @@ import { useNavigate } from 'react-router-dom';
 const Payment = () => {
   const { items, total, clearCart } = useCart();
   const { user } = useAuth();
-  const [paymentMethod, setPaymentMethod] = useState('card');
   const navigate = useNavigate();
   const [form, setForm] = useState({
     firstName: '',
@@ -27,6 +26,7 @@ const Payment = () => {
     address: '',
     note: '',
   });
+  const [receiptFile, setReceiptFile] = useState<File | null>(null);
 
   const isGuest = !user;
 
@@ -37,6 +37,7 @@ const Payment = () => {
           items: items.map(item => ({ productId: item.id, quantity: item.quantity })),
           shippingAddress: form.address,
           note: form.note,
+          receiptFile,
           customerEmail: isGuest ? form.email : undefined,
           customerName: isGuest ? `${form.firstName} ${form.lastName}`.trim() : undefined,
           customerPhone: isGuest ? form.phone : undefined,
@@ -64,8 +65,8 @@ const Payment = () => {
     setForm(prev => ({ ...prev, [field]: e.target.value }));
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleSubmit = (e?: React.FormEvent<HTMLFormElement>) => {
+    e?.preventDefault();
     if (!items.length) {
       toast({
         title: "Your cart is empty",
@@ -84,20 +85,32 @@ const Payment = () => {
       return;
     }
 
+    if (!form.firstName || !form.lastName || !form.phone || !form.address || !(form.email || user?.email)) {
+      toast({
+        title: "Billing details missing",
+        description: "Please fill first name, last name, phone, email, and address before submitting.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     checkoutMutation.mutate();
   };
+
+  const formatCurrency = (value: number) =>
+    value.toLocaleString('en-NG', { style: 'currency', currency: 'NGN', minimumFractionDigits: 0 });
 
   return (
     <div className="min-h-screen bg-background">
       <Header onCategoryChange={() => {}} selectedCategory="All" />
       
-      <main className="container mx-auto px-4 py-16">
+      <main className="container mx-auto px-4 md:px-16 py-10 ">
         <div className="max-w-6xl mx-auto">
           <h1 className="text-4xl font-bold text-center mb-12 font-playfair">Checkout</h1>
           
-          <div className="grid lg:grid-cols-2 gap-12">
+          <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-start">
             {/* Order Summary */}
-            <div className="space-y-6">
+            <div className="space-y-6 lg:sticky lg:top-24">
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 font-playfair">
@@ -119,13 +132,13 @@ const Payment = () => {
                           <p className="text-sm text-muted-foreground">Qty: {item.quantity}</p>
                         </div>
                       </div>
-                      <span className="font-semibold">${(item.price * item.quantity).toFixed(2)}</span>
+                      <span className="font-semibold">{formatCurrency(item.price * item.quantity)}</span>
                     </div>
                   ))}
                   <Separator />
                   <div className="flex justify-between items-center text-lg font-bold">
                     <span>Total</span>
-                    <span className="text-red">${total.toFixed(2)}</span>
+                    <span className="text-red">{formatCurrency(total)}</span>
                   </div>
                 </CardContent>
               </Card>
@@ -137,97 +150,51 @@ const Payment = () => {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 font-playfair">
                     <CreditCard className="h-5 w-5" />
-                    Payment Method
+                    Payment Details
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                  <div className="grid grid-cols-2 gap-4">
-                    <Button
-                      variant={paymentMethod === 'card' ? 'default' : 'outline'}
-                      onClick={() => setPaymentMethod('card')}
-                      className="h-12"
-                    >
-                      <CreditCard className="h-4 w-4 mr-2" />
-                      Card
-                    </Button>
-                    <Button
-                      variant={paymentMethod === 'paystack' ? 'default' : 'outline'}
-                      onClick={() => setPaymentMethod('paystack')}
-                      className="h-12"
-                    >
-                      PayStack
-                    </Button>
+                  <div className="space-y-2">
+                    <p className="text-sm text-muted-foreground">
+                      Kindly transfer the total to the account below and upload your payment receipt for confirmation.
+                    </p>
+                    <div className="rounded-xl border border-border p-4 bg-secondary/40 space-y-2">
+                      <p className="text-sm font-semibold">HOK Fashion Ltd.</p>
+                      <p className="text-sm">Account Number: <span className="font-semibold">0123456789</span></p>
+                      <p className="text-sm">Bank: GTBank</p>
+                      <p className="text-sm">Reference: <span className="font-semibold">Order Payment</span></p>
+                      <p className="text-sm">Amount: <span className="font-semibold">{formatCurrency(total)}</span></p>
+                    </div>
                   </div>
 
-                  <form className="space-y-6" onSubmit={handleSubmit}>
-                    {paymentMethod === 'card' && (
-                      <div className="space-y-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="card-number">Card Number</Label>
-                          <Input
-                            id="card-number"
-                            placeholder="1234 5678 9012 3456"
-                            className="h-12"
-                          />
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="expiry">Expiry Date</Label>
-                            <Input
-                              id="expiry"
-                              placeholder="MM/YY"
-                              className="h-12"
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="cvc">CVC</Label>
-                            <Input
-                              id="cvc"
-                              placeholder="123"
-                              className="h-12"
-                            />
-                          </div>
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="name">Cardholder Name</Label>
-                          <Input
-                            id="name"
-                            placeholder="John Doe"
-                            className="h-12"
-                          />
-                        </div>
-                      </div>
-                    )}
-
-                    {paymentMethod === 'paystack' && (
-                      <div className="text-center py-8">
-                        <p className="text-muted-foreground mb-4">
-                          You will be redirected to PayStack to complete your payment
-                        </p>
-                        <div className="flex justify-center">
-                          <img 
-                            src="https://paystack.com/assets/img/logo/paystack-logo.png" 
-                            alt="PayStack" 
-                            className="h-8"
-                          />
-                        </div>
-                      </div>
-                    )}
-
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Lock className="h-4 w-4" />
-                      Your payment information is secure and encrypted
+                  <div className="space-y-2">
+                    <Label htmlFor="receipt">Upload Payment Receipt</Label>
+                    <div className="flex items-center gap-3">
+                      <Input
+                        id="receipt"
+                        type="file"
+                        accept="image/*,.pdf"
+                        onChange={(e) => setReceiptFile(e.target.files?.[0] || null)}
+                      />
+                      <Upload className="h-4 w-4 text-muted-foreground" />
                     </div>
+                    <p className="text-xs text-muted-foreground">Accepted: images or PDF.</p>
+                  </div>
 
-                    <Button 
-                      className="w-full h-12 text-lg font-semibold"
-                      size="lg"
-                      type="submit"
-                      disabled={checkoutMutation.isPending}
-                    >
-                      {checkoutMutation.isPending ? 'Processing...' : `Complete Payment - $${total.toFixed(2)}`}
-                    </Button>
-                  </form>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Lock className="h-4 w-4" />
+                    Your payment details will be verified by our team.
+                  </div>
+
+                  <Button 
+                    className="w-full h-12 text-lg font-semibold"
+                    size="lg"
+                    type="button"
+                    disabled={checkoutMutation.isPending}
+                    onClick={handleSubmit}
+                  >
+                    {checkoutMutation.isPending ? 'Processing...' : `Submit Payment Proof - ${formatCurrency(total)}`}
+                  </Button>
                 </CardContent>
               </Card>
 
@@ -237,7 +204,7 @@ const Payment = () => {
                   <CardTitle className="font-playfair">Billing Address</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="first-name">First Name</Label>
                       <Input id="first-name" className="h-12" value={form.firstName} onChange={handleInputChange('firstName')} />

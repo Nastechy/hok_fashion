@@ -51,8 +51,8 @@ const Lookbook = () => {
       
       <main>
         {/* Hero Section */}
-        <section className="py-20 bg-gradient-elegant">
-          <div className="container mx-auto px-4">
+        <section className="py-10 md:py-16 bg-gradient-elegant" style={{border: "2px solid red"}}>
+          <div className="container px-6  md:px-16" style={{border: "2px solid red"}}>
             <div className="text-center space-y-8">
               <h1 className="text-5xl lg:text-6xl font-bold text-foreground font-playfair">
                 Lookbook
@@ -69,8 +69,8 @@ const Lookbook = () => {
         </section>
 
         {/* Featured Look */}
-        <section className="py-20">
-          <div className="container mx-auto px-4">
+        <section className="py-16 md:py-20">
+          <div className="container px-6   md:px-16">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-20">
               <div className="space-y-6">
                 <Badge className="bg-red text-red-foreground font-inter">Featured Look</Badge>
@@ -85,7 +85,7 @@ const Lookbook = () => {
                 <div className="space-y-3">
                   <p className="font-semibold text-foreground font-inter">Featured in this look:</p>
                   <ul className="space-y-2 text-muted-foreground font-inter">
-                    <li>• Classic Black Tote - $299</li>
+                    <li>• Classic Black Tote - ₦299,000</li>
                     <li>• Premium leather construction</li>
                     <li>• Gold-tone hardware accents</li>
                     <li>• Spacious interior with organization pockets</li>
@@ -108,8 +108,8 @@ const Lookbook = () => {
         </section>
 
         {/* Lookbook Grid */}
-        <section className="py-20 bg-secondary/20">
-          <div className="container mx-auto px-4">
+        <section className="py-10 lg:py-20 bg-secondary/20">
+          <div className="container px-6  md:px-16">
             <div className="text-center mb-16">
               <h2 className="text-4xl font-bold text-foreground mb-4 font-playfair">
                 Seasonal Collections
@@ -163,8 +163,8 @@ const Lookbook = () => {
         </section>
 
         {/* Styling Tips */}
-        <section className="py-20">
-          <div className="container mx-auto px-4">
+        <section className="py-10 lg:py-20">
+          <div className="container px-6  md:px-16">
             <div className="text-center mb-16">
               <h2 className="text-4xl font-bold text-foreground mb-4 font-playfair">
                 Styling Tips

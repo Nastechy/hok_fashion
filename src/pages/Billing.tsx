@@ -12,6 +12,8 @@ import { useMemo } from 'react';
 const Billing = () => {
   const { user } = useAuth();
   const { data: orders = [], isLoading } = useOrders(undefined, !!user);
+  const formatCurrency = (value: number) =>
+    value.toLocaleString('en-NG', { style: 'currency', currency: 'NGN', minimumFractionDigits: 0 });
 
   const totals = useMemo(() => {
     const totalSpent = orders.reduce((sum, order) => sum + Number(order.totalAmount || 0), 0);
@@ -36,7 +38,7 @@ const Billing = () => {
     <div className="min-h-screen bg-background">
       <Header onCategoryChange={() => {}} selectedCategory="All" />
       
-      <main className="container mx-auto px-4 py-16">
+      <main className="container mx-auto px-4 py-10 md:py-16">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
             <h1 className="text-4xl font-bold mb-4 font-playfair">Billing & Orders</h1>
@@ -79,7 +81,7 @@ const Billing = () => {
                   </CardHeader>
                   <CardContent>
                     <div className="text-3xl font-bold text-red">
-                      ${totals.totalSpent.toFixed(2)}
+                      {formatCurrency(totals.totalSpent)}
                     </div>
                   </CardContent>
                 </Card>
@@ -102,7 +104,7 @@ const Billing = () => {
                 
                 {orders.length === 0 && (
                   <Card>
-                    <CardContent className="py-6">
+                    <CardContent className="py-10">
                       <p className="text-muted-foreground">No orders yet. Browse products and place your first order.</p>
                     </CardContent>
                   </Card>
@@ -125,7 +127,7 @@ const Billing = () => {
                           </div>
                         </div>
                         <div className="text-right">
-                          <div className="text-2xl font-bold text-red">${Number(order.totalAmount || 0).toFixed(2)}</div>
+                          <div className="text-2xl font-bold text-red">{formatCurrency(Number(order.totalAmount || 0))}</div>
                           <div className="text-sm text-muted-foreground">
                             {order.items?.length || 0} item{(order.items?.length || 0) > 1 ? 's' : ''}
                           </div>
@@ -142,7 +144,7 @@ const Billing = () => {
                               <span className="text-muted-foreground ml-2">x{item.quantity}</span>
                             </div>
                             <span className="font-semibold">
-                              ${Number(item.price || 0).toFixed(2)}
+                              {formatCurrency(Number(item.price || 0))}
                             </span>
                           </div>
                         ))}

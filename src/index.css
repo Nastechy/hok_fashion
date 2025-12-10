@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Manrope:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -119,6 +121,15 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground font-inter;
+    @apply bg-background text-foreground font-inter antialiased;
+    background-image: radial-gradient(circle at 20% 20%, hsl(0 50% 45% / 0.05), transparent 35%), radial-gradient(circle at 80% 0%, hsl(0 0% 15% / 0.06), transparent 40%);
   }
+}
+
+.motion-fade {
+  @apply animate-fade-up;
+}
+
+.motion-float {
+  @apply animate-float-slow;
 }

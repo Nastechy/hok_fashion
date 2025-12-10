@@ -20,7 +20,7 @@ const About = () => {
       <main>
         {/* Hero Section */}
         <section className="py-20 bg-gradient-elegant">
-          <div className="container mx-auto px-4">
+          <div className="container px-6 md:px-14 py-16">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
               <div className="space-y-8">
                 <h1 className="text-5xl font-bold text-foreground font-playfair">
@@ -48,7 +48,7 @@ const About = () => {
 
         {/* Our Story */}
         <section className="py-20">
-          <div className="container mx-auto px-4">
+          <div className="container px-6  md:px-16">
             <div className="max-w-4xl mx-auto text-center space-y-8">
               <h2 className="text-4xl font-bold text-foreground font-playfair">
                 Our Story
@@ -77,7 +77,7 @@ const About = () => {
 
         {/* Stats */}
         <section className="py-20 bg-secondary/30">
-          <div className="container mx-auto px-4">
+          <div className="container px-6  md:px-16">
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
               {stats.map((stat, index) => (
                 <Card key={index} className="text-center border-0 shadow-card">
@@ -98,7 +98,7 @@ const About = () => {
 
         {/* Values */}
         <section className="py-20">
-          <div className="container mx-auto px-4">
+          <div className="container mx-auto px-6 md:px-16">
             <div className="text-center mb-16">
               <h2 className="text-4xl font-bold text-foreground mb-4 font-playfair">
                 Our Values

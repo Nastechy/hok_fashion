@@ -15,17 +15,30 @@ export const useCart = () => {
   const STORAGE_KEY = 'hok_cart_items';
 
   useEffect(() => {
-    setLoading(true);
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        setItems(JSON.parse(stored));
+    const loadFromStorage = () => {
+      try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored) {
+          setItems(JSON.parse(stored));
+        } else {
+          setItems([]);
+        }
+      } catch (error) {
+        console.error('Failed to load cart items', error);
       }
-    } catch (error) {
-      console.error('Failed to load cart items', error);
-    } finally {
-      setLoading(false);
-    }
+    };
+
+    setLoading(true);
+    loadFromStorage();
+    setLoading(false);
+
+    const handleStorage = (event: StorageEvent) => {
+      if (event.key === STORAGE_KEY) {
+        loadFromStorage();
+      }
+    };
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
   }, []);
 
   const addItem = useCallback(async (product: Omit<CartItem, 'quantity'>) => {
@@ -74,11 +87,11 @@ export const useCart = () => {
   }, []);
 
   const total = useMemo(() => {
-    return items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    return items.reduce((sum, item) => sum + Number(item.price) * Number(item.quantity), 0);
   }, [items]);
 
   const itemCount = useMemo(() => {
-    return items.reduce((count, item) => count + item.quantity, 0);
+    return items.reduce((count, item) => count + Number(item.quantity || 0), 0);
   }, [items]);
 
   return {
