@@ -89,7 +89,7 @@ export const ProductModal = ({ product, isOpen, onClose }: ProductModalProps) =>
             <div className="space-y-4">
               <h3 className="font-semibold text-lg font-playfair">Shipping & Returns</h3>
               <div className="text-sm text-muted-foreground space-y-1 font-inter">
-                <p>• Free shipping on orders over $200</p>
+                <p>• Nationwide Delivery</p>
                 <p>• 30-day return policy</p>
                 <p>• Authentic guarantee</p>
                 <p>• Ships within 1-2 business days</p>

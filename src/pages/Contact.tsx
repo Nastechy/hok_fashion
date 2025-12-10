@@ -52,7 +52,7 @@ const Contact = () => {
                     </div>
                     <div>
                       <p className="font-semibold font-inter">Phone</p>
-                      <p className="text-muted-foreground font-inter">+1 (555) 123-4567</p>
+                      <p className="text-muted-foreground font-inter">+234 806 226 7745</p>
                     </div>
                   </div>
                   
@@ -62,7 +62,7 @@ const Contact = () => {
                     </div>
                     <div>
                       <p className="font-semibold font-inter">Address</p>
-                      <p className="text-muted-foreground font-inter">123 Fashion Street<br />New York, NY 10001</p>
+                      <p className="text-muted-foreground font-inter">Gishiri by Ecwa Church off Nicon Junction, Abuja<br />New York, NY 10001</p>
                     </div>
                   </div>
                   

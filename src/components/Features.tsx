@@ -1,26 +1,26 @@
-import { Shield, Truck, RotateCcw, Award } from 'lucide-react';
+import { Shield, Truck, Star, Headphones } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 
 const features = [
   {
     icon: Shield,
-    title: 'Authentic Guarantee',
-    description: 'Every bag comes with a certificate of authenticity and lifetime warranty.',
+    title: 'Durability You Can Trust',
+    description: 'Each piece is crafted with high-grade materials built to make you slay effortlessly.',
   },
   {
     icon: Truck,
-    title: 'Free Shipping',
-    description: 'Complimentary shipping on all orders over $200 worldwide.',
+    title: 'Nationwide Delivery',
+    description: 'We deliver across all 36 states fast, reliable, and affordable.',
   },
   {
-    icon: RotateCcw,
-    title: '30-Day Returns',
-    description: 'Not satisfied? Return your purchase within 30 days for a full refund.',
+    icon: Star,
+    title: 'Customer Satisfaction',
+    description: 'We ensure every order is accurately packed and handled with care from purchase to delivery.',
   },
   {
-    icon: Award,
-    title: 'Premium Quality',
-    description: 'Handcrafted using the finest materials by skilled artisans.',
+    icon: Headphones,
+    title: '24/7 Customer Support',
+    description: 'Our team is always available to assist you with orders or delivery updates.',
   },
 ];
 

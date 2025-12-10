@@ -3,6 +3,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
 export const Footer = () => {
+
+  const currentYear = new Date().getFullYear();
+
   return (
     <footer className="bg-primary text-primary-foreground">
       <div className="container mx-auto px-4 py-16">
@@ -11,7 +14,7 @@ export const Footer = () => {
           <div className="space-y-4">
             <h3 className="text-2xl font-bold font-playfair">HOK Fashion</h3>
             <p className="text-primary-foreground/80 leading-relaxed font-inter">
-              Nigeria's premier luxury handbag brand. Crafting exquisite pieces 
+              Nigeria's premier luxury handbag brand. Crafting exquisite pieces
               for the modern African woman since 1998.
             </p>
             <div className="flex space-x-4">
@@ -65,11 +68,11 @@ export const Footer = () => {
               </div>
               <div className="flex items-center space-x-2 text-sm text-primary-foreground/80 font-inter">
                 <Phone className="h-4 w-4" />
-                <span>+234 802 123 4567</span>
+                <span>+234 806 226 7745</span>
               </div>
               <div className="flex items-center space-x-2 text-sm text-primary-foreground/80 font-inter">
                 <MapPin className="h-4 w-4" />
-                <span>Lagos, Nigeria</span>
+                <span>Gishiri by Ecwa Church off Nicon Junction, Abuja</span>
               </div>
             </div>
             <div className="space-y-2">
@@ -77,8 +80,8 @@ export const Footer = () => {
                 Subscribe to our newsletter for exclusive offers
               </p>
               <div className="flex space-x-2">
-                <Input 
-                  placeholder="Enter your email" 
+                <Input
+                  placeholder="Enter your email"
                   className="bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/60 font-inter"
                 />
                 <Button variant="elegant" size="sm">
@@ -91,7 +94,7 @@ export const Footer = () => {
 
         <div className="border-t border-primary-foreground/20 mt-12 pt-8 text-center">
           <p className="text-primary-foreground/60 text-sm font-inter">
-            © 2024 HOK Fashion. All rights reserved. Crafted with ❤️ for luxury lovers.
+            © {currentYear} HOK Fashion. All rights reserved. Crafted with ❤️ for luxury lovers.
           </p>
         </div>
       </div>

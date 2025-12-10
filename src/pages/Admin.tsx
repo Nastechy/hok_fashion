@@ -15,11 +15,11 @@ const Admin = () => {
   const { isAdmin, loading } = useAdmin();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (!loading && (!user || !isAdmin)) {
-      navigate('/');
-    }
-  }, [user, isAdmin, loading, navigate]);
+  // useEffect(() => {
+  //   if (!loading && (!user || !isAdmin)) {
+  //     navigate('/');
+  //   }
+  // }, [user, isAdmin, loading, navigate]);
 
   if (loading) {
     return (
@@ -36,9 +36,9 @@ const Admin = () => {
     );
   }
 
-  if (!user || !isAdmin) {
-    return null;
-  }
+  // if (!user || !isAdmin) {
+  //   return null;
+  // }
 
   return (
     <div className="min-h-screen bg-background">
