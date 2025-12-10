@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { useCart } from '@/contexts/CartContext';
-import { Product } from '@/services/productService';
+import { Product } from '@/services/hokApi';
 import { Check, Star } from 'lucide-react';
 
 interface ProductModalProps {
@@ -14,6 +14,7 @@ interface ProductModalProps {
 
 export const ProductModal = ({ product, isOpen, onClose }: ProductModalProps) => {
   const { addItem } = useCart();
+  const cover = product?.imageUrls?.[0] || 'https://via.placeholder.com/500x500?text=HOK';
 
   if (!product) return null;
 
@@ -22,7 +23,7 @@ export const ProductModal = ({ product, isOpen, onClose }: ProductModalProps) =>
       id: product.id,
       name: product.name,
       price: product.price,
-      image: product.image_url || '',
+      image: cover,
     });
     onClose();
   };
@@ -35,7 +36,7 @@ export const ProductModal = ({ product, isOpen, onClose }: ProductModalProps) =>
           <div className="space-y-4">
             <div className="relative">
               <img
-                src={product.image_url || ''}
+                src={cover}
                 alt={product.name}
                 className="w-full h-96 object-cover rounded-lg shadow-elegant"
               />

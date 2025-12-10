@@ -1,5 +1,4 @@
-import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -12,23 +11,10 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ImageUpload } from '@/components/ui/image-upload';
-
-interface Product {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  image_url: string;
-  category: string;
-  is_best_seller: boolean;
-  is_new_arrival: boolean;
-  stock_quantity: number;
-  features: string[];
-}
+import { hokApi, Product, CreateProductInput } from '@/services/hokApi';
+import { useMutation, useQuery } from '@tanstack/react-query';
 
 const ProductManagement = () => {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { toast } = useToast();
@@ -37,50 +23,73 @@ const ProductManagement = () => {
     name: '',
     description: '',
     price: '',
-    image_url: '',
-    category: '',
-    is_best_seller: false,
-    is_new_arrival: false,
+    imageUrl: '',
+    productCode: '',
+    collectionType: '',
+    category: 'AVAILABLE',
+    isBestSeller: false,
+    isNewArrival: false,
+    isFeatured: false,
+    isAvailable: true,
     stock_quantity: '',
     features: ''
   });
 
-  const categories = ['Totes', 'Crossbody', 'Shoulder', 'Clutches', 'Backpacks'];
+  const categories = ['AVAILABLE', 'BEST_SELLER', 'NEW_ARRIVAL', 'FEATURE', 'INCOMING'];
 
-  useEffect(() => {
-    fetchProducts();
-  }, []);
+  const productsQuery = useQuery({
+    queryKey: ['admin-products'],
+    queryFn: () => hokApi.fetchProducts({ limit: 200 }),
+  });
 
-  const fetchProducts = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('products')
-        .select('*')
-        .order('created_at', { ascending: false });
+  const createProduct = useMutation({
+    mutationFn: (payload: CreateProductInput) => hokApi.createProduct(payload),
+    onSuccess: () => {
+      toast({ title: "Success", description: "Product created successfully" });
+      productsQuery.refetch();
+      closeDialog();
+    },
+    onError: (error: any) => {
+      toast({ title: "Error", description: error?.message || "Failed to create product", variant: "destructive" });
+    },
+  });
 
-      if (error) throw error;
-      setProducts(data || []);
-    } catch (error) {
-      console.error('Error fetching products:', error);
-      toast({
-        title: "Error",
-        description: "Failed to fetch products",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+  const updateProduct = useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: Partial<CreateProductInput> }) => hokApi.updateProduct(id, payload),
+    onSuccess: () => {
+      toast({ title: "Success", description: "Product updated successfully" });
+      productsQuery.refetch();
+      closeDialog();
+    },
+    onError: (error: any) => {
+      toast({ title: "Error", description: error?.message || "Failed to update product", variant: "destructive" });
+    },
+  });
+
+  const deleteProduct = useMutation({
+    mutationFn: (id: string) => hokApi.deleteProduct(id),
+    onSuccess: () => {
+      toast({ title: "Success", description: "Product deleted successfully" });
+      productsQuery.refetch();
+    },
+    onError: (error: any) => {
+      toast({ title: "Error", description: error?.message || "Failed to delete product", variant: "destructive" });
+    },
+  });
 
   const resetForm = () => {
     setFormData({
       name: '',
       description: '',
       price: '',
-      image_url: '',
-      category: '',
-      is_best_seller: false,
-      is_new_arrival: false,
+      imageUrl: '',
+      productCode: '',
+      collectionType: '',
+      category: 'AVAILABLE',
+      isBestSeller: false,
+      isNewArrival: false,
+      isFeatured: false,
+      isAvailable: true,
       stock_quantity: '',
       features: ''
     });
@@ -94,11 +103,15 @@ const ProductManagement = () => {
         name: product.name,
         description: product.description || '',
         price: product.price.toString(),
-        image_url: product.image_url || '',
-        category: product.category || '',
-        is_best_seller: product.is_best_seller || false,
-        is_new_arrival: product.is_new_arrival || false,
-        stock_quantity: product.stock_quantity?.toString() || '0',
+        imageUrl: product.imageUrls?.[0] || '',
+        productCode: product.productCode || '',
+        collectionType: product.collectionType || '',
+        category: product.category || 'AVAILABLE',
+        isBestSeller: product.isBestSeller || false,
+        isNewArrival: product.isNewArrival || false,
+        isFeatured: product.isFeatured || false,
+        isAvailable: product.isAvailable ?? true,
+        stock_quantity: product.quantity?.toString() || '0',
         features: product.features?.join(', ') || ''
       });
     } else {
@@ -115,80 +128,38 @@ const ProductManagement = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    const productData = {
+    const productData: CreateProductInput = {
       name: formData.name,
       description: formData.description,
       price: parseFloat(formData.price),
-      image_url: formData.image_url,
+      imageUrls: formData.imageUrl ? [formData.imageUrl] : [],
+      productCode: formData.productCode,
+      collectionType: formData.collectionType,
       category: formData.category,
-      is_best_seller: formData.is_best_seller,
-      is_new_arrival: formData.is_new_arrival,
-      stock_quantity: parseInt(formData.stock_quantity) || 0,
+      isBestSeller: formData.isBestSeller,
+      isNewArrival: formData.isNewArrival,
+      isFeatured: formData.isFeatured,
+      isAvailable: formData.isAvailable,
+      quantity: parseInt(formData.stock_quantity) || 0,
       features: formData.features.split(',').map(f => f.trim()).filter(f => f)
     };
 
-    try {
-      if (editingProduct) {
-        const { error } = await supabase
-          .from('products')
-          .update(productData)
-          .eq('id', editingProduct.id);
-
-        if (error) throw error;
-        toast({
-          title: "Success",
-          description: "Product updated successfully",
-        });
-      } else {
-        const { error } = await supabase
-          .from('products')
-          .insert([productData]);
-
-        if (error) throw error;
-        toast({
-          title: "Success",
-          description: "Product created successfully",
-        });
-      }
-
-      fetchProducts();
-      closeDialog();
-    } catch (error) {
-      console.error('Error saving product:', error);
-      toast({
-        title: "Error",
-        description: "Failed to save product",
-        variant: "destructive",
-      });
+    if (editingProduct) {
+      updateProduct.mutate({ id: editingProduct.id, payload: productData });
+    } else {
+      createProduct.mutate(productData);
     }
   };
 
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this product?')) return;
 
-    try {
-      const { error } = await supabase
-        .from('products')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
-      toast({
-        title: "Success",
-        description: "Product deleted successfully",
-      });
-      fetchProducts();
-    } catch (error) {
-      console.error('Error deleting product:', error);
-      toast({
-        title: "Error",
-        description: "Failed to delete product",
-        variant: "destructive",
-      });
-    }
+    deleteProduct.mutate(id);
   };
 
-  if (loading) {
+  const products = productsQuery.data?.data ?? [];
+
+  if (productsQuery.isLoading) {
     return <div>Loading products...</div>;
   }
 
@@ -233,6 +204,27 @@ const ProductManagement = () => {
                 </div>
               </div>
 
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="productCode">Product Code</Label>
+                  <Input
+                    id="productCode"
+                    value={formData.productCode}
+                    onChange={(e) => setFormData(prev => ({ ...prev, productCode: e.target.value }))}
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="collectionType">Collection</Label>
+                  <Input
+                    id="collectionType"
+                    value={formData.collectionType}
+                    onChange={(e) => setFormData(prev => ({ ...prev, collectionType: e.target.value }))}
+                    placeholder="Optional collection name"
+                  />
+                </div>
+              </div>
+
               <div>
                 <Label htmlFor="description">Description</Label>
                 <Textarea
@@ -261,7 +253,7 @@ const ProductManagement = () => {
                   </Select>
                 </div>
                 <div>
-                  <Label htmlFor="stock">Stock Quantity</Label>
+                  <Label htmlFor="stock">Quantity</Label>
                   <Input
                     id="stock"
                     type="number"
@@ -273,10 +265,10 @@ const ProductManagement = () => {
 
               <div>
                 <ImageUpload
-                  value={formData.image_url}
-                  onChange={(url) => setFormData(prev => ({ ...prev, image_url: url }))}
-                  label="Product Image"
-                  placeholder="Enter image URL or upload a file"
+                  value={formData.imageUrl}
+                  onChange={(url) => setFormData(prev => ({ ...prev, imageUrl: url }))}
+                  label="Primary Image"
+                  placeholder="Enter hosted image URL"
                 />
               </div>
 
@@ -294,18 +286,34 @@ const ProductManagement = () => {
                 <div className="flex items-center space-x-2">
                   <Switch
                     id="best_seller"
-                    checked={formData.is_best_seller}
-                    onCheckedChange={(checked) => setFormData(prev => ({ ...prev, is_best_seller: checked }))}
+                    checked={formData.isBestSeller}
+                    onCheckedChange={(checked) => setFormData(prev => ({ ...prev, isBestSeller: checked }))}
                   />
                   <Label htmlFor="best_seller">Best Seller</Label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Switch
                     id="new_arrival"
-                    checked={formData.is_new_arrival}
-                    onCheckedChange={(checked) => setFormData(prev => ({ ...prev, is_new_arrival: checked }))}
+                    checked={formData.isNewArrival}
+                    onCheckedChange={(checked) => setFormData(prev => ({ ...prev, isNewArrival: checked }))}
                   />
                   <Label htmlFor="new_arrival">New Arrival</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="featured"
+                    checked={formData.isFeatured}
+                    onCheckedChange={(checked) => setFormData(prev => ({ ...prev, isFeatured: checked }))}
+                  />
+                  <Label htmlFor="featured">Featured</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="available"
+                    checked={formData.isAvailable}
+                    onCheckedChange={(checked) => setFormData(prev => ({ ...prev, isAvailable: checked }))}
+                  />
+                  <Label htmlFor="available">Available</Label>
                 </div>
               </div>
 
@@ -332,11 +340,12 @@ const ProductManagement = () => {
                 <div>
                   <CardTitle className="flex items-center gap-2">
                     {product.name}
-                    {product.is_best_seller && <Badge variant="secondary">Best Seller</Badge>}
-                    {product.is_new_arrival && <Badge>New</Badge>}
+                    {product.isBestSeller && <Badge variant="secondary">Best Seller</Badge>}
+                    {product.isNewArrival && <Badge>New</Badge>}
+                    {product.isFeatured && <Badge variant="outline">Featured</Badge>}
                   </CardTitle>
                   <p className="text-sm text-muted-foreground mt-1">
-                    {product.category} • ${product.price} • Stock: {product.stock_quantity}
+                    {product.category} • ${product.price} • Stock: {product.quantity ?? 0}
                   </p>
                 </div>
                 <div className="flex gap-2">

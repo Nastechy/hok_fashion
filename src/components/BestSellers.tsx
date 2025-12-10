@@ -1,28 +1,13 @@
 import { ProductCard } from './ProductCard';
-import { productService, Product } from '@/services/productService';
-import { useState, useEffect } from 'react';
+import { Product } from '@/services/hokApi';
+import { useState } from 'react';
 import { ProductModal } from './ProductModal';
+import { useProducts } from '@/hooks/useProducts';
 
 export const BestSellers = () => {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [bestSellers, setBestSellers] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchBestSellers = async () => {
-      try {
-        const data = await productService.getBestSellers();
-        setBestSellers(data);
-      } catch (error) {
-        console.error('Error fetching best sellers:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchBestSellers();
-  }, []);
+  const { products: bestSellers, isLoading: loading } = useProducts({ isBestSeller: true, limit: 8, sortOption: 'featured' });
 
   const handleViewDetails = (product: Product) => {
     setSelectedProduct(product);

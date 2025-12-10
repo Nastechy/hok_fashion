@@ -1,4 +1,4 @@
-import { useState, useRef, useMemo } from 'react';
+import { useState, useRef } from 'react';
 import { Header } from '@/components/Header';
 import { Hero } from '@/components/Hero';
 import { NewArrivals } from '@/components/NewArrivals';
@@ -9,30 +9,22 @@ import { CustomerReviews } from '@/components/CustomerReviews';
 import { Features } from '@/components/Features';
 import { Footer } from '@/components/Footer';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { products } from '@/data/products';
+import { useProducts } from '@/hooks/useProducts';
+import { SortOption } from '@/services/hokApi';
 
 const Index = () => {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState<SortOption>('featured');
   const productGridRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
+  const { products, isLoading, meta } = useProducts({
+    category: selectedCategory,
+    search: searchQuery,
+    sortOption: sortBy,
+  });
 
-  const filteredProductsCount = useMemo(() => {
-    let filtered = products;
-    
-    if (selectedCategory !== 'All') {
-      filtered = filtered.filter(product => product.category === selectedCategory);
-    }
-    
-    if (searchQuery) {
-      filtered = filtered.filter(product => 
-        product.productCode.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        product.name.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }
-    
-    return filtered.length;
-  }, [selectedCategory, searchQuery]);
+  const filteredProductsCount = meta?.total ?? products.length;
 
   const handleExploreClick = () => {
     productGridRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -54,33 +46,22 @@ const Index = () => {
         productCount={filteredProductsCount}
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
+        sortBy={sortBy}
+        onSortChange={setSortBy}
       />
       
-      {/* Filtered Results - show only when there are active filters */}
-      {(selectedCategory !== 'All' || searchQuery) && (
-        <div ref={productGridRef}>
-          <ProductGrid 
-            selectedCategory={selectedCategory} 
-            onCategoryChange={setSelectedCategory}
-            searchQuery={searchQuery}
-          />
-        </div>
-      )}
-      
-      {/* Default sections - show only when no filters are active */}
-      {selectedCategory === 'All' && !searchQuery && (
-        <>
-          <NewArrivals />
-          <BestSellers />
-          <div ref={productGridRef}>
-            <ProductGrid 
-              selectedCategory={selectedCategory} 
-              onCategoryChange={setSelectedCategory}
-              searchQuery={searchQuery}
-            />
-          </div>
-        </>
-      )}
+      <div ref={productGridRef}>
+        <ProductGrid 
+          selectedCategory={selectedCategory} 
+          onCategoryChange={setSelectedCategory}
+          searchQuery={searchQuery}
+          products={products}
+          isLoading={isLoading}
+        />
+      </div>
+
+      <NewArrivals />
+      <BestSellers />
       <CustomerReviews />
       <Features />
       <Footer />

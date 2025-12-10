@@ -1,10 +1,17 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { User, Session } from '@supabase/supabase-js';
-import { supabase } from '@/integrations/supabase/client';
+import { hokApi } from '@/services/hokApi';
+
+interface AuthUser {
+  id: string;
+  email: string;
+  role?: string;
+  name?: string;
+  phone?: string;
+}
 
 interface AuthContextType {
-  user: User | null;
-  session: Session | null;
+  user: AuthUser | null;
+  token: string | null;
   loading: boolean;
   signUp: (email: string, password: string, firstName?: string, lastName?: string) => Promise<{ error: any }>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
@@ -14,63 +21,73 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Set up auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        setLoading(false);
+    const stored = localStorage.getItem('hok_session');
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        setUser(parsed.user);
+        setToken(parsed.token);
+      } catch (error) {
+        console.error('Failed to parse stored session', error);
       }
-    );
-
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
+    }
+    setLoading(false);
   }, []);
 
   const signUp = async (email: string, password: string, firstName?: string, lastName?: string) => {
-    const redirectUrl = `${window.location.origin}/`;
-    
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: redirectUrl,
-        data: {
-          first_name: firstName,
-          last_name: lastName,
-        }
+    try {
+      const result = await hokApi.register({
+        email,
+        password,
+        name: [firstName, lastName].filter(Boolean).join(' ').trim() || undefined,
+      });
+
+      if (result?.access_token) {
+        const session = { user: result.user, token: result.access_token };
+        localStorage.setItem('hok_session', JSON.stringify(session));
+        setUser(result.user);
+        setToken(result.access_token);
       }
-    });
-    return { error };
+
+      return { error: null };
+    } catch (error: any) {
+      return { error };
+    }
   };
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    return { error };
+    try {
+      const result = await hokApi.login(email, password);
+
+      if (result?.access_token) {
+        const session = { user: result.user, token: result.access_token };
+        localStorage.setItem('hok_session', JSON.stringify(session));
+        setUser(result.user);
+        setToken(result.access_token);
+      }
+
+      return { error: null };
+    } catch (error: any) {
+      console.error('Login failed', error);
+      return { error };
+    }
   };
 
   const signOut = async () => {
-    const { error } = await supabase.auth.signOut();
-    return { error };
+    localStorage.removeItem('hok_session');
+    setUser(null);
+    setToken(null);
+    return { error: null };
   };
 
   const value = {
     user,
-    session,
+    token,
     loading,
     signUp,
     signIn,

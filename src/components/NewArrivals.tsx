@@ -1,28 +1,13 @@
 import { ProductCard } from './ProductCard';
-import { productService, Product } from '@/services/productService';
-import { useState, useEffect } from 'react';
+import { Product } from '@/services/hokApi';
+import { useState } from 'react';
 import { ProductModal } from './ProductModal';
+import { useProducts } from '@/hooks/useProducts';
 
 export const NewArrivals = () => {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [newArrivals, setNewArrivals] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchNewArrivals = async () => {
-      try {
-        const data = await productService.getNewArrivals();
-        setNewArrivals(data);
-      } catch (error) {
-        console.error('Error fetching new arrivals:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchNewArrivals();
-  }, []);
+  const { products: newArrivals, isLoading: loading } = useProducts({ isNewArrival: true, limit: 8, sortOption: 'newest' });
 
   const handleViewDetails = (product: Product) => {
     setSelectedProduct(product);

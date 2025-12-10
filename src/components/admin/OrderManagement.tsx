@@ -1,5 +1,4 @@
-import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
@@ -12,96 +11,89 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-
-interface Order {
-  id: string;
-  total_amount: number;
-  status: string;
-  created_at: string;
-  user: {
-    first_name: string;
-    last_name: string;
-    email: string;
-  };
-  order_items: {
-    quantity: number;
-    price_at_time: number;
-    product: {
-      name: string;
-    };
-  }[];
-}
+import { hokApi, Order } from '@/services/hokApi';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 const OrderManagement = () => {
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const [offlineOrder, setOfflineOrder] = useState({
+    productId: '',
+    quantity: '1',
+    customerName: '',
+    customerEmail: '',
+    customerPhone: '',
+    shippingAddress: '',
+    note: '',
+  });
 
-  useEffect(() => {
-    fetchOrders();
-  }, []);
+  const ordersQuery = useQuery({
+    queryKey: ['admin-orders'],
+    queryFn: () => hokApi.fetchOrders(),
+  });
 
-  const fetchOrders = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('orders')
-        .select(`
-          id,
-          total_amount,
-          status,
-          created_at,
-          profiles:user_id (
-            first_name,
-            last_name,
-            email
-          ),
-          order_items (
-            quantity,
-            price_at_time,
-            products (
-              name
-            )
-          )
-        `)
-        .order('created_at', { ascending: false });
+  const metricsQuery = useQuery({
+    queryKey: ['admin-metrics'],
+    queryFn: () => hokApi.fetchMetricsOverview(),
+  });
 
-      if (error) throw error;
+  const statusMutation = useMutation({
+    mutationFn: ({ id, status }: { id: string; status: string }) => hokApi.updateOrderStatus(id, status),
+    onSuccess: () => {
+      toast({ title: "Order updated", description: "Status updated successfully" });
+      ordersQuery.refetch();
+    },
+    onError: (error: any) => {
+      toast({ title: "Update failed", description: error?.message || "Could not update status", variant: "destructive" });
+    },
+  });
 
-      const formattedOrders = data?.map(order => ({
-        id: order.id,
-        total_amount: order.total_amount,
-        status: order.status,
-        created_at: order.created_at,
-        user: {
-          first_name: (order.profiles as any)?.first_name || '',
-          last_name: (order.profiles as any)?.last_name || '',
-          email: (order.profiles as any)?.email || ''
-        },
-        order_items: order.order_items?.map(item => ({
-          quantity: item.quantity,
-          price_at_time: item.price_at_time,
-          product: {
-            name: (item.products as any)?.name || 'Unknown Product'
-          }
-        })) || []
-      })) || [];
+  const confirmPaymentMutation = useMutation({
+    mutationFn: ({ id, reference }: { id: string; reference?: string }) => hokApi.confirmOrderPayment(id, { reference }),
+    onSuccess: () => {
+      toast({ title: "Payment confirmed", description: "Payment marked as confirmed" });
+      ordersQuery.refetch();
+    },
+    onError: (error: any) => {
+      toast({ title: "Payment update failed", description: error?.message || "Could not confirm payment", variant: "destructive" });
+    },
+  });
 
-      setOrders(formattedOrders);
-    } catch (error) {
-      console.error('Error fetching orders:', error);
-      toast({
-        title: "Error",
-        description: "Failed to fetch orders",
-        variant: "destructive",
+  const createOfflineOrder = useMutation({
+    mutationFn: () => hokApi.createOrder(
+      {
+        items: [{ productId: offlineOrder.productId, quantity: Number(offlineOrder.quantity) || 1 }],
+        shippingAddress: offlineOrder.shippingAddress,
+        note: offlineOrder.note,
+        customerEmail: offlineOrder.customerEmail,
+        customerName: offlineOrder.customerName,
+        customerPhone: offlineOrder.customerPhone,
+      },
+      false
+    ),
+    onSuccess: () => {
+      toast({ title: "Order created", description: "Offline order recorded successfully" });
+      setOfflineOrder({
+        productId: '',
+        quantity: '1',
+        customerName: '',
+        customerEmail: '',
+        customerPhone: '',
+        shippingAddress: '',
+        note: '',
       });
-    } finally {
-      setLoading(false);
-    }
-  };
+      ordersQuery.refetch();
+    },
+    onError: (error: any) => {
+      toast({ title: "Creation failed", description: error?.message || "Could not create offline order", variant: "destructive" });
+    },
+  });
 
   const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
-      case 'completed':
+    switch ((status || '').toLowerCase()) {
+      case 'confirmed':
         return 'default';
       case 'pending':
         return 'secondary';
@@ -112,13 +104,10 @@ const OrderManagement = () => {
     }
   };
 
-  if (loading) {
-    return <div>Loading orders...</div>;
-  }
-
-  const totalRevenue = orders.reduce((sum, order) => sum + Number(order.total_amount), 0);
-  const totalOrders = orders.length;
-  const pendingOrders = orders.filter(order => order.status === 'pending').length;
+  const orders: Order[] = ordersQuery.data || [];
+  const totalRevenue = metricsQuery.data?.totalRevenue ?? orders.reduce((sum, order) => sum + Number(order.totalAmount || 0), 0);
+  const totalOrders = metricsQuery.data?.totalOrders ?? orders.length;
+  const pendingOrders = metricsQuery.data?.pendingOrders ?? orders.filter(order => (order.status || '').toLowerCase() === 'pending').length;
 
   return (
     <div className="space-y-6">
@@ -134,7 +123,7 @@ const OrderManagement = () => {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${totalRevenue.toFixed(2)}</div>
+            <div className="text-2xl font-bold">${Number(totalRevenue).toFixed(2)}</div>
           </CardContent>
         </Card>
 
@@ -159,6 +148,77 @@ const OrderManagement = () => {
         </Card>
       </div>
 
+      {/* Offline Order Form */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Create Offline Order</CardTitle>
+        </CardHeader>
+        <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <Label>Product ID</Label>
+            <Input
+              value={offlineOrder.productId}
+              onChange={(e) => setOfflineOrder(prev => ({ ...prev, productId: e.target.value }))}
+              placeholder="Product ID"
+            />
+          </div>
+          <div>
+            <Label>Quantity</Label>
+            <Input
+              type="number"
+              value={offlineOrder.quantity}
+              onChange={(e) => setOfflineOrder(prev => ({ ...prev, quantity: e.target.value }))}
+              min={1}
+            />
+          </div>
+          <div>
+            <Label>Shipping Address</Label>
+            <Input
+              value={offlineOrder.shippingAddress}
+              onChange={(e) => setOfflineOrder(prev => ({ ...prev, shippingAddress: e.target.value }))}
+              placeholder="Address"
+            />
+          </div>
+          <div>
+            <Label>Customer Name</Label>
+            <Input
+              value={offlineOrder.customerName}
+              onChange={(e) => setOfflineOrder(prev => ({ ...prev, customerName: e.target.value }))}
+              placeholder="Full name"
+            />
+          </div>
+          <div>
+            <Label>Customer Email</Label>
+            <Input
+              value={offlineOrder.customerEmail}
+              onChange={(e) => setOfflineOrder(prev => ({ ...prev, customerEmail: e.target.value }))}
+              placeholder="email@example.com"
+            />
+          </div>
+          <div>
+            <Label>Customer Phone</Label>
+            <Input
+              value={offlineOrder.customerPhone}
+              onChange={(e) => setOfflineOrder(prev => ({ ...prev, customerPhone: e.target.value }))}
+              placeholder="+1234567890"
+            />
+          </div>
+          <div className="md:col-span-3">
+            <Label>Note</Label>
+            <Input
+              value={offlineOrder.note}
+              onChange={(e) => setOfflineOrder(prev => ({ ...prev, note: e.target.value }))}
+              placeholder="Optional note"
+            />
+          </div>
+          <div className="md:col-span-3">
+            <Button onClick={() => createOfflineOrder.mutate()} disabled={createOfflineOrder.isPending}>
+              {createOfflineOrder.isPending ? 'Creating...' : 'Create Offline Order'}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Orders Table */}
       <Card>
         <CardHeader>
@@ -174,6 +234,7 @@ const OrderManagement = () => {
                 <TableHead>Total</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Date</TableHead>
+                <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -187,35 +248,53 @@ const OrderManagement = () => {
                       <User className="w-4 h-4 text-muted-foreground" />
                       <div>
                         <div className="font-medium">
-                          {order.user.first_name} {order.user.last_name}
+                          {order.customerName || 'Guest'}
                         </div>
                         <div className="text-sm text-muted-foreground">
-                          {order.user.email}
+                          {order.customerEmail || 'N/A'}
                         </div>
                       </div>
                     </div>
                   </TableCell>
                   <TableCell>
                     <div className="space-y-1">
-                      {order.order_items.map((item, index) => (
+                      {order.items?.map((item, index) => (
                         <div key={index} className="text-sm">
-                          {item.quantity}x {item.product.name}
+                          {item.quantity}x {item.product?.name || item.productId}
                         </div>
                       ))}
                     </div>
                   </TableCell>
                   <TableCell className="font-medium">
-                    ${Number(order.total_amount).toFixed(2)}
+                    ${Number(order.totalAmount || 0).toFixed(2)}
                   </TableCell>
                   <TableCell>
-                    <Badge variant={getStatusColor(order.status)}>
-                      {order.status}
+                    <Badge variant={getStatusColor(order.status || '')}>
+                      {order.status || 'PENDING'}
                     </Badge>
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Calendar className="w-4 h-4" />
-                      {new Date(order.created_at).toLocaleDateString()}
+                      {order.createdAt ? new Date(order.createdAt).toLocaleDateString() : 'N/A'}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex flex-col gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => statusMutation.mutate({ id: order.id, status: 'CONFIRMED' })}
+                      >
+                        Mark Confirmed
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => confirmPaymentMutation.mutate({ id: order.id, reference: order.id })}
+                      >
+                        Confirm Payment
+                      </Button>
                     </div>
                   </TableCell>
                 </TableRow>

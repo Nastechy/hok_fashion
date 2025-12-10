@@ -4,7 +4,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Upload, X, Image as ImageIcon } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
 
 interface ImageUploadProps {
   value: string;
@@ -27,59 +26,29 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
   const handleFileUpload = async (file: File) => {
     if (!file) return;
 
-    // Validate file type
-    if (!file.type.startsWith('image/')) {
-      toast({
-        title: "Error",
-        description: "Please select an image file",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // Validate file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      toast({
-        title: "Error",
-        description: "File size must be less than 5MB",
-        variant: "destructive",
-      });
-      return;
-    }
-
+    // In this implementation we only support local preview and expect the caller
+    // to provide a hosted URL (e.g. from a CDN). We simply read the file locally.
     setUploading(true);
-
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-
-      const { data, error } = await supabase.functions.invoke('cloudinary-upload', {
-        body: formData,
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const result = reader.result as string;
+      onChange(result);
+      setPreviewUrl(result);
+      toast({
+        title: "Preview ready",
+        description: "Remember to replace with a hosted URL before saving.",
       });
-
-      if (error) throw error;
-
-      if (data.success) {
-        const imageUrl = data.url;
-        onChange(imageUrl);
-        setPreviewUrl(imageUrl);
-        toast({
-          title: "Success",
-          description: "Image uploaded successfully",
-        });
-      } else {
-        throw new Error(data.error || 'Upload failed');
-      }
-    } catch (error) {
-      console.error('Upload error:', error);
+      setUploading(false);
+    };
+    reader.onerror = () => {
       toast({
         title: "Error",
-        description: "Failed to upload image. Please try again.",
+        description: "Failed to read the file. Please try another image.",
         variant: "destructive",
       });
-    } finally {
       setUploading(false);
-    }
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleUrlChange = (url: string) => {

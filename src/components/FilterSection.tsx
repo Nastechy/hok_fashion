@@ -1,7 +1,5 @@
-import { useState } from 'react';
 import { Filter, ChevronDown, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import {
   DropdownMenu,
@@ -9,7 +7,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuItem,
 } from '@/components/ui/dropdown-menu';
-import { categories } from '@/data/products';
+import { SortOption } from '@/services/hokApi';
 
 interface FilterSectionProps {
   selectedCategory: string;
@@ -17,17 +15,21 @@ interface FilterSectionProps {
   productCount: number;
   searchQuery: string;
   onSearchChange: (query: string) => void;
+  sortBy: SortOption;
+  onSortChange: (sort: SortOption) => void;
 }
 
-export const FilterSection = ({ selectedCategory, onCategoryChange, productCount, searchQuery, onSearchChange }: FilterSectionProps) => {
-  const [sortBy, setSortBy] = useState('featured');
+const sortOptions: { value: SortOption; label: string }[] = [
+  { value: 'featured', label: 'Featured' },
+  { value: 'price-low', label: 'Price: Low to High' },
+  { value: 'price-high', label: 'Price: High to Low' },
+  { value: 'name', label: 'Name A-Z' },
+  { value: 'newest', label: 'Newest' },
+];
 
-  const sortOptions = [
-    { value: 'featured', label: 'Featured' },
-    { value: 'price-low', label: 'Price: Low to High' },
-    { value: 'price-high', label: 'Price: High to Low' },
-    { value: 'name', label: 'Name A-Z' },
-  ];
+const categories = ['All', 'AVAILABLE', 'BEST_SELLER', 'NEW_ARRIVAL', 'FEATURE', 'INCOMING'];
+
+export const FilterSection = ({ selectedCategory, onCategoryChange, productCount, searchQuery, onSearchChange, sortBy, onSortChange }: FilterSectionProps) => {
 
   return (
     <section className="py-12 bg-gradient-subtle border-b border-border/50">
@@ -109,7 +111,7 @@ export const FilterSection = ({ selectedCategory, onCategoryChange, productCount
                     {sortOptions.map((option) => (
                       <DropdownMenuItem
                         key={option.value}
-                        onClick={() => setSortBy(option.value)}
+                        onClick={() => onSortChange(option.value)}
                         className={`font-inter transition-colors ${
                           sortBy === option.value 
                             ? 'bg-primary/10 text-primary font-medium' 

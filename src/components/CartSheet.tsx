@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { useCart } from '@/contexts/CartContext';
 import { Separator } from '@/components/ui/separator';
+import { useNavigate } from 'react-router-dom';
 
 interface CartSheetProps {
   children: ReactNode;
@@ -11,10 +12,10 @@ interface CartSheetProps {
 
 export const CartSheet = ({ children }: CartSheetProps) => {
   const { items, updateQuantity, removeItem, total, clearCart } = useCart();
+  const navigate = useNavigate();
 
   const handleCheckout = () => {
-    // Placeholder for checkout functionality
-    alert('Checkout functionality will be implemented next!');
+    navigate('/payment');
   };
 
   return (

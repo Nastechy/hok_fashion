@@ -34,7 +34,7 @@ export default function Auth() {
     if (error) {
       toast({
         title: "Sign in failed",
-        description: error.message,
+        description: error.message || 'Unable to sign in',
         variant: "destructive",
       });
     } else {
@@ -63,14 +63,15 @@ export default function Auth() {
     if (error) {
       toast({
         title: "Sign up failed",
-        description: error.message,
+        description: error.message || 'Unable to create account',
         variant: "destructive",
       });
     } else {
       toast({
         title: "Account created!",
-        description: "Please check your email to verify your account.",
+        description: "You are now signed in.",
       });
+      navigate('/');
     }
 
     setIsLoading(false);

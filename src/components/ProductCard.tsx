@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useCart } from '@/contexts/CartContext';
-import { Product } from '@/services/productService';
+import { Product } from '@/services/hokApi';
 import { useState } from 'react';
 
 interface ProductCardProps {
@@ -13,6 +13,7 @@ interface ProductCardProps {
 export const ProductCard = ({ product, onViewDetails }: ProductCardProps) => {
   const { addItem } = useCart();
   const [, setIsHovered] = useState(false);
+  const cover = product.imageUrls?.[0] || 'https://via.placeholder.com/400x400?text=HOK';
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -20,7 +21,7 @@ export const ProductCard = ({ product, onViewDetails }: ProductCardProps) => {
       id: product.id,
       name: product.name,
       price: product.price,
-      image: product.image_url || '',
+      image: cover,
     });
   };
 
@@ -35,7 +36,7 @@ export const ProductCard = ({ product, onViewDetails }: ProductCardProps) => {
       <CardContent className="p-0">
         <div className="relative overflow-hidden rounded-t-lg">
           <img
-            src={product.image_url || ''}
+            src={cover}
             alt={product.name}
             className="w-full h-64 object-cover transition-transform duration-500 group-hover:scale-105"
           />
@@ -45,14 +46,14 @@ export const ProductCard = ({ product, onViewDetails }: ProductCardProps) => {
           >
             {product.category}
           </Badge>
-          {product.is_best_seller && (
+          {product.isBestSeller && (
             <Badge 
               className="absolute top-3 right-3 bg-red/90 text-red-foreground font-inter font-medium backdrop-blur-sm text-xs"
             >
               Best Seller
             </Badge>
           )}
-          {product.is_new_arrival && (
+          {product.isNewArrival && (
             <Badge 
               className="absolute top-12 right-3 bg-accent/90 text-accent-foreground font-inter font-medium backdrop-blur-sm text-xs"
             >

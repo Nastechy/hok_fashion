@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { ProductCard } from './ProductCard';
 import { ProductModal } from './ProductModal';
-import { productService, Product } from '@/services/productService';
+import { Product } from '@/services/hokApi';
 import { Button } from '@/components/ui/button';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -9,52 +9,33 @@ interface ProductGridProps {
   selectedCategory: string;
   onCategoryChange: (category: string) => void;
   searchQuery?: string;
+  products: Product[];
+  isLoading?: boolean;
 }
 
-export const ProductGrid = ({ selectedCategory, onCategoryChange, searchQuery = '' }: ProductGridProps) => {
+export const ProductGrid = ({ selectedCategory, onCategoryChange, searchQuery = '', products, isLoading = false }: ProductGridProps) => {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showAll, setShowAll] = useState(false);
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
   const isMobile = useIsMobile();
-
-  useEffect(() => {
-    const fetchProducts = async () => {
-      setLoading(true);
-      try {
-        if (searchQuery) {
-          const searchResults = await productService.searchProducts(searchQuery);
-          setProducts(searchResults);
-        } else if (selectedCategory !== 'All') {
-          const categoryProducts = await productService.getProductsByCategory(selectedCategory);
-          setProducts(categoryProducts);
-        } else {
-          const allProducts = await productService.getAllProducts();
-          setProducts(allProducts);
-        }
-      } catch (error) {
-        console.error('Error fetching products:', error);
-        setProducts([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProducts();
-  }, [selectedCategory, searchQuery]);
 
   const filteredProducts = useMemo(() => {
     let filtered = products;
-    
+
     if (selectedCategory !== 'All') {
       filtered = filtered.filter(product => product.category === selectedCategory);
     }
-    
-    // Filtering is now handled in useEffect above
-    
+
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(product =>
+        product.name.toLowerCase().includes(query) ||
+        (product.productCode || '').toLowerCase().includes(query)
+      );
+    }
+
     return filtered;
-  }, [selectedCategory, searchQuery]);
+  }, [products, selectedCategory, searchQuery]);
 
   const displayedProducts = useMemo(() => {
     if (!isMobile || showAll) {
@@ -64,9 +45,9 @@ export const ProductGrid = ({ selectedCategory, onCategoryChange, searchQuery = 
   }, [filteredProducts, isMobile, showAll]);
 
   // Reset showAll when category or search changes
-  useMemo(() => {
+  useEffect(() => {
     setShowAll(false);
-  }, [selectedCategory, searchQuery]);
+  }, [selectedCategory, searchQuery, products]);
 
   const handleViewDetails = (product: Product) => {
     setSelectedProduct(product);
@@ -91,7 +72,7 @@ export const ProductGrid = ({ selectedCategory, onCategoryChange, searchQuery = 
             </p>
           </div>
 
-          {loading ? (
+          {isLoading ? (
             <div className="text-center py-16">
               <p className="text-xl text-muted-foreground">Loading products...</p>
             </div>

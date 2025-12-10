@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ShoppingBag, Menu, X, Search, ChevronDown, User, LogOut } from 'lucide-react';
+import { ShoppingBag, Menu, Search, ChevronDown, User, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Badge } from '@/components/ui/badge';
@@ -11,7 +11,8 @@ import { useCart } from '@/hooks/useCart';
 import { useAdmin } from '@/hooks/useAdmin';
 import { Link } from 'react-router-dom';
 import { CartSheet } from './CartSheet';
-import { products } from '@/data/products';
+import { useQuery } from '@tanstack/react-query';
+import { hokApi, Product } from '@/services/hokApi';
 
 interface HeaderProps {
   onCategoryChange?: (category: string) => void;
@@ -26,17 +27,17 @@ export const Header = ({ onCategoryChange, selectedCategory = 'All' }: HeaderPro
   const { user, signOut } = useAuth();
   const { isAdmin } = useAdmin();
 
-  const categories = ['All', 'Totes', 'Crossbody', 'Shoulder', 'Clutches'];
+  const categories = ['All', 'AVAILABLE', 'BEST_SELLER', 'NEW_ARRIVAL', 'FEATURE', 'INCOMING'];
 
-  // Search functionality
-  const searchResults = searchTerm.trim() 
-    ? products.filter(product => 
-        product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.features.some(feature => feature.toLowerCase().includes(searchTerm.toLowerCase()))
-      )
-    : [];
+  const { data: searchData } = useQuery({
+    queryKey: ['header-search', searchTerm],
+    queryFn: () => hokApi.fetchProducts({ search: searchTerm, limit: 8 }),
+    enabled: searchTerm.trim().length > 1,
+  });
+
+  const searchResults: Product[] = searchData?.data ?? [];
+
+  const getImage = (product: Product) => product.imageUrls?.[0] || '';
 
   const handleSearchSelect = (product: any) => {
     // Scroll to product or navigate to product
@@ -133,7 +134,7 @@ export const Header = ({ onCategoryChange, selectedCategory = 'All' }: HeaderPro
                               className="flex items-center space-x-3 p-3 rounded-lg hover:bg-secondary cursor-pointer transition-colors"
                             >
                               <img 
-                                src={product.image} 
+                                src={getImage(product)} 
                                 alt={product.name}
                                 className="w-12 h-12 object-cover rounded-md"
                               />
