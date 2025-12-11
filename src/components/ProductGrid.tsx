@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ProductCard } from './ProductCard';
-import { ProductModal } from './ProductModal';
 import { Product } from '@/services/hokApi';
 import { Button } from '@/components/ui/button';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -11,13 +11,13 @@ interface ProductGridProps {
   searchQuery?: string;
   products: Product[];
   isLoading?: boolean;
+  showAllOnMobile?: boolean;
 }
 
-export const ProductGrid = ({ selectedCategory, onCategoryChange, searchQuery = '', products, isLoading = false }: ProductGridProps) => {
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+export const ProductGrid = ({ selectedCategory, onCategoryChange, searchQuery = '', products, isLoading = false, showAllOnMobile = false }: ProductGridProps) => {
   const [showAll, setShowAll] = useState(false);
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
 
   const filteredProducts = useMemo(() => {
     let filtered = products;
@@ -38,11 +38,11 @@ export const ProductGrid = ({ selectedCategory, onCategoryChange, searchQuery = 
   }, [products, selectedCategory, searchQuery]);
 
   const displayedProducts = useMemo(() => {
-    if (!isMobile || showAll) {
+    if (!isMobile || showAll || showAllOnMobile) {
       return filteredProducts;
     }
     return filteredProducts.slice(0, 5);
-  }, [filteredProducts, isMobile, showAll]);
+  }, [filteredProducts, isMobile, showAll, showAllOnMobile]);
 
   // Reset showAll when category or search changes
   useEffect(() => {
@@ -50,19 +50,13 @@ export const ProductGrid = ({ selectedCategory, onCategoryChange, searchQuery = 
   }, [selectedCategory, searchQuery, products]);
 
   const handleViewDetails = (product: Product) => {
-    setSelectedProduct(product);
-    setIsModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setSelectedProduct(null);
+    navigate(`/products/${product.id}`);
   };
 
   return (
     <>
       <section id="collection-grid" className="py-6 md:py-16 bg-background">
-        <div className="container px-6  md:px-16">
+        <div className="container px-4 md:px-16">
           <div className="text-center mb-12">
             <h2 className="text-4xl font-bold text-foreground mb-4 font-playfair">
               {selectedCategory === 'All' ? 'Our Collection' : selectedCategory}
@@ -77,7 +71,7 @@ export const ProductGrid = ({ selectedCategory, onCategoryChange, searchQuery = 
               <p className="text-xl text-muted-foreground">Loading products...</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 md:gap-8 gap-2">
               {displayedProducts.map((product) => (
                 <ProductCard
                   key={product.id}
@@ -88,7 +82,7 @@ export const ProductGrid = ({ selectedCategory, onCategoryChange, searchQuery = 
             </div>
           )}
 
-          {isMobile && !showAll && filteredProducts.length > 5 && (
+          {isMobile && !showAllOnMobile && !showAll && filteredProducts.length > 5 && (
             <div className="text-center mt-8">
               <Button 
                 variant="outline" 
@@ -109,12 +103,6 @@ export const ProductGrid = ({ selectedCategory, onCategoryChange, searchQuery = 
           )}
         </div>
       </section>
-
-      <ProductModal
-        product={selectedProduct}
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-      />
     </>
   );
 };

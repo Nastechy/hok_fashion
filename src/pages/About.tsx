@@ -1,9 +1,19 @@
+import { useEffect, useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Award, Users, Globe, Heart } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import heroImage from '@/assets/hero-bag.jpg';
+import { useProducts } from '@/hooks/useProducts';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+  CarouselApi,
+} from '@/components/ui/carousel';
 
 const About = () => {
   const stats = [
@@ -13,14 +23,24 @@ const About = () => {
     { icon: Heart, label: 'Handcrafted Bags', value: '100,000+' },
   ];
 
+  const { products: bestSellers } = useProducts({ category: 'BEST_SELLER', sortOption: 'featured', limit: 6 });
+  const bestSellerSlides = useMemo(() => bestSellers || [], [bestSellers]);
+  const [carouselApi, setCarouselApi] = useState<CarouselApi | null>(null);
+
+  useEffect(() => {
+    if (!carouselApi || bestSellerSlides.length <= 1) return;
+    const timer = setInterval(() => carouselApi.scrollNext(), 3000);
+    return () => clearInterval(timer);
+  }, [carouselApi, bestSellerSlides.length]);
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
       
       <main>
         {/* Hero Section */}
-        <section className="py-20 bg-gradient-elegant">
-          <div className="container px-4 md:px-14 py-16">
+        <section className=" bg-gradient-elegant">
+          <div className="container px-4 md:px-16 py-14 md:py-20">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
               <div className="space-y-8">
                 <h1 className="text-5xl font-bold text-foreground font-playfair">
@@ -35,12 +55,50 @@ const About = () => {
                   Our Story
                 </Button>
               </div>
-              <div className="relative">
-                <img
-                  src={heroImage}
-                  alt="HOK Fashion craftsmanship"
-                  className="w-full h-auto rounded-2xl shadow-luxury"
-                />
+              <div className="relative ">
+                {bestSellerSlides.length > 0 ? (
+                  <div className="relative rounded-[32px] border border-border/60 bg-white shadow-elegant p-6 md:p-8">
+                    <Carousel className="w-full" opts={{ loop: true }}>
+                      <CarouselContent>
+                        {bestSellerSlides.map((product) => {
+                          const cover = product.imageUrls?.[0] || product.images?.[0] || heroImage;
+                          return (
+                            <CarouselItem key={product.id}>
+                              <div className="space-y-3">
+                                <div className="overflow-hidden rounded-[16px] bg-white flex items-center justify-center">
+                                  <img
+                                    src={cover}
+                                    alt={product.name}
+                                    className="w-full h-[400px] md:h-[500px] object-cover rounded-[28px]"
+                                  />
+                                </div>
+                                <div className="flex items-center justify-between">
+                                  <div>
+                                    <p className="text-xs uppercase text-muted-foreground tracking-wide">Best Seller</p>
+                                    <p className="text-lg font-semibold text-foreground">{product.name}</p>
+                                  </div>
+                                  {product.price && (
+                                    <p className="text-red font-playfair text-lg">
+                                      {product.price.toLocaleString('en-NG', { style: 'currency', currency: 'NGN', minimumFractionDigits: 0 })}
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
+                            </CarouselItem>
+                          );
+                        })}
+                      </CarouselContent>
+                      <CarouselPrevious className="left-1 md:left-3" />
+                      <CarouselNext className="right-1 md:right-3" />
+                    </Carousel>
+                  </div>
+                ) : (
+                  <img
+                    src={heroImage}
+                    alt="HOK Fashion craftsmanship"
+                    className="w-full h-auto rounded-2xl shadow-luxury"
+                  />
+                )}
               </div>
             </div>
           </div>
@@ -48,7 +106,7 @@ const About = () => {
 
         {/* Our Story */}
         <section className="py-20">
-          <div className="container px-6  md:px-16">
+          <div className="container px-6 md:px-16">
             <div className="max-w-4xl mx-auto text-center space-y-8">
               <h2 className="text-4xl font-bold text-foreground font-playfair">
                 Our Story
@@ -76,7 +134,7 @@ const About = () => {
         </section>
 
         {/* Stats */}
-        <section className="py-20 bg-secondary/30">
+        <section className="md:py-20 py-10 bg-secondary/30">
           <div className="container px-6  md:px-16">
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
               {stats.map((stat, index) => (

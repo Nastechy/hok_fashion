@@ -73,6 +73,7 @@ export interface CreateProductInput {
   isAvailable?: boolean;
   isBestSeller?: boolean;
   isNewArrival?: boolean;
+  existingImages?: string[];
   variants?: Array<{
     name: string;
     priceDelta?: number;
@@ -339,9 +340,41 @@ export const hokApi = {
   },
 
   async updateProduct(id: string, input: Partial<CreateProductInput>) {
+    const hasFiles = (input.images && input.images.length > 0) || (input.videos && input.videos.length > 0);
+
+    if (hasFiles) {
+      const form = new FormData();
+      if (input.name) form.append('name', input.name);
+      if (typeof input.price === 'number') form.append('price', String(input.price));
+      if (input.productCode) form.append('productCode', input.productCode);
+      if (typeof input.quantity === 'number') form.append('quantity', String(Math.max(0, input.quantity)));
+      if (input.collectionType) form.append('collectionType', input.collectionType);
+      if (input.category) form.append('category', input.category);
+      if (typeof input.isFeatured === 'boolean') form.append('isFeatured', String(input.isFeatured));
+      if (typeof input.isAvailable === 'boolean') form.append('isAvailable', String(input.isAvailable));
+      if (typeof input.isBestSeller === 'boolean') form.append('isBestSeller', String(input.isBestSeller));
+      if (typeof input.isNewArrival === 'boolean') form.append('isNewArrival', String(input.isNewArrival));
+      if (input.description) form.append('description', input.description);
+      if (input.features) form.append('features', Array.isArray(input.features) ? input.features.join(', ') : String(input.features));
+      if (input.existingImages) form.append('existingImages', JSON.stringify(input.existingImages));
+      if (input.variants && input.variants.length) form.append('variants', JSON.stringify(input.variants));
+      input.images?.forEach((file) => form.append('images', file));
+      input.videos?.forEach((file) => form.append('videos', file));
+
+      const result = await apiRequest<Product>(`/products/${id}`, {
+        method: 'PATCH',
+        body: form,
+        isFormData: true,
+      });
+      return normalizeProduct(result);
+    }
+
     const payload = { ...input };
     if (typeof payload.quantity === 'number') {
       payload.quantity = Math.max(0, payload.quantity);
+    }
+    if (payload.existingImages) {
+      payload.existingImages = payload.existingImages;
     }
     const result = await apiRequest<Product>(`/products/${id}`, {
       method: 'PATCH',

@@ -75,7 +75,7 @@ export const Hero = ({ onExploreClick }: HeroProps) => {
           </div>
 
           <div className="relative motion-float lg:pl-6">
-            <div className="relative z-10 rounded-[32px] overflow-hidden bg-white/95 shadow-luxury border border-border/50 p-6 md:p-8">
+            <div className="relative z-10 rounded-[32px] overflow-hidden bg-white/95 shadow-luxury border border-border/50 p-6">
               {slides.length > 0 ? (
                 <Carousel className="w-full" opts={{ loop: true }} setApi={setCarouselApi}>
                   <CarouselContent>
@@ -115,7 +115,7 @@ export const Hero = ({ onExploreClick }: HeroProps) => {
                   <img
                     src={heroImage}
                     alt="Luxury handbag collection"
-                    className="w-full h-[380px] md:h-[450px] rounded-2xl shadow-luxury object-cover"
+                    className="w-full h-[400px] md:h-[500px] rounded-2xl shadow-luxury object-cover"
                   />
                 </div>
               )}

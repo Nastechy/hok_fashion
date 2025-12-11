@@ -19,6 +19,7 @@ import Collections from "./pages/Collections";
 import FAQ from "./pages/FAQ";
 import OrderDetails from "./pages/OrderDetails";
 import Newsletter from "./pages/Newsletter";
+import ProductDetails from "./pages/ProductDetails";
 
 const queryClient = new QueryClient();
 
@@ -43,6 +44,7 @@ const App = () => (
               <Route path="/collections/:category" element={<Collections />} />
               <Route path="/faq" element={<FAQ />} />
               <Route path="/newsletter" element={<Newsletter />} />
+              <Route path="/products/:id" element={<ProductDetails />} />
               <Route path="/orders/:orderId" element={<OrderDetails />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />

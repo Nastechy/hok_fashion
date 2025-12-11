@@ -94,12 +94,12 @@ export const ProductReviews = ({ productId, productName, initialData }: ProductR
 
   return (
     <section className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div className="space-y-1">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="space-y-1 min-w-[180px]">
           <p className="text-sm font-semibold text-foreground">Product Reviews</p>
           <p className="text-xs text-muted-foreground">Share your experience with {productName}</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-2 rounded-full bg-secondary px-3 py-1.5">
             <div className="flex items-center">
               {[...Array(5)].map((_, i) => (
@@ -109,16 +109,16 @@ export const ProductReviews = ({ productId, productName, initialData }: ProductR
                 />
               ))}
             </div>
-            <span className="text-sm font-medium text-foreground">
+            <span className="text-sm font-medium text-foreground whitespace-nowrap">
               {reviewCount > 0 ? `${averageRating.toFixed(1)}` : 'No ratings'}
             </span>
           </div>
           <Button variant="luxury" size="sm" onClick={() => setIsDialogOpen(true)}>
             Add product review
           </Button>
-          <Button variant="outline" size="sm" onClick={() => setShowReviews((prev) => !prev)}>
-            <Eye className="h-4 w-4 mr-2" />
-            {showReviews ? 'Hide reviews' : 'View other reviews'}
+          <Button variant="outline" size="sm" className="truncate max-w-[180px]" onClick={() => setShowReviews((prev) => !prev)}>
+            <Eye className="h-4 w-4 mr-2 shrink-0" />
+            <span className="truncate">{showReviews ? 'Hide reviews' : 'View other reviews'}</span>
           </Button>
         </div>
       </div>

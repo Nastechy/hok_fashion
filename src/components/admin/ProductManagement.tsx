@@ -9,7 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Plus, Edit, Trash2, Save, X } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
+// import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { hokApi, Product, CreateProductInput } from '@/services/hokApi';
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -35,6 +35,8 @@ const ProductManagement = () => {
     features: '',
     images: [] as File[],
     videos: [] as File[],
+    existingImages: [] as string[],
+    newImagePreviews: [] as string[],
     variants: [] as { name: string; sku: string; priceDelta: string; quantity: string }[],
     newVariant: { name: '', sku: '', priceDelta: '', quantity: '' },
   });
@@ -77,7 +79,15 @@ const ProductManagement = () => {
       productsQuery.refetch();
     },
     onError: (error: any) => {
-      toast({ title: "Error", description: error?.message || "Failed to delete product", variant: "destructive" });
+      const message = String(error?.message || '');
+      const relationBlocked = message.includes('ProductVariant') || message.includes('required relation');
+      toast({
+        title: "Error",
+        description: relationBlocked
+          ? "This product has variants tied to it. Delete or detach variants first, or enable cascading deletes in the API."
+          : message || "Failed to delete product",
+        variant: "destructive",
+      });
     },
   });
 
@@ -97,6 +107,8 @@ const ProductManagement = () => {
       features: '',
       images: [],
       videos: [],
+      existingImages: [],
+      newImagePreviews: [],
       variants: [],
       newVariant: { name: '', sku: '', priceDelta: '', quantity: '' },
     });
@@ -121,6 +133,8 @@ const ProductManagement = () => {
         features: product.features?.join(', ') || '',
         images: [],
         videos: [],
+        existingImages: product.images || product.imageUrls || [],
+        newImagePreviews: [],
         variants: product.variants?.map(v => ({
           name: v.name || '',
           sku: v.sku || '',
@@ -136,6 +150,7 @@ const ProductManagement = () => {
   };
 
   const closeDialog = () => {
+    formData.newImagePreviews.forEach((url) => URL.revokeObjectURL(url));
     setIsDialogOpen(false);
     resetForm();
   };
@@ -174,6 +189,7 @@ const ProductManagement = () => {
       features: formData.features,
       images: formData.images,
       videos: formData.videos,
+      existingImages: formData.existingImages,
       variants: formData.variants
         .filter(v => v.name && v.sku)
         .map(v => ({
@@ -192,8 +208,7 @@ const ProductManagement = () => {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this product?')) return;
-
+    if (!confirm('Are you sure you want to delete this product? This action cannot be undone.')) return;
     deleteProduct.mutate(id);
   };
 
@@ -313,7 +328,13 @@ const ProductManagement = () => {
                     accept="image/*"
                     onChange={(e) => {
                       const files = Array.from(e.target.files || []);
-                      setFormData(prev => ({ ...prev, images: files }));
+                      if (!files.length) return;
+                      const previews = files.map((file) => URL.createObjectURL(file));
+                      setFormData(prev => ({
+                        ...prev,
+                        images: [...prev.images, ...files],
+                        newImagePreviews: [...prev.newImagePreviews, ...previews],
+                      }));
                     }}
                   />
                   {formData.images.length > 0 && (
@@ -328,6 +349,15 @@ const ProductManagement = () => {
                           </span>
                         ))}
                       </div>
+                      {formData.newImagePreviews.length > 0 && (
+                        <div className="flex flex-wrap gap-2">
+                          {formData.newImagePreviews.map((src, idx) => (
+                            <div key={src + idx} className="relative h-16 w-16 rounded-md overflow-hidden border">
+                              <img src={src} alt={`new-${idx}`} className="h-full w-full object-cover" />
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
@@ -350,6 +380,34 @@ const ProductManagement = () => {
                   )}
                 </div>
               </div>
+
+              {formData.existingImages.length > 0 && (
+                <div className="space-y-2">
+                  <Label>Existing Images</Label>
+                  <div className="flex flex-wrap gap-2">
+                    {formData.existingImages.map((img, idx) => (
+                      <div key={img + idx} className="relative h-16 w-16 rounded-md overflow-hidden border">
+                        <img src={img} alt={`existing-${idx}`} className="h-full w-full object-cover" />
+                        <button
+                          type="button"
+                          className="absolute top-0 right-0 bg-destructive text-destructive-foreground text-[10px] px-1 rounded-bl"
+                          onClick={() =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              existingImages: prev.existingImages.filter((_, i) => i !== idx),
+                            }))
+                          }
+                        >
+                          X
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Removed images will be dropped on save; add new files above to replace.
+                  </p>
+                </div>
+              )}
 
               <div>
                 <Label htmlFor="features">Features (comma separated)</Label>
@@ -409,7 +467,7 @@ const ProductManagement = () => {
                 )}
               </div>
 
-              <div className="flex items-center space-x-6">
+              {/* <div className="flex items-center space-x-6">
                 <div className="flex items-center space-x-2">
                   <Switch
                     id="best_seller"
@@ -442,7 +500,7 @@ const ProductManagement = () => {
                   />
                   <Label htmlFor="available">Available</Label>
                 </div>
-              </div>
+              </div> */}
 
               <div className="flex gap-2 pt-4">
                 <Button type="submit">

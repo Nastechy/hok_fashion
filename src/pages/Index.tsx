@@ -8,6 +8,7 @@ import { FilterSection } from '@/components/FilterSection';
 import { CustomerReviews } from '@/components/CustomerReviews';
 import { Features } from '@/components/Features';
 import { Footer } from '@/components/Footer';
+import { ScrollToTopButton } from '@/components/ScrollToTopButton';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useProducts } from '@/hooks/useProducts';
 import { SortOption } from '@/services/hokApi';
@@ -31,6 +32,10 @@ const Index = () => {
 
   const handleExploreClick = () => {
     productGridRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+  const handleViewAll = () => {
+    navigate('/collections/All', { replace: false });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
@@ -63,7 +68,7 @@ const Index = () => {
         />
         <div className="flex justify-center mt-6">
           <button
-            onClick={() => navigate('/collections/All')}
+            onClick={handleViewAll}
             className="px-6 py-3 text-sm font-semibold rounded-full border border-border bg-background hover:bg-secondary transition-all shadow-card"
           >
             View All Collections
@@ -76,6 +81,7 @@ const Index = () => {
       <CustomerReviews />
       <Features />
       <Footer />
+      <ScrollToTopButton />
     </div>
   );
 };

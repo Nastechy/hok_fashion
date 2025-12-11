@@ -89,7 +89,7 @@ export const Header = ({ onCategoryChange, selectedCategory = 'All' }: HeaderPro
               <Link
                 key={link.href}
                 to={link.href}
-                className={`relative text-sm font-semibold text-foreground font-inter transition-all duration-200 group px-3 py-2 rounded-full border ${
+                className={`relative text-sm font-semibold text-foreground font-inter transition-all duration-200 group px-3 py-1 rounded-md border ${
                   pathname === link.href
                     ? 'border-red/60 bg-red text-primary-foreground shadow-elegant'
                     : 'border-transparent text-muted-foreground hover:bg-red hover:text-white hover:border-red hover:text-base'
@@ -104,7 +104,7 @@ export const Header = ({ onCategoryChange, selectedCategory = 'All' }: HeaderPro
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="text-sm font-semibold font-inter text-foreground px-3 py-2 rounded-full transition-all hover:bg-red hover:text-white"
+                  className="text-sm font-semibold font-inter text-foreground px-3 py-1.5 rounded-full transition-all hover:bg-red hover:text-white"
                 >
                   Collections
                   <ChevronDown className="ml-1 h-3 w-3" />
@@ -263,7 +263,7 @@ export const Header = ({ onCategoryChange, selectedCategory = 'All' }: HeaderPro
                 variant="ghost"
                 size="icon"
                 className={`relative rounded-full shadow-sm transition-all ${
-                  itemCount > 0 ? 'bg-red text-red-foreground hover:bg-red/90 scale-105' : 'bg-secondary/70 hover:bg-secondary'
+                  itemCount > 0 ? 'bg-red text-red-foreground hover:bg-red/90 scale-105' : 'bg-secondary/70 hover:bg-red'
                 }`}
               >
                 <ShoppingCart className="h-4 w-4" />
@@ -278,7 +278,7 @@ export const Header = ({ onCategoryChange, selectedCategory = 'All' }: HeaderPro
             {/* Mobile menu button */}
             <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
               <SheetTrigger asChild className="md:hidden">
-                <Button variant="ghost" size="icon" className="rounded-full bg-secondary/70 hover:bg-secondary shadow-sm">
+                <Button variant="ghost" size="icon" className="rounded-full bg-secondary/70 hover:bg-red shadow-sm">
                   <Menu className="h-4 w-4" />
                 </Button>
               </SheetTrigger>

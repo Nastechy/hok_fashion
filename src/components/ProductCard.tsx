@@ -43,16 +43,16 @@ export const ProductCard = ({ product, onViewDetails }: ProductCardProps) => {
   return (
     <Card
       id={`product-${product.id}`}
-      className="w-full max-w-[420px] sm:max-w-[460px] group relative flex flex-col overflow-hidden border-0 bg-gradient-subtle shadow-xl transition-all duration-500 hover:shadow-luxury motion-fade"
+      className="w-full group relative flex flex-col overflow-hidden border-0 bg-gradient-subtle shadow-xl transition-all duration-500 hover:shadow-luxury motion-fade"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
       <CardContent className="flex h-full flex-col p-0">
-        <div className="relative overflow-hidden rounded-t-lg">
+        <div className="relative overflow-hidden rounded-t-lg bg-white">
           <img
             src={cover}
             alt={product.name}
-            className="h-64 w-full object-cover transition-transform duration-500 group-hover:scale-105"
+            className="h-56 sm:h-60 w-full object-contain transition-transform duration-500 group-hover:scale-105"
           />
 
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/25 via-black/5 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
@@ -83,10 +83,10 @@ export const ProductCard = ({ product, onViewDetails }: ProductCardProps) => {
           </div>
         </div>
 
-        <div className="flex flex-1 flex-col gap-3 p-5 sm:p-6">
-          <div className="flex items-center justify-between gap-3">
+        <div className="flex flex-1 flex-col gap-1 md:p-4 p-2 sm:p-5">
+          <div className="flex items-center justify-between gap-2">
             {product.category && (
-              <Badge className="bg-red/90 text-red-foreground font-inter font-small backdrop-blur-sm text-[0.7rem]">
+              <Badge className="bg-red/90 text-red-foreground font-inter font-small backdrop-blur-sm text-[10px]">
                 {product.category}
               </Badge>
             )}
@@ -95,19 +95,19 @@ export const ProductCard = ({ product, onViewDetails }: ProductCardProps) => {
             </span>
           </div>
 
-          <h3 className="text-lg font-semibold leading-tight text-foreground transition-colors font-playfair group-hover:text-primary">
+          <h3 className="text-base sm:text-lg font-semibold leading-tight text-foreground transition-colors font-playfair group-hover:text-primary">
             {product.name}
           </h3>
 
-          <p className="line-clamp-2 text-sm leading-relaxed text-muted-foreground font-inter">
+          <p className="line-clamp-2 md:text-sm text-[12px] leading-relaxed text-muted-foreground font-inter">
             {product.description}
           </p>
 
           <div className="flex-1" />
 
-          <div className="flex flex-col gap-3">
-            <div className="mt-2 flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <span className="text-2xl font-bold text-primary font-playfair">
+          <div className="flex flex-col ">
+            <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <span className="text-xl sm:text-2xl font-bold text-primary font-playfair">
                 {typeof product.price === 'number' ? formatCurrency(product.price) : 'Price on request'}
               </span>
               <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">

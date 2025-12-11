@@ -7,6 +7,7 @@ import { ProductGrid } from '@/components/ProductGrid';
 import { useProducts } from '@/hooks/useProducts';
 import { SortOption } from '@/services/hokApi';
 import { FilterSection } from '@/components/FilterSection';
+import { ScrollToTopButton } from '@/components/ScrollToTopButton';
 
 const Collections = () => {
   const { category = 'All' } = useParams();
@@ -52,10 +53,10 @@ const Collections = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header selectedCategory={selectedCategory} onCategoryChange={handleCategoryChange} />
-      <main className="container mx-auto px-4 lg:px-8 py-6 lg:py-12">
-        <div className="mb-8">
+      <main className="container px-1 md:px-8 py-12 lg:py-20">
+        <div className="mb-8 ">
           <p className="text-sm uppercase tracking-[0.2em] text-muted-foreground font-inter">Collections</p>
-          <h1 className="text-4xl font-playfair font-bold mt-2">{title}</h1>
+          <h1 className="text-4xl font-playfair font-bold mt-2 ">{title}</h1>
         </div>
 
         <div className="md:hidden mb-4 flex justify-end">
@@ -86,6 +87,7 @@ const Collections = () => {
           products={products}
           isLoading={isLoading}
           searchQuery={searchQuery}
+          showAllOnMobile
         />
 
         {!isLoading && products.length === 0 && (
@@ -95,6 +97,7 @@ const Collections = () => {
         )}
       </main>
       <Footer />
+      <ScrollToTopButton />
     </div>
   );
 };
