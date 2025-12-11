@@ -275,6 +275,17 @@ export const Header = ({ onCategoryChange, selectedCategory = 'All' }: HeaderPro
               </Button>
             </CartSheet>
 
+            {!user && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="md:hidden rounded-full bg-secondary/70 hover:bg-red shadow-sm text-muted-foreground hover:text-white"
+                onClick={() => navigate('/auth')}
+              >
+                <User className="h-4 w-4" />
+              </Button>
+            )}
+
             {/* Mobile menu button */}
             <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
               <SheetTrigger asChild className="md:hidden">
