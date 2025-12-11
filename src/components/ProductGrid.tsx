@@ -61,7 +61,7 @@ export const ProductGrid = ({ selectedCategory, onCategoryChange, searchQuery = 
 
   return (
     <>
-      <section className="py-6 md:py-16 bg-background">
+      <section id="collection-grid" className="py-6 md:py-16 bg-background">
         <div className="container px-6  md:px-16">
           <div className="text-center mb-12">
             <h2 className="text-4xl font-bold text-foreground mb-4 font-playfair">
@@ -88,7 +88,6 @@ export const ProductGrid = ({ selectedCategory, onCategoryChange, searchQuery = 
             </div>
           )}
 
-          {/* View More button for mobile */}
           {isMobile && !showAll && filteredProducts.length > 5 && (
             <div className="text-center mt-8">
               <Button 

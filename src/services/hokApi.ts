@@ -104,16 +104,28 @@ export interface Order {
   customerName?: string;
   customerPhone?: string;
   shippingAddress?: string;
+  billingAddress?: string;
+  note?: string;
+  receiptUrl?: string;
+  receipt?: string;
+  paymentProofUrl?: string;
   createdAt?: string;
   updatedAt?: string;
   items?: Array<{
     productId: string;
     quantity: number;
     price?: number;
+    variant?: string;
     product?: {
       id: string;
       name: string;
+      productCode?: string;
       imageUrls?: string[];
+      category?: string;
+      variants?: Array<{
+        name?: string;
+        sku?: string;
+      }>;
     };
   }>;
 }
@@ -123,6 +135,28 @@ export interface MetricsOverview {
   totalOrders?: number;
   pendingOrders?: number;
   bestSellers?: number;
+}
+
+export interface Review {
+  id: string;
+  productId?: string;
+  rating: number;
+  title?: string;
+  comment: string;
+  userName?: string;
+  userEmail?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface CreateReviewInput {
+  productId?: string;
+  rating: number;
+  comment: string;
+  title?: string;
+  userName?: string;
+  userEmail?: string;
+  orderId?: string;
 }
 
 const buildQuery = (filters: ProductFilters) => {
@@ -192,6 +226,36 @@ const normalizeProduct = (product: any): Product => {
     quantity: product.quantity ?? product.stock_quantity,
   };
 };
+
+const normalizeReview = (review: any): Review => ({
+  ...review,
+  productId: review.productId ?? review.product_id,
+  userName: review.userName ?? review.user_name,
+  userEmail: review.userEmail ?? review.user_email,
+  createdAt: review.createdAt ?? review.created_at,
+  updatedAt: review.updatedAt ?? review.updated_at,
+  rating: Number(review.rating ?? 0),
+});
+
+const normalizeOrder = (order: any): Order => ({
+  ...order,
+  totalAmount: Number(order.totalAmount ?? order.total_amount ?? order.total),
+  shippingAddress: order.shippingAddress ?? order.shipping_address,
+  billingAddress: order.billingAddress ?? order.billing_address ?? order.shippingAddress ?? order.shipping_address,
+  receiptUrl: order.receiptUrl ?? order.receipt_url ?? order.receipt ?? order.paymentProofUrl,
+  paymentProofUrl: order.paymentProofUrl ?? order.receiptUrl ?? order.receipt_url ?? order.receipt,
+  note: order.note,
+  createdAt: order.createdAt ?? order.created_at,
+  updatedAt: order.updatedAt ?? order.updated_at,
+  items: order.items?.map((item: any) => ({
+    ...item,
+    productId: item.productId ?? item.product_id,
+    product: item.product,
+    variant: item.variant ?? item.variantName ?? item.variant_name,
+    quantity: Number(item.quantity ?? 0),
+    price: Number(item.price ?? item.price_at_time ?? 0),
+  })),
+});
 
 export const hokApi = {
   async login(email: string, password: string) {
@@ -275,16 +339,26 @@ export const hokApi = {
     return apiRequest<{ message: string }>(`/products/${id}`, { method: 'DELETE' });
   },
 
-  async fetchOrders(status?: string) {
+  async fetchOrders(status?: string, startDate?: string, endDate?: string) {
     const params = new URLSearchParams();
     if (status) params.append('status', status);
-    return apiRequest<Order[]>(`/orders${params.toString() ? `?${params.toString()}` : ''}`, {
+    if (startDate) params.append('startDate', startDate);
+    if (endDate) params.append('endDate', endDate);
+    const response = await apiRequest<any>(`/orders${params.toString() ? `?${params.toString()}` : ''}`, {
       method: 'GET',
     });
+    if (Array.isArray(response)) {
+      return response.map(normalizeOrder);
+    }
+    if (response?.data && Array.isArray(response.data)) {
+      return response.data.map(normalizeOrder);
+    }
+    return [];
   },
 
   async fetchOrder(id: string) {
-    return apiRequest<Order>(`/orders/${id}`, { method: 'GET' });
+    const order = await apiRequest<Order>(`/orders/${id}`, { method: 'GET' });
+    return normalizeOrder(order);
   },
 
   async createOrder(input: CreateOrderInput, asGuest = false) {
@@ -330,6 +404,42 @@ export const hokApi = {
     return apiRequest<MetricsOverview | any>(`/metrics/overview${search.toString() ? `?${search.toString()}` : ''}`, {
       method: 'GET',
     });
+  },
+
+  async fetchProductReviews(productId: string) {
+    const response = await apiRequest<PaginatedResponse<Review> | Review[]>(`/reviews?productId=${productId}`, {
+      method: 'GET',
+    });
+
+    if (Array.isArray(response)) {
+      return response.map(normalizeReview);
+    }
+
+    return {
+      data: (response.data || []).map(normalizeReview),
+      meta: response.meta,
+    };
+  },
+
+  async createReview(input: CreateReviewInput) {
+    const payload: Record<string, any> = {
+      rating: input.rating,
+      comment: input.comment,
+      title: input.title,
+      userName: input.userName,
+      userEmail: input.userEmail,
+      orderId: input.orderId,
+    };
+
+    if (input.productId) {
+      payload.productId = input.productId;
+    }
+
+    const result = await apiRequest<Review>('/reviews', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+    return normalizeReview(result);
   },
 
   async fetchUsers() {

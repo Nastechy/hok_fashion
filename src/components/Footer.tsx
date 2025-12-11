@@ -1,4 +1,4 @@
-import { Facebook, Instagram, Twitter, Mail, Phone, MapPin } from 'lucide-react';
+import { Facebook, Instagram, Mail, Phone, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Link, useNavigate } from 'react-router-dom';
@@ -12,21 +12,27 @@ export const Footer = () => {
     <footer className="bg-primary text-primary-foreground">
       <div className="container mx-auto px-4 py-10 md:py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          <div className="space-y-4">
+            <div className="space-y-4">
             <h3 className="text-2xl font-bold font-playfair">HOK Fashion</h3>
             <p className="text-primary-foreground/80 leading-relaxed font-inter">
               Nigeria's premier luxury handbag brand. Crafting exquisite pieces
               for the modern African woman since 1998.
             </p>
             <div className="flex space-x-4">
-              <Button variant="ghost" size="icon" className="text-primary-foreground hover:text-red">
-                <Facebook className="h-5 w-5" />
+              <Button asChild variant="ghost" size="icon" className="text-primary-foreground hover:text-red" aria-label="Visit Instagram">
+                <a href="https://www.instagram.com/hok_fashionhousebackup?igsh=MXNsaGFxeG1xczFjMA%3D%3D&utm_source=qr" target="_blank" rel="noreferrer">
+                  <Instagram className="h-5 w-5" />
+                </a>
               </Button>
-              <Button variant="ghost" size="icon" className="text-primary-foreground hover:text-red">
-                <Instagram className="h-5 w-5" />
+              <Button asChild variant="ghost" size="icon" className="text-primary-foreground hover:text-red" aria-label="Visit TikTok">
+                <a href="https://www.tiktok.com/@hokfashionhouse" target="_blank" rel="noreferrer">
+                  <Facebook className="h-5 w-5" />
+                </a>
               </Button>
-              <Button variant="ghost" size="icon" className="text-primary-foreground hover:text-red">
-                <Twitter className="h-5 w-5" />
+              <Button asChild variant="ghost" size="icon" className="text-primary-foreground hover:text-red" aria-label="Email HOK Fashion">
+                <a href="mailto:hello@hokfashion.ng">
+                  <Mail className="h-5 w-5" />
+                </a>
               </Button>
             </div>
           </div>

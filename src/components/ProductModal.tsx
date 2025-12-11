@@ -4,8 +4,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { useCart } from '@/contexts/CartContext';
-import { Product } from '@/services/hokApi';
-import { Check, Star } from 'lucide-react';
+import { Product, Review, hokApi } from '@/services/hokApi';
+import { Check, Heart, Star } from 'lucide-react';
+import { useWishlist } from '@/contexts/WishlistContext';
+import { ProductReviews } from './ProductReviews';
+import { useQuery } from '@tanstack/react-query';
 
 interface ProductModalProps {
   product: Product | null;
@@ -15,11 +18,24 @@ interface ProductModalProps {
 
 export const ProductModal = ({ product, isOpen, onClose }: ProductModalProps) => {
   const { addItem } = useCart();
+  const { toggleItem, isWished } = useWishlist();
   const images = useMemo(() => product ? (product.images || product.imageUrls || []) : [], [product]);
   const [activeIndex, setActiveIndex] = useState(0);
   const cover = images[activeIndex] || 'https://via.placeholder.com/500x500?text=HOK';
   const formatCurrency = (value: number) =>
     value.toLocaleString('en-NG', { style: 'currency', currency: 'NGN', minimumFractionDigits: 0 });
+
+  const { data: reviewData } = useQuery({
+    queryKey: ['product-reviews', product?.id ?? 'unknown'],
+    queryFn: () => hokApi.fetchProductReviews(product?.id as string),
+    enabled: Boolean(product?.id),
+  });
+
+  const reviews: Review[] = Array.isArray(reviewData) ? reviewData : reviewData?.data ?? [];
+  const averageRating =
+    reviews.length > 0 ? reviews.reduce((sum, review) => sum + Number(review.rating || 0), 0) / reviews.length : 0;
+  const reviewCount = reviews.length;
+  const isFavorite = product ? isWished(product.id) : false;
 
   useEffect(() => {
     setActiveIndex(0);
@@ -37,10 +53,19 @@ export const ProductModal = ({ product, isOpen, onClose }: ProductModalProps) =>
     onClose();
   };
 
+  const handleToggleWishlist = () => {
+    toggleItem({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      image: cover,
+    });
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
+        <div className="grid grid-cols-1 md:grid-cols-[1.05fr_0.95fr] gap-10">
           <div className="space-y-4">
             <div className="relative">
               <img
@@ -66,21 +91,27 @@ export const ProductModal = ({ product, isOpen, onClose }: ProductModalProps) =>
               </div>
             )}
           </div>
-          <div className="space-y-6">
-            <DialogHeader>
-              <DialogTitle className="text-3xl font-bold text-foreground font-playfair">
+          <div className="space-y-6 rounded-2xl bg-background/80 p-4 md:p-6 shadow-card border border-border/70">
+            <DialogHeader className="space-y-2">
+              <DialogTitle className="text-3xl font-bold text-foreground font-playfair leading-tight">
                 {product.name}
               </DialogTitle>
-            </DialogHeader>
-
-            <div className="flex items-center space-x-2">
-              <div className="flex items-center">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="h-4 w-4 fill-red text-red" />
-                ))}
+              <div className="flex items-center space-x-2">
+                <div className="flex items-center">
+                  {[...Array(5)].map((_, i) => (
+                    <Star
+                      key={i}
+                      className={`h-4 w-4 ${i < Math.round(averageRating) ? 'fill-red text-red' : 'text-muted-foreground'}`}
+                    />
+                  ))}
+                </div>
+                <span className="text-sm text-muted-foreground">
+                  {reviewCount > 0
+                    ? `${averageRating.toFixed(1)} • ${reviewCount} review${reviewCount === 1 ? '' : 's'}`
+                    : 'No reviews yet'}
+                </span>
               </div>
-              <span className="text-sm text-muted-foreground">(127 reviews)</span>
-            </div>
+            </DialogHeader>
 
             <div className="text-3xl font-bold text-red font-playfair">
               {formatCurrency(product.price)}
@@ -112,23 +143,26 @@ export const ProductModal = ({ product, isOpen, onClose }: ProductModalProps) =>
               {product.description}
             </p>
 
+            {product.features && product.features.length > 0 && (
+              <>
+                <Separator />
+                <div className="space-y-3">
+                  <h3 className="font-semibold text-lg font-playfair">Features</h3>
+                  <ul className="space-y-2">
+                    {product.features.map((feature, index) => (
+                      <li key={index} className="flex items-center space-x-2">
+                        <Check className="h-4 w-4 text-red" />
+                        <span className="text-sm font-inter">{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </>
+            )}
+
             <Separator />
 
-            <div className="space-y-4">
-              <h3 className="font-semibold text-lg font-playfair">Features</h3>
-              <ul className="space-y-2">
-                {product.features && product.features.map((feature, index) => (
-                  <li key={index} className="flex items-center space-x-2">
-                    <Check className="h-4 w-4 text-red" />
-                    <span className="text-sm font-inter">{feature}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <Separator />
-
-            <div className="space-y-3 pt-4">
+            <div className="space-y-3 pt-2">
               <Button
                 variant="luxury"
                 size="lg"
@@ -138,13 +172,19 @@ export const ProductModal = ({ product, isOpen, onClose }: ProductModalProps) =>
                 Add to Cart - {formatCurrency(product.price)}
               </Button>
               <Button
-                variant="elegant"
+                variant={isFavorite ? 'outline' : 'elegant'}
                 size="lg"
                 className="w-full"
+                onClick={handleToggleWishlist}
               >
-                Add to Wishlist
+                <Heart className={`mr-2 h-4 w-4 ${isFavorite ? 'fill-red text-red' : ''}`} />
+                {isFavorite ? 'Saved to Wishlist' : 'Add to Wishlist'}
               </Button>
             </div>
+
+            <Separator />
+
+            <ProductReviews productId={product.id} productName={product.name} initialData={reviewData} />
           </div>
         </div>
       </DialogContent>

@@ -1,14 +1,46 @@
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import heroImage from '@/assets/hero-bag.jpg';
+import { useQuery } from '@tanstack/react-query';
+import { hokApi, Product } from '@/services/hokApi';
+import {
+  Carousel,
+  CarouselApi,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from '@/components/ui/carousel';
 
 interface HeroProps {
   onExploreClick: () => void;
 }
 
 export const Hero = ({ onExploreClick }: HeroProps) => {
+  const { data: newArrivalsData } = useQuery({
+    queryKey: ['hero-new-arrivals'],
+    queryFn: () => hokApi.fetchProducts({ isNewArrival: true, limit: 8 }),
+  });
+  const [carouselApi, setCarouselApi] = useState<CarouselApi | null>(null);
+
+  const newArrivals: Product[] = newArrivalsData?.data ?? [];
+
+  const slides = newArrivals.length ? newArrivals : [];
+
+  useEffect(() => {
+    if (!carouselApi || slides.length <= 1) return;
+
+    const autoSwipe = setInterval(() => {
+      carouselApi.scrollNext();
+    }, 3000);
+
+    return () => clearInterval(autoSwipe);
+  }, [carouselApi, slides.length]);
+
   return (
-    <section className="relative min-h-[90vh] flex items-center justify-center bg-gradient-elegant overflow-hidden">
-      <div className="container px-6 md:px-16 py-20">
+    <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden bg-gradient-to-br from-[hsl(0_0%_95%)] via-[hsl(0_0%_90%)] to-[hsl(0_40%_92%)]">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_15%_25%,hsl(0_50%_90%)/0.28,transparent_38%),radial-gradient(circle_at_85%_10%,hsl(0_35%_86%)/0.22,transparent_40%)]" />
+      <div className="container relative z-10 px-6 md:px-16 py-20">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <div className="space-y-8 motion-fade">
             <div className="space-y-4">
@@ -42,15 +74,53 @@ export const Hero = ({ onExploreClick }: HeroProps) => {
             </div>
           </div>
 
-          <div className="relative motion-float">
-            <div className="relative z-10 shadow-luxury rounded-2xl overflow-hidden">
-              <img
-                src={heroImage}
-                alt="Luxury handbag collection"
-                className="w-full md:min-h-[450px] rounded-2xl shadow-luxury"
-              />
+          <div className="relative motion-float lg:pl-6">
+            <div className="relative z-10 rounded-[32px] overflow-hidden bg-white/95 shadow-luxury border border-border/50 p-6 md:p-8">
+              {slides.length > 0 ? (
+                <Carousel className="w-full" opts={{ loop: true }} setApi={setCarouselApi}>
+                  <CarouselContent>
+                    {slides.map((product) => {
+                      const cover = product.imageUrls?.[0] || product.images?.[0] || heroImage;
+                      return (
+                        <CarouselItem key={product.id}>
+                          <div className="space-y-3">
+                            <div className="overflow-hidden rounded-2xl bg-white">
+                              <img
+                                src={cover}
+                                alt={product.name}
+                                className="w-full h-[400px] md:h-[500px] object-cover rounded-2xl"
+                              />
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <p className="text-xs uppercase text-muted-foreground tracking-wide">New Arrival</p>
+                                <p className="text-lg font-semibold text-foreground">{product.name}</p>
+                              </div>
+                              {product.price && (
+                                <p className="text-red font-playfair text-lg">
+                                  {product.price.toLocaleString('en-NG', { style: 'currency', currency: 'NGN', minimumFractionDigits: 0 })}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        </CarouselItem>
+                      );
+                    })}
+                  </CarouselContent>
+                  <CarouselPrevious className="left-2 md:left-4" />
+                  <CarouselNext className="right-2 md:right-4" />
+                </Carousel>
+              ) : (
+                <div className="relative z-10 shadow-luxury rounded-2xl overflow-hidden">
+                  <img
+                    src={heroImage}
+                    alt="Luxury handbag collection"
+                    className="w-full h-[380px] md:h-[450px] rounded-2xl shadow-luxury object-cover"
+                  />
+                </div>
+              )}
             </div>
-            <div className="absolute -inset-4 bg-gradient-luxury opacity-20 rounded-2xl blur-xl"></div>
+            <div className="absolute -inset-6 bg-gradient-luxury opacity-20 rounded-3xl blur-2xl"></div>
           </div>
         </div>
       </div>

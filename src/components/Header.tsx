@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ShoppingBag, Menu, Search, ChevronDown, User, LogOut } from 'lucide-react';
+import { ShoppingCart, Menu, Search, ChevronDown, User, LogOut, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Badge } from '@/components/ui/badge';
@@ -7,12 +7,14 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/contexts/AuthContext';
-import { useCart } from '@/hooks/useCart';
+import { useCart } from '@/contexts/CartContext';
 import { useAdmin } from '@/hooks/useAdmin';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { CartSheet } from './CartSheet';
+import { WishlistSheet } from './WishlistSheet';
 import { useQuery } from '@tanstack/react-query';
 import { hokApi, Product } from '@/services/hokApi';
+import { useWishlist } from '@/contexts/WishlistContext';
 
 interface HeaderProps {
   onCategoryChange?: (category: string) => void;
@@ -27,6 +29,7 @@ export const Header = ({ onCategoryChange, selectedCategory = 'All' }: HeaderPro
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const { itemCount } = useCart();
+  const { count: wishlistCount } = useWishlist();
   const { user, signOut } = useAuth();
   const { isAdmin } = useAdmin();
 
@@ -59,15 +62,15 @@ export const Header = ({ onCategoryChange, selectedCategory = 'All' }: HeaderPro
       <div className="container mx-auto px-4 py-3">
         <div className="flex items-center justify-between gap-6">
           {/* Logo */}
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-full bg-gradient-to-br from-red/80 to-primary shadow-glow flex items-center justify-center motion-float">
+          <Link to="/" className="flex items-center gap-3 group">
+            <div className="h-10 w-10 rounded-full bg-gradient-to-br from-red/80 to-primary shadow-glow flex items-center justify-center motion-float transition-transform group-hover:scale-105">
               <span className="text-sm font-semibold text-primary-foreground">H</span>
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-foreground font-playfair leading-tight">HOK Fashion</h1>
+              <h1 className="text-2xl font-bold text-foreground font-playfair leading-tight group-hover:text-primary transition-colors">HOK Fashion</h1>
               <p className="text-xs text-muted-foreground font-inter tracking-wide uppercase">Luxury Handbags</p>
             </div>
-          </div>
+          </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-6">
@@ -77,17 +80,17 @@ export const Header = ({ onCategoryChange, selectedCategory = 'All' }: HeaderPro
               { href: '/lookbook', label: 'Lookbook' },
               { href: '/contact', label: 'Contact' },
             ].map((link) => (
-              <a
+              <Link
                 key={link.href}
-                href={link.href}
+                to={link.href}
                 className={`relative text-sm font-semibold font-inter transition-all duration-200 group px-3 py-2 rounded-full border ${
                   pathname === link.href
                     ? 'border-red/60 bg-red text-primary-foreground shadow-elegant'
-                    : 'border-transparent text-muted-foreground hover:text-primary-foreground hover:bg-red hover:border-red hover:text-base'
+                    : 'border-transparent text-muted-foreground hover:text-red hover:bg-red/10 hover:border-red hover:text-base'
                 }`}
               >
                 {link.label}
-              </a>
+              </Link>
             ))}
 
             {/* Collections Dropdown */}
@@ -123,7 +126,11 @@ export const Header = ({ onCategoryChange, selectedCategory = 'All' }: HeaderPro
             {/* Search Dialog */}
             <Dialog open={searchOpen} onOpenChange={setSearchOpen}>
               <DialogTrigger asChild>
-                <Button variant="ghost" size="icon" className="hidden md:flex rounded-full bg-secondary/70 hover:bg-secondary shadow-sm">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="hidden md:flex rounded-full bg-secondary/70 hover:bg-red shadow-sm text-muted-foreground hover:text-white"
+                >
                   <Search className="h-4 w-4" />
                 </Button>
               </DialogTrigger>
@@ -182,7 +189,11 @@ export const Header = ({ onCategoryChange, selectedCategory = 'All' }: HeaderPro
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="hidden md:flex rounded-full bg-secondary/70 hover:bg-secondary shadow-sm">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="hidden md:flex rounded-full bg-secondary/70 hover:bg-red shadow-sm text-muted-foreground hover:text-white"
+                  >
                     <User className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
@@ -221,6 +232,23 @@ export const Header = ({ onCategoryChange, selectedCategory = 'All' }: HeaderPro
               </Button>
             )}
             
+            <WishlistSheet>
+              <Button
+                variant="ghost"
+                size="icon"
+                className={`relative rounded-full shadow-sm transition-all ${
+                  wishlistCount > 0 ? 'bg-primary text-primary-foreground hover:bg-primary/90 scale-105' : 'bg-secondary/70 hover:bg-red'
+                }`}
+              >
+                <Heart className="h-4 w-4" />
+                {wishlistCount > 0 && (
+                  <Badge className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 text-xs bg-red text-primary-foreground ">
+                    {wishlistCount}
+                  </Badge>
+                )}
+              </Button>
+            </WishlistSheet>
+
             <CartSheet>
               <Button
                 variant="ghost"
@@ -229,7 +257,7 @@ export const Header = ({ onCategoryChange, selectedCategory = 'All' }: HeaderPro
                   itemCount > 0 ? 'bg-red text-red-foreground hover:bg-red/90 scale-105' : 'bg-secondary/70 hover:bg-secondary'
                 }`}
               >
-                <ShoppingBag className="h-4 w-4" />
+                <ShoppingCart className="h-4 w-4" />
                 {itemCount > 0 && (
                   <Badge className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 text-xs bg-primary text-primary-foreground">
                     {itemCount}
@@ -247,15 +275,15 @@ export const Header = ({ onCategoryChange, selectedCategory = 'All' }: HeaderPro
               </SheetTrigger>
             <SheetContent side="right" className="w-[300px] bg-gradient-to-b from-white via-white/95 to-white/90">
               <div className="flex flex-col space-y-2 mt-8">
-                    <a href="/" className="text-left p-3 text-sm font-medium transition-colors hover:bg-secondary rounded-md font-inter text-muted-foreground">
+                    <Link to="/" onClick={() => setIsMenuOpen(false)} className="text-left p-3 text-sm font-medium transition-colors hover:bg-secondary rounded-md font-inter text-muted-foreground">
                       Home
-                    </a>
-                    <a href="/about" className="text-left p-3 text-sm font-medium transition-colors hover:bg-secondary rounded-md font-inter text-muted-foreground">
+                    </Link>
+                    <Link to="/about" onClick={() => setIsMenuOpen(false)} className="text-left p-3 text-sm font-medium transition-colors hover:bg-secondary rounded-md font-inter text-muted-foreground">
                       About
-                    </a>
-                    <a href="/lookbook" className="text-left p-3 text-sm font-medium transition-colors hover:bg-secondary rounded-md font-inter text-muted-foreground">
+                    </Link>
+                    <Link to="/lookbook" onClick={() => setIsMenuOpen(false)} className="text-left p-3 text-sm font-medium transition-colors hover:bg-secondary rounded-md font-inter text-muted-foreground">
                       Lookbook
-                    </a>
+                    </Link>
                     
                     {/* Collections Section */}
                     <div className="py-2">
@@ -280,9 +308,9 @@ export const Header = ({ onCategoryChange, selectedCategory = 'All' }: HeaderPro
                       ))}
                     </div>
                     
-                    <a href="/contact" className="text-left p-3 text-sm font-medium transition-colors hover:bg-secondary rounded-md font-inter text-muted-foreground">
+                    <Link to="/contact" onClick={() => setIsMenuOpen(false)} className="text-left p-3 text-sm font-medium transition-colors hover:bg-secondary rounded-md font-inter text-muted-foreground">
                       Contact
-                    </a>
+                    </Link>
 
                     {/* Auth Section */}
                     <div className="pt-4 border-t border-border">

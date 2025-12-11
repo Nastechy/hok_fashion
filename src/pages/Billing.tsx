@@ -4,14 +4,16 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { Download, Eye, Calendar, CreditCard } from 'lucide-react';
+import { Download, Eye, Calendar, CreditCard, FileText } from 'lucide-react';
 import { useOrders } from '@/hooks/useOrders';
 import { useAuth } from '@/contexts/AuthContext';
 import { useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const Billing = () => {
   const { user } = useAuth();
   const { data: orders = [], isLoading } = useOrders(undefined, !!user);
+  const navigate = useNavigate();
   const formatCurrency = (value: number) =>
     value.toLocaleString('en-NG', { style: 'currency', currency: 'NGN', minimumFractionDigits: 0 });
 
@@ -148,12 +150,25 @@ const Billing = () => {
                             </span>
                           </div>
                         ))}
+                        {(order.receiptUrl || order.paymentProofUrl) && (
+                          <div className="flex items-center gap-2 text-sm">
+                            <FileText className="h-4 w-4 text-muted-foreground" />
+                            <a
+                              href={order.receiptUrl || order.paymentProofUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="text-primary hover:underline"
+                            >
+                              Payment proof
+                            </a>
+                          </div>
+                        )}
                       </div>
                       
                       <Separator className="my-4" />
                       
                       <div className="flex flex-col sm:flex-row gap-3">
-                        <Button variant="outline" className="flex items-center gap-2">
+                        <Button variant="outline" className="flex items-center gap-2" onClick={() => navigate(`/orders/${order.id}`)}>
                           <Eye className="h-4 w-4" />
                           View Details
                         </Button>

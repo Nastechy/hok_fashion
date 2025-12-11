@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Package, DollarSign, Calendar, User } from 'lucide-react';
+import { Package, DollarSign, Calendar, User, FileText } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -16,9 +16,12 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useNavigate } from 'react-router-dom';
 
 const OrderManagement = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const [dateFilter, setDateFilter] = useState({ startDate: '', endDate: '' });
   const [offlineOrder, setOfflineOrder] = useState({
     productId: '',
     quantity: '1',
@@ -30,8 +33,8 @@ const OrderManagement = () => {
   });
 
   const ordersQuery = useQuery({
-    queryKey: ['admin-orders'],
-    queryFn: () => hokApi.fetchOrders(),
+    queryKey: ['admin-orders', dateFilter.startDate, dateFilter.endDate],
+    queryFn: () => hokApi.fetchOrders(undefined, dateFilter.startDate, dateFilter.endDate),
   });
 
   const metricsQuery = useQuery({
@@ -116,6 +119,49 @@ const OrderManagement = () => {
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Order Management</h2>
       </div>
+
+      {/* Filters */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm font-medium">Filters</CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-3 md:flex-row md:items-end">
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="start-date">Start date</Label>
+            <Input
+              id="start-date"
+              type="date"
+              value={dateFilter.startDate}
+              onChange={(e) => setDateFilter((prev) => ({ ...prev, startDate: e.target.value }))}
+            />
+          </div>
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="end-date">End date</Label>
+            <Input
+              id="end-date"
+              type="date"
+              value={dateFilter.endDate}
+              onChange={(e) => setDateFilter((prev) => ({ ...prev, endDate: e.target.value }))}
+            />
+          </div>
+          <div className="flex flex-col gap-2 md:ml-auto">
+            <Label className="invisible">Actions</Label>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setDateFilter({ startDate: '', endDate: '' });
+                }}
+              >
+                Clear
+              </Button>
+              <Button onClick={() => ordersQuery.refetch()} disabled={ordersQuery.isFetching}>
+                {ordersQuery.isFetching ? 'Filtering...' : 'Apply'}
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -223,8 +269,20 @@ const OrderManagement = () => {
 
       {/* Orders Table */}
       <Card>
-        <CardHeader>
-          <CardTitle>Recent Orders</CardTitle>
+        <CardHeader className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <CardTitle>Recent Orders</CardTitle>
+            {(dateFilter.startDate || dateFilter.endDate) && (
+              <p className="text-sm text-muted-foreground">
+                Showing orders
+                {dateFilter.startDate ? ` from ${dateFilter.startDate}` : ''} 
+                {dateFilter.endDate ? ` to ${dateFilter.endDate}` : ''}
+              </p>
+            )}
+          </div>
+          <div className="text-sm text-muted-foreground">
+            {ordersQuery.isFetching ? 'Refreshing...' : `${orders.length} order${orders.length === 1 ? '' : 's'}`}
+          </div>
         </CardHeader>
         <CardContent>
           <Table>
@@ -232,14 +290,21 @@ const OrderManagement = () => {
               <TableRow>
                 <TableHead>Order ID</TableHead>
                 <TableHead>Customer</TableHead>
-                <TableHead>Items</TableHead>
                 <TableHead>Total</TableHead>
+                <TableHead>Payment Proof</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Date</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
+              {orders.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={7} className="text-center text-sm text-muted-foreground py-6">
+                    No orders for this range. Try another date or clear filters.
+                  </TableCell>
+                </TableRow>
+              )}
               {orders.map((order) => (
                 <TableRow key={order.id}>
                   <TableCell className="font-mono text-sm">
@@ -258,17 +323,15 @@ const OrderManagement = () => {
                       </div>
                     </div>
                   </TableCell>
-                  <TableCell>
-                    <div className="space-y-1">
-                      {order.items?.map((item, index) => (
-                        <div key={index} className="text-sm">
-                          {item.quantity}x {item.product?.name || item.productId}
-                        </div>
-                      ))}
-                    </div>
-                  </TableCell>
                   <TableCell className="font-medium">
                     {formatCurrency(Number(order.totalAmount || 0))}
+                  </TableCell>
+                  <TableCell>
+                    {order.receiptUrl || order.paymentProofUrl ? (
+                      <Badge variant="secondary">Uploaded</Badge>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">Not uploaded</span>
+                    )}
                   </TableCell>
                   <TableCell>
                     <Badge variant={getStatusColor(order.status || '')}>
@@ -296,6 +359,15 @@ const OrderManagement = () => {
                         onClick={() => confirmPaymentMutation.mutate({ id: order.id, reference: order.id })}
                       >
                         Confirm Payment
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="justify-start px-2 border bg-secondary/70 hover:bg-secondary"
+                        onClick={() => navigate(`/orders/${order.id}`)}
+                      >
+                        <FileText className="mr-2 h-4 w-4" />
+                        View details
                       </Button>
                     </div>
                   </TableCell>

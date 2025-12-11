@@ -94,6 +94,15 @@ const Payment = () => {
       return;
     }
 
+    if (!receiptFile) {
+      toast({
+        title: "Receipt required",
+        description: "Upload your payment receipt before submitting.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     checkoutMutation.mutate();
   };
 
@@ -144,60 +153,8 @@ const Payment = () => {
               </Card>
             </div>
 
-            {/* Payment Form */}
+            {/* Billing + Payment Form */}
             <div className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 font-playfair">
-                    <CreditCard className="h-5 w-5" />
-                    Payment Details
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="space-y-2">
-                    <p className="text-sm text-muted-foreground">
-                      Kindly transfer the total to the account below and upload your payment receipt for confirmation.
-                    </p>
-                    <div className="rounded-xl border border-border p-4 bg-secondary/40 space-y-2">
-                      <p className="text-sm font-semibold">HOK Fashion Ltd.</p>
-                      <p className="text-sm">Account Number: <span className="font-semibold">0123456789</span></p>
-                      <p className="text-sm">Bank: GTBank</p>
-                      <p className="text-sm">Reference: <span className="font-semibold">Order Payment</span></p>
-                      <p className="text-sm">Amount: <span className="font-semibold">{formatCurrency(total)}</span></p>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="receipt">Upload Payment Receipt</Label>
-                    <div className="flex items-center gap-3">
-                      <Input
-                        id="receipt"
-                        type="file"
-                        accept="image/*,.pdf"
-                        onChange={(e) => setReceiptFile(e.target.files?.[0] || null)}
-                      />
-                      <Upload className="h-4 w-4 text-muted-foreground" />
-                    </div>
-                    <p className="text-xs text-muted-foreground">Accepted: images or PDF.</p>
-                  </div>
-
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Lock className="h-4 w-4" />
-                    Your payment details will be verified by our team.
-                  </div>
-
-                  <Button 
-                    className="w-full h-12 text-lg font-semibold"
-                    size="lg"
-                    type="button"
-                    disabled={checkoutMutation.isPending}
-                    onClick={handleSubmit}
-                  >
-                    {checkoutMutation.isPending ? 'Processing...' : `Submit Payment Proof - ${formatCurrency(total)}`}
-                  </Button>
-                </CardContent>
-              </Card>
-
               {/* Billing Address */}
               <Card>
                 <CardHeader>
@@ -230,6 +187,63 @@ const Payment = () => {
                     <Label htmlFor="note">Order Note</Label>
                     <Input id="note" className="h-12" value={form.note} onChange={handleInputChange('note')} placeholder="Optional note for your order" />
                   </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 font-playfair">
+                    <CreditCard className="h-5 w-5" />
+                    Payment Details
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="space-y-2">
+                    <p className="text-sm text-muted-foreground">
+                      Kindly transfer the total to the account below and upload your payment receipt for confirmation.
+                    </p>
+                    <div className="rounded-xl border border-border p-4 bg-secondary/40 space-y-2">
+                      <p className="text-sm font-semibold">HOK Fashion Ltd.</p>
+                      <p className="text-sm">Account Number: <span className="font-semibold">0123456789</span></p>
+                      <p className="text-sm">Bank: GTBank</p>
+                      <p className="text-sm">Reference: <span className="font-semibold">Order Payment</span></p>
+                      <p className="text-sm">Amount: <span className="font-semibold">{formatCurrency(total)}</span></p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="receipt">Upload Payment Receipt (required)</Label>
+                    <div className="flex items-center gap-3">
+                      <Input
+                        id="receipt"
+                        type="file"
+                        accept="image/*,.pdf"
+                        onChange={(e) => setReceiptFile(e.target.files?.[0] || null)}
+                      />
+                      <Upload className="h-4 w-4 text-muted-foreground" />
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Accepted: images or PDF. You must upload proof before submitting.
+                    </p>
+                    {receiptFile && (
+                      <p className="text-xs text-foreground">Selected: {receiptFile.name}</p>
+                    )}
+                  </div>
+
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Lock className="h-4 w-4" />
+                    Your payment details will be verified by our team.
+                  </div>
+
+                  <Button 
+                    className="w-full h-12 text-lg font-semibold"
+                    size="lg"
+                    type="button"
+                    disabled={checkoutMutation.isPending || !receiptFile}
+                    onClick={handleSubmit}
+                  >
+                    {checkoutMutation.isPending ? 'Processing...' : `Submit Payment Proof - ${formatCurrency(total)}`}
+                  </Button>
                 </CardContent>
               </Card>
             </div>

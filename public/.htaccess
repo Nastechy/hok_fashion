@@ -1,0 +1,11 @@
+Options -Indexes
+RewriteEngine On
+RewriteBase /
+
+# Allow direct access to existing files/directories
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# Single-page app fallback to Vite build output
+RewriteRule . /index.html [L]

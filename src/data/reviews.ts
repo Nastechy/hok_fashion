@@ -11,47 +11,47 @@ export interface Review {
 export const reviews: Review[] = [
   {
     id: '1',
-    name: 'Sarah Johnson',
+    name: 'Adaeze Okafor',
     rating: 5,
-    comment: 'Absolutely love this tote! The quality is exceptional and it fits everything I need for work.',
+    comment: 'Absolutely love this tote! The stitching is neat and it fits everything I need for work and Sunday service.',
     product: 'Classic Black Tote',
-    date: '2024-01-15',
+    date: '2024-03-12',
     verified: true
   },
   {
     id: '2',
-    name: 'Emily Chen',
+    name: 'Chiamaka Nwosu',
     rating: 5,
-    comment: 'Perfect size for everyday use. The leather is so soft and the design is timeless.',
+    comment: 'Perfect size for everyday errands. Soft leather and the design stays stylish for Lagos heat.',
     product: 'Beige Crossbody',
-    date: '2024-01-10',
+    date: '2024-03-05',
     verified: true
   },
   {
     id: '3',
-    name: 'Maria Rodriguez',
+    name: 'Amina Bello',
     rating: 4,
-    comment: 'Beautiful bag! Great quality and fast shipping. Will definitely order again.',
+    comment: 'Beautiful bag! Great quality and fast delivery to Abuja. I will definitely order again.',
     product: 'Evening Clutch',
-    date: '2024-01-08',
+    date: '2024-02-22',
     verified: true
   },
   {
     id: '4',
-    name: 'Jennifer Smith',
+    name: 'Kemi Balogun',
     rating: 5,
     comment: 'This is my third purchase from HOK Fashion. Always impressed with the quality!',
     product: 'Shoulder Bag Deluxe',
-    date: '2024-01-05',
+    date: '2024-02-10',
     verified: true
   },
   {
     id: '5',
-    name: 'Lisa Park',
+    name: 'Ifeanyi Okeke',
     rating: 5,
-    comment: 'Exactly as described. Beautiful craftsmanship and arrived quickly. Highly recommend!',
+    comment: 'Exactly as described. Craftsmanship is top-notch and delivery to Enugu was fast. Highly recommend!',
     product: 'Brown Leather Tote',
-    date: '2024-01-03',
+    date: '2024-01-30',
     verified: true
   }
 ];

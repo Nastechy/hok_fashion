@@ -34,7 +34,7 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-b from-[hsl(0_0%_97%)] via-[hsl(0_0%_94%)] to-[hsl(0_40%_92%)]">
       <Header 
         onCategoryChange={setSelectedCategory} 
         selectedCategory={selectedCategory}

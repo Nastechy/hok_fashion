@@ -4,6 +4,8 @@ import { Badge } from '@/components/ui/badge';
 import { useCart } from '@/contexts/CartContext';
 import { Product } from '@/services/hokApi';
 import { useState } from 'react';
+import { Heart } from 'lucide-react';
+import { useWishlist } from '@/contexts/WishlistContext';
 
 interface ProductCardProps {
   product: Product;
@@ -12,7 +14,9 @@ interface ProductCardProps {
 
 export const ProductCard = ({ product, onViewDetails }: ProductCardProps) => {
   const { addItem } = useCart();
+  const { toggleItem, isWished } = useWishlist();
   const [, setIsHovered] = useState(false);
+  const isFavorite = isWished(product.id);
 
   const cover =
     product.images?.[0] ||
@@ -54,7 +58,7 @@ export const ProductCard = ({ product, onViewDetails }: ProductCardProps) => {
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/25 via-black/5 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
           <div className="absolute right-3 top-3 flex flex-col items-end gap-2">
-            {product.isBestSeller && (
+            {/* {product.isBestSeller && (
               <Badge className="bg-red/90 text-red-foreground font-inter font-medium backdrop-blur-sm text-[0.7rem]">
                 Best Seller
               </Badge>
@@ -63,14 +67,26 @@ export const ProductCard = ({ product, onViewDetails }: ProductCardProps) => {
               <Badge className="bg-accent/90 text-accent-foreground font-inter font-medium backdrop-blur-sm text-[0.7rem]">
                 New Arrival
               </Badge>
-            )}
+            )} */}
+            <button
+              className={`inline-flex items-center justify-center rounded-full bg-white/80 p-2 shadow-card transition-colors hover:bg-white ${
+                isFavorite ? 'text-red' : 'text-muted-foreground'
+              }`}
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleItem({ id: product.id, name: product.name, price: product.price, image: cover });
+              }}
+              aria-label={isFavorite ? 'Remove from wishlist' : 'Add to wishlist'}
+            >
+              <Heart className={`h-4 w-4 ${isFavorite ? 'fill-red' : ''}`} />
+            </button>
           </div>
         </div>
 
         <div className="flex flex-1 flex-col gap-3 p-5 sm:p-6">
           <div className="flex items-center justify-between gap-3">
             {product.category && (
-              <Badge className="bg-primary/90 text-primary-foreground font-inter font-medium text-[0.7rem]">
+              <Badge className="bg-red/90 text-red-foreground font-inter font-small backdrop-blur-sm text-[0.7rem]">
                 {product.category}
               </Badge>
             )}
