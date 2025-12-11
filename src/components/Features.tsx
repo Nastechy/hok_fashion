@@ -39,15 +39,19 @@ export const Features = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {features.map((feature, index) => (
-            <Card key={index} className="text-center border-0 shadow-card hover:shadow-elegant transition-all duration-300">
-              <CardContent className="p-8">
-                <div className="w-16 h-16 bg-gradient-hero rounded-full flex items-center justify-center mx-auto mb-6">
+            <Card
+              key={index}
+              className="group relative overflow-hidden text-center border border-transparent bg-white/80 shadow-card transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_14px_50px_-18px_rgba(0,0,0,0.25)] hover:border-red/40"
+            >
+              <div className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-[radial-gradient(circle_at_20%_20%,hsl(0_50%_93%)/0.5,transparent_50%),radial-gradient(circle_at_80%_0%,hsl(0_50%_85%)/0.35,transparent_45%)]" />
+              <CardContent className="relative p-8">
+                <div className="w-16 h-16 bg-gradient-hero rounded-full flex items-center justify-center mx-auto mb-6 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3">
                   <feature.icon className="h-8 w-8 text-red-foreground" />
                 </div>
                 <h3 className="text-xl font-semibold text-foreground mb-3 font-playfair">
                   {feature.title}
                 </h3>
-                <p className="text-muted-foreground leading-relaxed font-inter">
+                <p className="text-muted-foreground leading-relaxed font-inter transition-colors duration-500 group-hover:text-foreground">
                   {feature.description}
                 </p>
               </CardContent>

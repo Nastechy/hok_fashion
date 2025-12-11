@@ -26,6 +26,7 @@ export const Header = ({ onCategoryChange, selectedCategory = 'All' }: HeaderPro
   const pathname = location.pathname;
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [mobileCollectionsOpen, setMobileCollectionsOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const { itemCount } = useCart();
@@ -34,6 +35,11 @@ export const Header = ({ onCategoryChange, selectedCategory = 'All' }: HeaderPro
   const { isAdmin } = useAdmin();
 
   const categories = ['All', 'AVAILABLE', 'BEST_SELLER', 'NEW_ARRIVAL', 'FEATURE', 'INCOMING'];
+  const formatCategoryLabel = (category: string) =>
+    category
+      .replace(/_/g, ' ')
+      .toLowerCase()
+      .replace(/\b\w/g, (char) => char.toUpperCase());
 
   const { data: searchData } = useQuery({
     queryKey: ['header-search', searchTerm],
@@ -114,7 +120,7 @@ export const Header = ({ onCategoryChange, selectedCategory = 'All' }: HeaderPro
                       selectedCategory === category ? 'bg-primary/10 text-primary font-medium' : 'hover:bg-muted/50'
                     }`}
                   >
-                    {category}
+                    {formatCategoryLabel(category)}
                   </DropdownMenuItem>
                 ))}
               </DropdownMenuContent>
@@ -275,40 +281,52 @@ export const Header = ({ onCategoryChange, selectedCategory = 'All' }: HeaderPro
               </SheetTrigger>
             <SheetContent side="right" className="w-[300px] bg-gradient-to-b from-white via-white/95 to-white/90">
               <div className="flex flex-col space-y-2 mt-8">
-                    <Link to="/" onClick={() => setIsMenuOpen(false)} className="text-left p-3 text-sm font-medium transition-colors hover:bg-secondary rounded-md font-inter text-muted-foreground">
+                    <Link to="/" onClick={() => setIsMenuOpen(false)} className="text-left p-3 text-sm font-medium transition-colors hover:bg-red hover:text-white rounded-md font-inter text-muted-foreground">
                       Home
                     </Link>
-                    <Link to="/about" onClick={() => setIsMenuOpen(false)} className="text-left p-3 text-sm font-medium transition-colors hover:bg-secondary rounded-md font-inter text-muted-foreground">
+                    <Link to="/about" onClick={() => setIsMenuOpen(false)} className="text-left p-3 text-sm font-medium transition-colors hover:bg-red hover:text-white rounded-md font-inter text-muted-foreground">
                       About
                     </Link>
-                    <Link to="/lookbook" onClick={() => setIsMenuOpen(false)} className="text-left p-3 text-sm font-medium transition-colors hover:bg-secondary rounded-md font-inter text-muted-foreground">
+                    <Link to="/lookbook" onClick={() => setIsMenuOpen(false)} className="text-left p-3 text-sm font-medium transition-colors hover:bg-red hover:text-white rounded-md font-inter text-muted-foreground">
                       Lookbook
                     </Link>
                     
                     {/* Collections Section */}
                     <div className="py-2">
-                      <p className="px-3 text-xs font-semibold text-muted-foreground/70 uppercase tracking-wider font-inter mb-2">
-                        Collections
-                      </p>
-                      {categories.map((category) => (
-                        <button
-                          key={category}
-                          onClick={() => {
-                            onCategoryChange?.(category);
-                            setIsMenuOpen(false);
-                          }}
-                          className={`w-full text-left p-3 text-sm font-medium transition-colors hover:bg-secondary rounded-md font-inter ${
-                            selectedCategory === category
-                              ? 'text-red bg-secondary'
-                              : 'text-muted-foreground'
-                          }`}
-                        >
-                          {category}
-                        </button>
-                      ))}
+                      <button
+                        onClick={() => setMobileCollectionsOpen((prev) => !prev)}
+                        className="w-full flex items-center justify-between text-left p-3 text-sm font-semibold transition-colors rounded-md font-inter text-muted-foreground hover:bg-red hover:text-white"
+                      >
+                        <span>Collections</span>
+                        <ChevronDown
+                          className={`h-4 w-4 transition-transform ${mobileCollectionsOpen ? 'rotate-180' : ''}`}
+                        />
+                      </button>
+                      {mobileCollectionsOpen && (
+                        <div className="mt-1 space-y-1">
+                          {categories.map((category) => (
+                            <button
+                              key={category}
+                              onClick={() => {
+                                onCategoryChange?.(category);
+                                navigate(`/collections/${encodeURIComponent(category)}`);
+                                setIsMenuOpen(false);
+                                setMobileCollectionsOpen(false);
+                              }}
+                              className={`w-full text-left p-3 text-sm font-medium transition-colors rounded-md font-inter ${
+                                selectedCategory === category
+                                  ? 'bg-red text-white shadow-sm'
+                                  : 'text-muted-foreground hover:bg-red hover:text-white'
+                              }`}
+                            >
+                              {formatCategoryLabel(category)}
+                            </button>
+                          ))}
+                        </div>
+                      )}
                     </div>
                     
-                    <Link to="/contact" onClick={() => setIsMenuOpen(false)} className="text-left p-3 text-sm font-medium transition-colors hover:bg-secondary rounded-md font-inter text-muted-foreground">
+                    <Link to="/contact" onClick={() => setIsMenuOpen(false)} className="text-left p-3 text-sm font-medium transition-colors hover:bg-red hover:text-white rounded-md font-inter text-muted-foreground">
                       Contact
                     </Link>
 
@@ -325,7 +343,7 @@ export const Header = ({ onCategoryChange, selectedCategory = 'All' }: HeaderPro
                                 window.location.href = '/admin';
                                 setIsMenuOpen(false);
                               }}
-                              className="w-full text-left p-3 text-sm font-medium transition-colors hover:bg-secondary rounded-md font-inter text-muted-foreground"
+                              className="w-full text-left p-3 text-sm font-medium transition-colors hover:bg-red hover:text-white rounded-md font-inter text-muted-foreground"
                             >
                               Admin Dashboard
                             </button>
@@ -335,7 +353,7 @@ export const Header = ({ onCategoryChange, selectedCategory = 'All' }: HeaderPro
                               window.location.href = '/billing';
                               setIsMenuOpen(false);
                             }}
-                            className="w-full text-left p-3 text-sm font-medium transition-colors hover:bg-secondary rounded-md font-inter text-muted-foreground"
+                            className="w-full text-left p-3 text-sm font-medium transition-colors hover:bg-red hover:text-white rounded-md font-inter text-muted-foreground"
                           >
                             Order History
                           </button>
@@ -344,7 +362,7 @@ export const Header = ({ onCategoryChange, selectedCategory = 'All' }: HeaderPro
                               signOut();
                               setIsMenuOpen(false);
                             }}
-                            className="w-full text-left p-3 text-sm font-medium transition-colors hover:bg-secondary rounded-md font-inter text-muted-foreground"
+                            className="w-full text-left p-3 text-sm font-medium transition-colors hover:bg-red hover:text-white rounded-md font-inter text-muted-foreground"
                           >
                             Sign Out
                           </button>
@@ -355,7 +373,7 @@ export const Header = ({ onCategoryChange, selectedCategory = 'All' }: HeaderPro
                             window.location.href = '/auth';
                             setIsMenuOpen(false);
                           }}
-                          className="w-full text-left p-3 text-sm font-medium transition-colors hover:bg-secondary rounded-md font-inter text-muted-foreground"
+                          className="w-full text-left p-3 text-sm font-medium transition-colors hover:bg-red hover:text-white rounded-md font-inter text-muted-foreground"
                         >
                           Sign In
                         </button>

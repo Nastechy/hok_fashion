@@ -133,3 +133,20 @@ All colors MUST be HSL.
 .motion-float {
   @apply animate-float-slow;
 }
+
+.social-breath {
+  animation: social-breath 4.5s ease-in-out infinite;
+  transition-property: transform, box-shadow, background-color, color;
+  transform-origin: center;
+}
+
+@keyframes social-breath {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 hsl(0 50% 45% / 0);
+  }
+  50% {
+    transform: scale(1.07);
+    box-shadow: 0 12px 32px -16px hsl(0 50% 45% / 0.4);
+  }
+}
