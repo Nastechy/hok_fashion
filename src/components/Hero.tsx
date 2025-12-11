@@ -40,7 +40,7 @@ export const Hero = ({ onExploreClick }: HeroProps) => {
   return (
     <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden bg-gradient-to-br from-[hsl(0_0%_95%)] via-[hsl(0_0%_90%)] to-[hsl(0_40%_92%)]">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_15%_25%,hsl(0_50%_90%)/0.28,transparent_38%),radial-gradient(circle_at_85%_10%,hsl(0_35%_86%)/0.22,transparent_40%)]" />
-      <div className="container relative z-10 px-6 md:px-16 py-20">
+      <div className="container relative z-10 px-4 md:px-16 py-14 md:py-20">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <div className="space-y-8 motion-fade">
             <div className="space-y-4">

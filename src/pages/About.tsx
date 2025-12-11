@@ -20,7 +20,7 @@ const About = () => {
       <main>
         {/* Hero Section */}
         <section className="py-20 bg-gradient-elegant">
-          <div className="container px-6 md:px-14 py-16">
+          <div className="container px-4 md:px-14 py-16">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
               <div className="space-y-8">
                 <h1 className="text-5xl font-bold text-foreground font-playfair">

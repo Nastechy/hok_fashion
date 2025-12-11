@@ -18,6 +18,7 @@ import NotFound from "./pages/NotFound";
 import Collections from "./pages/Collections";
 import FAQ from "./pages/FAQ";
 import OrderDetails from "./pages/OrderDetails";
+import Newsletter from "./pages/Newsletter";
 
 const queryClient = new QueryClient();
 
@@ -41,6 +42,7 @@ const App = () => (
               <Route path="/admin" element={<Admin />} />
               <Route path="/collections/:category" element={<Collections />} />
               <Route path="/faq" element={<FAQ />} />
+              <Route path="/newsletter" element={<Newsletter />} />
               <Route path="/orders/:orderId" element={<OrderDetails />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />

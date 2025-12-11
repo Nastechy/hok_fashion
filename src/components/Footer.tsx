@@ -1,7 +1,11 @@
+import { useState } from 'react';
 import { Facebook, Instagram, Mail, Phone, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { useMutation } from '@tanstack/react-query';
+import { hokApi } from '@/services/hokApi';
+import { toast } from '@/hooks/use-toast';
 
 const TikTokIcon = () => (
   <svg
@@ -30,7 +34,18 @@ const WhatsAppIcon = () => (
 export const Footer = () => {
 
   const currentYear = new Date().getFullYear();
-  const navigate = useNavigate();
+  const [email, setEmail] = useState('');
+
+  const subscribeMutation = useMutation({
+    mutationFn: () => hokApi.subscribeToNewsletter(email),
+    onSuccess: () => {
+      toast({ title: 'Subscribed', description: 'You will now get our drops and offers first.' });
+      setEmail('');
+    },
+    onError: (error: any) => {
+      toast({ title: 'Unable to subscribe', description: error?.message || 'Please try again.', variant: 'destructive' });
+    },
+  });
 
   return (
     <footer className="bg-primary text-primary-foreground">
@@ -128,7 +143,6 @@ export const Footer = () => {
             </ul>
           </div>
 
-          {/* Customer Service */}
           <div className="space-y-4">
             <h4 className="text-lg font-semibold font-playfair">Customer Service</h4>
             <ul className="space-y-2">
@@ -145,6 +159,11 @@ export const Footer = () => {
               <li>
                 <Link to="/faq" className="text-primary-foreground/80 hover:text-red transition-colors font-inter">
                   FAQ & Support
+                </Link>
+              </li>
+              <li>
+                <Link to="/newsletter" className="text-primary-foreground/80 hover:text-red transition-colors font-inter">
+                  Newsletter
                 </Link>
               </li>
             </ul>
@@ -173,9 +192,16 @@ export const Footer = () => {
               <div className="flex space-x-2">
                 <Input
                   placeholder="Enter your email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   className="bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/60 font-inter"
                 />
-                <Button variant="elegant" size="sm">
+                <Button
+                  variant="elegant"
+                  size="sm"
+                  onClick={() => subscribeMutation.mutate()}
+                  disabled={subscribeMutation.isPending || !email.trim()}
+                >
                   Subscribe
                 </Button>
               </div>

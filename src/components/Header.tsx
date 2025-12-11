@@ -36,6 +36,11 @@ export const Header = ({ onCategoryChange, selectedCategory = 'All' }: HeaderPro
   const { isAdmin } = useAdmin();
 
   const categories = ['All', 'AVAILABLE', 'BEST_SELLER', 'NEW_ARRIVAL', 'FEATURE', 'INCOMING'];
+  const formatCategoryLabel = (category: string) =>
+    category
+      .replace(/_/g, ' ')
+      .toLowerCase()
+      .replace(/\b\w/g, (char) => char.toUpperCase());
 
   const { data: searchData } = useQuery({
     queryKey: ['header-search', searchTerm],
@@ -60,7 +65,7 @@ export const Header = ({ onCategoryChange, selectedCategory = 'All' }: HeaderPro
 
   return (
     <header className="sticky top-0 z-50 bg-gradient-to-r from-white/90 via-white/80 to-white/70 border-b border-border/60 backdrop-blur-xl shadow-sm">
-      <div className="container mx-auto px-4 py-3">
+      <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between gap-6">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-3 group">
@@ -74,7 +79,7 @@ export const Header = ({ onCategoryChange, selectedCategory = 'All' }: HeaderPro
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-6">
+          <nav className="hidden md:flex items-center space-x-6 ">
             {[
               { href: '/', label: 'Home' },
               { href: '/about', label: 'About' },
@@ -84,10 +89,10 @@ export const Header = ({ onCategoryChange, selectedCategory = 'All' }: HeaderPro
               <Link
                 key={link.href}
                 to={link.href}
-                className={`relative text-sm font-semibold font-inter transition-all duration-200 group px-3 py-2 rounded-full border ${
+                className={`relative text-sm font-semibold text-foreground font-inter transition-all duration-200 group px-3 py-2 rounded-full border ${
                   pathname === link.href
                     ? 'border-red/60 bg-red text-primary-foreground shadow-elegant'
-                    : 'border-transparent text-muted-foreground hover:text-red hover:bg-red/10 hover:border-red hover:text-base'
+                    : 'border-transparent text-muted-foreground hover:bg-red hover:text-white hover:border-red hover:text-base'
                 }`}
               >
                 {link.label}
@@ -97,7 +102,10 @@ export const Header = ({ onCategoryChange, selectedCategory = 'All' }: HeaderPro
             {/* Collections Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="text-sm font-semibold font-inter text-foreground px-3 py-2 rounded-full transition-all hover:scale-105">
+                <Button
+                  variant="ghost"
+                  className="text-sm font-semibold font-inter text-foreground px-3 py-2 rounded-full transition-all hover:bg-red hover:text-white"
+                >
                   Collections
                   <ChevronDown className="ml-1 h-3 w-3" />
                 </Button>
@@ -115,7 +123,7 @@ export const Header = ({ onCategoryChange, selectedCategory = 'All' }: HeaderPro
                       selectedCategory === category ? 'bg-primary/10 text-primary font-medium' : 'hover:bg-muted/50'
                     }`}
                   >
-                    {category}
+                    {formatCategoryLabel(category)}
                   </DropdownMenuItem>
                 ))}
               </DropdownMenuContent>
@@ -314,7 +322,7 @@ export const Header = ({ onCategoryChange, selectedCategory = 'All' }: HeaderPro
                                   : 'text-muted-foreground hover:bg-red hover:text-white'
                               }`}
                             >
-                              {category}
+                              {formatCategoryLabel(category)}
                             </button>
                           ))}
                         </div>

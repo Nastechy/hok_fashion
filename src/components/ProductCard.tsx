@@ -23,8 +23,8 @@ export const ProductCard = ({ product, onViewDetails }: ProductCardProps) => {
     product.imageUrls?.[0] ||
     'https://via.placeholder.com/400x400?text=HOK';
 
-  const formatCurrency = (value: number) =>
-    value.toLocaleString('en-NG', {
+  const formatCurrency = (value?: number) =>
+    (typeof value === 'number' ? value : 0).toLocaleString('en-NG', {
       style: 'currency',
       currency: 'NGN',
       minimumFractionDigits: 0,
@@ -108,7 +108,7 @@ export const ProductCard = ({ product, onViewDetails }: ProductCardProps) => {
           <div className="flex flex-col gap-3">
             <div className="mt-2 flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
               <span className="text-2xl font-bold text-primary font-playfair">
-                {formatCurrency(product.price)}
+                {typeof product.price === 'number' ? formatCurrency(product.price) : 'Price on request'}
               </span>
               <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
                 <Button

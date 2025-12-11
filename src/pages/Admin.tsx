@@ -8,6 +8,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ProductManagement from '@/components/admin/ProductManagement';
 import UserManagement from '@/components/admin/UserManagement';
 import OrderManagement from '@/components/admin/OrderManagement';
+import NewsletterManagement from '@/components/admin/NewsletterManagement';
+import ContactManagement from '@/components/admin/ContactManagement';
 import { Loader2 } from 'lucide-react';
 
 const Admin = () => {
@@ -44,17 +46,19 @@ const Admin = () => {
     <div className="min-h-screen bg-background">
       <Header />
       
-      <main className="container px-6  md:px-16 py-8">
+      <main className="container px-4 md:px-16 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-foreground mb-2">Admin Dashboard</h1>
           <p className="text-muted-foreground">Manage your store's products, users, and orders</p>
         </div>
 
         <Tabs defaultValue="products" className="space-y-8">
-          <TabsList className="grid w-full grid-cols-3 lg:w-[400px]">
+          <TabsList className="grid w-full grid-cols-5 lg:w-[640px]">
             <TabsTrigger value="products">Products</TabsTrigger>
             <TabsTrigger value="users">Users</TabsTrigger>
             <TabsTrigger value="orders">Orders</TabsTrigger>
+            <TabsTrigger value="newsletter">Newsletter</TabsTrigger>
+            <TabsTrigger value="contact">Contact</TabsTrigger>
           </TabsList>
           
           <TabsContent value="products">
@@ -67,6 +71,14 @@ const Admin = () => {
           
           <TabsContent value="orders">
             <OrderManagement />
+          </TabsContent>
+
+          <TabsContent value="newsletter">
+            <NewsletterManagement />
+          </TabsContent>
+
+          <TabsContent value="contact">
+            <ContactManagement />
           </TabsContent>
         </Tabs>
       </main>

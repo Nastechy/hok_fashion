@@ -159,6 +159,21 @@ export interface CreateReviewInput {
   orderId?: string;
 }
 
+export interface NewsletterSubscriber {
+  id: string;
+  email: string;
+  createdAt?: string;
+}
+
+export interface ContactMessage {
+  id: string;
+  name: string;
+  email: string;
+  subject?: string;
+  message: string;
+  createdAt?: string;
+}
+
 const buildQuery = (filters: ProductFilters) => {
   const params = new URLSearchParams();
   if (filters.limit) params.append('limit', String(filters.limit));
@@ -407,21 +422,38 @@ export const hokApi = {
   },
 
   async fetchProductReviews(productId: string) {
-    const response = await apiRequest<PaginatedResponse<Review> | Review[]>(`/reviews?productId=${productId}`, {
-      method: 'GET',
-    });
-
-    if (Array.isArray(response)) {
-      return response.map(normalizeReview);
-    }
-
-    return {
-      data: (response.data || []).map(normalizeReview),
-      meta: response.meta,
+    const getAndNormalize = async (path: string) => {
+      const response = await apiRequest<PaginatedResponse<Review> | Review[]>(path, { method: 'GET' });
+      if (Array.isArray(response)) {
+        return {
+          data: response.map(normalizeReview),
+          meta: undefined,
+        };
+      }
+      return {
+        data: (response.data || []).map(normalizeReview),
+        meta: response.meta,
+      };
     };
+
+    try {
+      return await getAndNormalize(`/products/${productId}/reviews`);
+    } catch (error: any) {
+      const message = String(error?.message || '');
+      const looksLikeMissingProductsRoute =
+        message.includes('/products/') || message.includes('/products') || message.includes('product');
+
+      if (looksLikeMissingProductsRoute) {
+        return await getAndNormalize(`/reviews?productId=${productId}`);
+      }
+
+      throw error;
+    }
   },
 
   async createReview(input: CreateReviewInput) {
+    const endpoint = input.productId ? `/products/${input.productId}/reviews` : '/reviews';
+
     const payload: Record<string, any> = {
       rating: input.rating,
       comment: input.comment,
@@ -431,15 +463,41 @@ export const hokApi = {
       orderId: input.orderId,
     };
 
-    if (input.productId) {
-      payload.productId = input.productId;
-    }
-
-    const result = await apiRequest<Review>('/reviews', {
+    const result = await apiRequest<Review>(endpoint, {
       method: 'POST',
       body: JSON.stringify(payload),
     });
     return normalizeReview(result);
+  },
+
+  async subscribeToNewsletter(email: string) {
+    return apiRequest<{ message?: string; success?: boolean }>('/newsletter/subscribe', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    });
+  },
+
+  async submitContactMessage(payload: { name: string; email: string; subject?: string; message: string }) {
+    return apiRequest<{ message?: string; success?: boolean }>('/contact', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async fetchNewsletterSubscribers() {
+    const res = await apiRequest<PaginatedResponse<NewsletterSubscriber> | NewsletterSubscriber[]>('/newsletter/subscriptions', {
+      method: 'GET',
+    });
+    if (Array.isArray(res)) return res;
+    return res.data || [];
+  },
+
+  async fetchContactMessages() {
+    const res = await apiRequest<PaginatedResponse<ContactMessage> | ContactMessage[]>('/contact/messages', {
+      method: 'GET',
+    });
+    if (Array.isArray(res)) return res;
+    return res.data || [];
   },
 
   async fetchUsers() {

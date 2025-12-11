@@ -22,8 +22,8 @@ export const ProductModal = ({ product, isOpen, onClose }: ProductModalProps) =>
   const images = useMemo(() => product ? (product.images || product.imageUrls || []) : [], [product]);
   const [activeIndex, setActiveIndex] = useState(0);
   const cover = images[activeIndex] || 'https://via.placeholder.com/500x500?text=HOK';
-  const formatCurrency = (value: number) =>
-    value.toLocaleString('en-NG', { style: 'currency', currency: 'NGN', minimumFractionDigits: 0 });
+  const formatCurrency = (value?: number) =>
+    (typeof value === 'number' ? value : 0).toLocaleString('en-NG', { style: 'currency', currency: 'NGN', minimumFractionDigits: 0 });
 
   const { data: reviewData } = useQuery({
     queryKey: ['product-reviews', product?.id ?? 'unknown'],
@@ -47,7 +47,7 @@ export const ProductModal = ({ product, isOpen, onClose }: ProductModalProps) =>
     addItem({
       id: product.id,
       name: product.name,
-      price: product.price,
+      price: product.price ?? 0,
       image: cover,
     });
     onClose();
@@ -57,7 +57,7 @@ export const ProductModal = ({ product, isOpen, onClose }: ProductModalProps) =>
     toggleItem({
       id: product.id,
       name: product.name,
-      price: product.price,
+      price: product.price ?? 0,
       image: cover,
     });
   };
@@ -114,7 +114,7 @@ export const ProductModal = ({ product, isOpen, onClose }: ProductModalProps) =>
             </DialogHeader>
 
             <div className="text-3xl font-bold text-red font-playfair">
-              {formatCurrency(product.price)}
+              {typeof product.price === 'number' ? formatCurrency(product.price) : 'Price on request'}
             </div>
             {product.variants && product.variants.length > 0 && (
               <div className="space-y-3">

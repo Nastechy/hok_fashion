@@ -353,17 +353,17 @@ const OrderManagement = () => {
                       >
                         Mark Confirmed
                       </Button>
-                      <Button
+                      {/* <Button
                         size="sm"
                         variant="outline"
                         onClick={() => confirmPaymentMutation.mutate({ id: order.id, reference: order.id })}
                       >
                         Confirm Payment
-                      </Button>
+                      </Button> */}
                       <Button
                         size="sm"
                         variant="ghost"
-                        className="justify-start px-2 border bg-secondary/70 hover:bg-secondary"
+                        className="justify-start px-2 border bg-secondary/70 hover:bg-red"
                         onClick={() => navigate(`/orders/${order.id}`)}
                       >
                         <FileText className="mr-2 h-4 w-4" />

@@ -45,7 +45,7 @@ export const FilterSection = ({ selectedCategory, onCategoryChange, productCount
               {/* Filter Info */}
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 bg-gradient-primary rounded-xl flex items-center justify-center shadow-glow">
-                  <Filter className="h-6 w-6 text-primary-foreground" />
+                  <Filter className="h-6 w-6 text-black" />
                 </div>
                 <div>
                   <h2 className="text-2xl font-bold text-foreground mb-1 font-playfair">
@@ -78,7 +78,7 @@ export const FilterSection = ({ selectedCategory, onCategoryChange, productCount
                   <DropdownMenuTrigger asChild>
                     <Button 
                       variant="outline" 
-                      className="font-inter bg-background/50 hover:bg-background border-border/50 hover:border-primary/20 transition-all duration-300"
+                      className="font-inter bg-background/50  border-border/50 hover:bg-red transition-all duration-300"
                     >
                       Category: {selectedCategory}
                       <ChevronDown className="ml-2 h-4 w-4" />
@@ -106,7 +106,7 @@ export const FilterSection = ({ selectedCategory, onCategoryChange, productCount
                   <DropdownMenuTrigger asChild>
                     <Button 
                       variant="outline" 
-                      className="font-inter bg-background/50 hover:bg-background border-border/50 hover:border-primary/20 transition-all duration-300"
+                      className="font-inter bg-background/50 border-border/50 hover:bg-red transition-all duration-300"
                     >
                       Sort: {sortOptions.find(option => option.value === sortBy)?.label}
                       <ChevronDown className="ml-2 h-4 w-4" />

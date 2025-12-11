@@ -38,6 +38,7 @@ export const ProductReviews = ({ productId, productName, initialData }: ProductR
   const reviews: Review[] = useMemo(() => (Array.isArray(data) ? data : data?.data ?? []), [data]);
   const averageRating =
     reviews.length > 0 ? reviews.reduce((sum, review) => sum + Number(review.rating || 0), 0) / reviews.length : 0;
+  const reviewCount = reviews.length;
 
   const createReviewMutation = useMutation({
     mutationFn: () =>

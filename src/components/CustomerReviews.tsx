@@ -100,7 +100,7 @@ export const CustomerReviews = () => {
 
   return (
     <section className="py-20 bg-secondary/30">
-      <div className="container px-6  md:px-16">
+      <div className="container px-4 md:px-16">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold text-foreground mb-4 font-playfair">
             What Our Customers Say

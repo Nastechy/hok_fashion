@@ -51,7 +51,7 @@ const Lookbook = () => {
       
       <main>
         <section className="py-10 md:py-16 bg-gradient-elegant" >
-          <div className="container py-28 px-6  md:px-16" >
+          <div className="container py-28 px-4 md:px-16" >
             <div className="text-center space-y-8">
               <h1 className="text-5xl lg:text-6xl font-bold text-foreground font-playfair">
                 Lookbook
