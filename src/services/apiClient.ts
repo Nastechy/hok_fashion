@@ -1,4 +1,4 @@
-const BASE_URL = import.meta.env.VITE_BASE_URL || 'https://hok-db.vercel.app/api';
+const BASE_URL = import.meta.env.VITE_BASE_URL ;
 
 const getAccessToken = () => {
   try {
