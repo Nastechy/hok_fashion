@@ -72,7 +72,7 @@ const Index = () => {
       </div>
 
       {/* <NewArrivals /> */}
-      <BestSellers />
+      {/* <BestSellers /> */}
       <CustomerReviews />
       <Features />
       <Footer />

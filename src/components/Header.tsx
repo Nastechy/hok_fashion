@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from 'react';
 import { ShoppingCart, Menu, Search, ChevronDown, User, LogOut, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -35,11 +36,6 @@ export const Header = ({ onCategoryChange, selectedCategory = 'All' }: HeaderPro
   const { isAdmin } = useAdmin();
 
   const categories = ['All', 'AVAILABLE', 'BEST_SELLER', 'NEW_ARRIVAL', 'FEATURE', 'INCOMING'];
-  const formatCategoryLabel = (category: string) =>
-    category
-      .replace(/_/g, ' ')
-      .toLowerCase()
-      .replace(/\b\w/g, (char) => char.toUpperCase());
 
   const { data: searchData } = useQuery({
     queryKey: ['header-search', searchTerm],
@@ -54,7 +50,6 @@ export const Header = ({ onCategoryChange, selectedCategory = 'All' }: HeaderPro
     value.toLocaleString('en-NG', { style: 'currency', currency: 'NGN', minimumFractionDigits: 0 });
 
   const handleSearchSelect = (product: any) => {
-    // Scroll to product or navigate to product
     const element = document.getElementById(`product-${product.id}`);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth' });
@@ -120,7 +115,7 @@ export const Header = ({ onCategoryChange, selectedCategory = 'All' }: HeaderPro
                       selectedCategory === category ? 'bg-primary/10 text-primary font-medium' : 'hover:bg-muted/50'
                     }`}
                   >
-                    {formatCategoryLabel(category)}
+                    {category}
                   </DropdownMenuItem>
                 ))}
               </DropdownMenuContent>
@@ -319,7 +314,7 @@ export const Header = ({ onCategoryChange, selectedCategory = 'All' }: HeaderPro
                                   : 'text-muted-foreground hover:bg-red hover:text-white'
                               }`}
                             >
-                              {formatCategoryLabel(category)}
+                              {category}
                             </button>
                           ))}
                         </div>

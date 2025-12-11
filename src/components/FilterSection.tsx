@@ -28,6 +28,11 @@ const sortOptions: { value: SortOption; label: string }[] = [
 ];
 
 const categories = ['All', 'AVAILABLE', 'BEST_SELLER', 'NEW_ARRIVAL', 'FEATURE', 'INCOMING'];
+const formatCategoryLabel = (category: string) =>
+  category
+    .replace(/_/g, ' ')
+    .toLowerCase()
+    .replace(/\b\w/g, (char) => char.toUpperCase());
 
 export const FilterSection = ({ selectedCategory, onCategoryChange, productCount, searchQuery, onSearchChange, sortBy, onSortChange }: FilterSectionProps) => {
 
@@ -90,7 +95,7 @@ export const FilterSection = ({ selectedCategory, onCategoryChange, productCount
                             : 'hover:bg-muted/50'
                         }`}
                       >
-                        {category}
+                        {formatCategoryLabel(category)}
                       </DropdownMenuItem>
                     ))}
                   </DropdownMenuContent>
