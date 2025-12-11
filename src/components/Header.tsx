@@ -382,15 +382,23 @@ export const Header = ({ onCategoryChange, selectedCategory = 'All' }: HeaderPro
                           </button>
                         </div>
                       ) : (
-                        <button
-                          onClick={() => {
-                            window.location.href = '/auth';
-                            setIsMenuOpen(false);
-                          }}
-                          className="w-full text-left p-3 text-sm font-medium transition-colors hover:bg-red hover:text-white rounded-md font-inter text-muted-foreground"
-                        >
-                          Sign In
-                        </button>
+                        <div className="space-y-2">
+                          <button
+                            onClick={() => {
+                              window.location.href = '/auth';
+                              setIsMenuOpen(false);
+                            }}
+                            className="w-full text-left p-3 text-sm font-medium transition-colors hover:bg-red hover:text-white rounded-md font-inter text-muted-foreground"
+                          >
+                            Sign In
+                          </button>
+                          <button
+                            onClick={() => setIsMenuOpen(false)}
+                            className="w-full text-left p-3 text-sm font-medium transition-colors hover:bg-muted rounded-md font-inter text-muted-foreground"
+                          >
+                            Cancel
+                          </button>
+                        </div>
                       )}
                     </div>
                   </div>
