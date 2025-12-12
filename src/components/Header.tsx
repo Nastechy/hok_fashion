@@ -77,7 +77,6 @@ export const Header = ({ onCategoryChange, selectedCategory = 'All' }: HeaderPro
             </div>
           </Link>
 
-          {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-6 ">
             {[
               { href: '/', label: 'Home' },

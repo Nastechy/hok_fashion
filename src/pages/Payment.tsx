@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from 'react';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
@@ -113,14 +114,14 @@ const Payment = () => {
     <div className="min-h-screen bg-background">
       <Header onCategoryChange={() => {}} selectedCategory="All" />
       
-      <main className="container mx-auto px-4 md:px-16 py-10 ">
-        <div className="max-w-6xl mx-auto">
+      <main className="container mx-auto px-0 md:px-16 py-10 overflow-x-hidden">
+        <div className="max-w-6xl w-full mx-auto">
           <h1 className="text-4xl font-bold text-center mb-12 font-playfair">Checkout</h1>
           
-          <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-start">
+          <div className="grid lg:grid-cols-2 gap-6 lg:gap-12 items-start w-full">
             {/* Order Summary */}
-            <div className="space-y-6 lg:sticky lg:top-24">
-              <Card>
+            <div className="space-y-6 lg:sticky lg:top-24 w-full">
+              <Card className="w-full shadow-card overflow-hidden">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 font-playfair">
                     <Truck className="h-5 w-5" />
@@ -129,19 +130,19 @@ const Payment = () => {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {items.map((item) => (
-                    <div key={item.id} className="flex justify-between items-center">
+                    <div key={item.id} className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-0">
                       <div className="flex items-center space-x-3">
                         <img
                           src={item.image}
                           alt={item.name}
-                          className="w-16 h-16 object-cover rounded"
+                          className="w-16 h-16 object-cover rounded border"
                         />
                         <div>
                           <h3 className="font-medium">{item.name}</h3>
                           <p className="text-sm text-muted-foreground">Qty: {item.quantity}</p>
                         </div>
                       </div>
-                      <span className="font-semibold">{formatCurrency(item.price * item.quantity)}</span>
+                      <span className="font-semibold self-start sm:self-auto">{formatCurrency(item.price * item.quantity)}</span>
                     </div>
                   ))}
                   <Separator />
@@ -154,9 +155,9 @@ const Payment = () => {
             </div>
 
             {/* Billing + Payment Form */}
-            <div className="space-y-6">
+            <div className="space-y-6 w-full">
               {/* Billing Address */}
-              <Card>
+              <Card className="w-full overflow-hidden">
                 <CardHeader>
                   <CardTitle className="font-playfair">Billing Address</CardTitle>
                 </CardHeader>
@@ -190,7 +191,7 @@ const Payment = () => {
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="w-full overflow-hidden">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 font-playfair">
                     <CreditCard className="h-5 w-5" />
