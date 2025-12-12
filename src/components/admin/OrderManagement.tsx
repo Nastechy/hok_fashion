@@ -31,6 +31,7 @@ const OrderManagement = () => {
     shippingAddress: '',
     note: '',
   });
+  const [showOfflineForm, setShowOfflineForm] = useState(false);
 
   const ordersQuery = useQuery({
     queryKey: ['admin-orders', dateFilter.startDate, dateFilter.endDate],
@@ -69,17 +70,47 @@ const OrderManagement = () => {
   });
 
   const createOfflineOrder = useMutation({
-    mutationFn: () => hokApi.createOrder(
-      {
-        items: [{ productId: offlineOrder.productId, quantity: Number(offlineOrder.quantity) || 1 }],
-        shippingAddress: offlineOrder.shippingAddress,
-        note: offlineOrder.note,
-        customerEmail: offlineOrder.customerEmail,
-        customerName: offlineOrder.customerName,
-        customerPhone: offlineOrder.customerPhone,
-      },
-      false
-    ),
+    mutationFn: async () => {
+      const rawInput = (offlineOrder.productId || '').trim();
+
+      const looksLikeId = /^[a-fA-F0-9]{24}$/.test(rawInput);
+      let resolvedProductId = looksLikeId ? rawInput : '';
+
+      // If the admin typed a code or name, try to resolve it to an id
+      if (!resolvedProductId && rawInput) {
+        try {
+          const byCode = await hokApi.fetchProducts({ productCode: rawInput, limit: 1 });
+          resolvedProductId = byCode.data?.[0]?.id || '';
+        } catch {
+          // ignore and try search
+        }
+
+        if (!resolvedProductId) {
+          try {
+            const bySearch = await hokApi.fetchProducts({ search: rawInput, limit: 1 });
+            resolvedProductId = bySearch.data?.[0]?.id || '';
+          } catch {
+            // ignore
+          }
+        }
+      }
+
+      if (!resolvedProductId) {
+        throw new Error('Enter a valid product ID or code. Could not find a matching product.');
+      }
+
+      return hokApi.createOrder(
+        {
+          items: [{ productId: resolvedProductId, quantity: Number(offlineOrder.quantity) || 1 }],
+          shippingAddress: offlineOrder.shippingAddress,
+          note: offlineOrder.note,
+          customerEmail: offlineOrder.customerEmail,
+          customerName: offlineOrder.customerName,
+          customerPhone: offlineOrder.customerPhone,
+        },
+        false
+      );
+    },
     onSuccess: () => {
       toast({ title: "Order created", description: "Offline order recorded successfully" });
       setOfflineOrder({
@@ -94,7 +125,11 @@ const OrderManagement = () => {
       ordersQuery.refetch();
     },
     onError: (error: any) => {
-      toast({ title: "Creation failed", description: error?.message || "Could not create offline order", variant: "destructive" });
+      toast({
+        title: "Creation failed",
+        description: error?.message || "Could not create offline order",
+        variant: "destructive",
+      });
     },
   });
 
@@ -120,8 +155,16 @@ const OrderManagement = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
         <h2 className="text-2xl font-bold">Order Management</h2>
+        <Button
+          size="sm"
+          variant={showOfflineForm ? 'outline' : 'default'}
+          onClick={() => setShowOfflineForm((v) => !v)}
+          className="w-full md:w-auto"
+        >
+          {showOfflineForm ? 'Hide Offline Order Form' : 'Create Offline Order'}
+        </Button>
       </div>
 
       {ordersQuery.isLoading ? (
@@ -218,75 +261,77 @@ const OrderManagement = () => {
       </div>
 
       {/* Offline Order Form */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Create Offline Order</CardTitle>
-        </CardHeader>
-        <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <Label>Product ID</Label>
-            <Input
-              value={offlineOrder.productId}
-              onChange={(e) => setOfflineOrder(prev => ({ ...prev, productId: e.target.value }))}
-              placeholder="Product ID"
-            />
-          </div>
-          <div>
-            <Label>Quantity</Label>
-            <Input
-              type="number"
-              value={offlineOrder.quantity}
-              onChange={(e) => setOfflineOrder(prev => ({ ...prev, quantity: e.target.value }))}
-              min={1}
-            />
-          </div>
-          <div>
-            <Label>Shipping Address</Label>
-            <Input
-              value={offlineOrder.shippingAddress}
-              onChange={(e) => setOfflineOrder(prev => ({ ...prev, shippingAddress: e.target.value }))}
-              placeholder="Address"
-            />
-          </div>
-          <div>
-            <Label>Customer Name</Label>
-            <Input
-              value={offlineOrder.customerName}
-              onChange={(e) => setOfflineOrder(prev => ({ ...prev, customerName: e.target.value }))}
-              placeholder="Full name"
-            />
-          </div>
-          <div>
-            <Label>Customer Email</Label>
-            <Input
-              value={offlineOrder.customerEmail}
-              onChange={(e) => setOfflineOrder(prev => ({ ...prev, customerEmail: e.target.value }))}
-              placeholder="email@example.com"
-            />
-          </div>
-          <div>
-            <Label>Customer Phone</Label>
-            <Input
-              value={offlineOrder.customerPhone}
-              onChange={(e) => setOfflineOrder(prev => ({ ...prev, customerPhone: e.target.value }))}
-              placeholder="+1234567890"
-            />
-          </div>
-          <div className="md:col-span-3">
-            <Label>Note</Label>
-            <Input
-              value={offlineOrder.note}
-              onChange={(e) => setOfflineOrder(prev => ({ ...prev, note: e.target.value }))}
-              placeholder="Optional note"
-            />
-          </div>
-          <div className="md:col-span-3">
-            <Button onClick={() => createOfflineOrder.mutate()} disabled={createOfflineOrder.isPending}>
-              {createOfflineOrder.isPending ? 'Creating...' : 'Create Offline Order'}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+      {showOfflineForm && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Create Offline Order</CardTitle>
+          </CardHeader>
+          <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <Label>Product ID or Code</Label>
+              <Input
+                value={offlineOrder.productId}
+                onChange={(e) => setOfflineOrder(prev => ({ ...prev, productId: e.target.value }))}
+                placeholder="Enter product ID or code"
+              />
+            </div>
+            <div>
+              <Label>Quantity</Label>
+              <Input
+                type="number"
+                value={offlineOrder.quantity}
+                onChange={(e) => setOfflineOrder(prev => ({ ...prev, quantity: e.target.value }))}
+                min={1}
+              />
+            </div>
+            <div>
+              <Label>Shipping Address</Label>
+              <Input
+                value={offlineOrder.shippingAddress}
+                onChange={(e) => setOfflineOrder(prev => ({ ...prev, shippingAddress: e.target.value }))}
+                placeholder="Address"
+              />
+            </div>
+            <div>
+              <Label>Customer Name</Label>
+              <Input
+                value={offlineOrder.customerName}
+                onChange={(e) => setOfflineOrder(prev => ({ ...prev, customerName: e.target.value }))}
+                placeholder="Full name"
+              />
+            </div>
+            <div>
+              <Label>Customer Email</Label>
+              <Input
+                value={offlineOrder.customerEmail}
+                onChange={(e) => setOfflineOrder(prev => ({ ...prev, customerEmail: e.target.value }))}
+                placeholder="email@example.com"
+              />
+            </div>
+            <div>
+              <Label>Customer Phone</Label>
+              <Input
+                value={offlineOrder.customerPhone}
+                onChange={(e) => setOfflineOrder(prev => ({ ...prev, customerPhone: e.target.value }))}
+                placeholder="+1234567890"
+              />
+            </div>
+            <div className="md:col-span-3">
+              <Label>Note</Label>
+              <Input
+                value={offlineOrder.note}
+                onChange={(e) => setOfflineOrder(prev => ({ ...prev, note: e.target.value }))}
+                placeholder="Optional note"
+              />
+            </div>
+            <div className="md:col-span-3">
+              <Button onClick={() => createOfflineOrder.mutate()} disabled={createOfflineOrder.isPending}>
+                {createOfflineOrder.isPending ? 'Creating...' : 'Create Offline Order'}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Orders Table */}
       <Card>

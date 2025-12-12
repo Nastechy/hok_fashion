@@ -59,7 +59,6 @@ const OrderDetails = () => {
                 <p className="text-sm text-muted-foreground">
                   {itemCount} item{itemCount === 1 ? '' : 's'}
                 </p>
-                {productCode && <p className="text-xs text-muted-foreground">Product code: {productCode}</p>}
               </div>
             </div>
             <div className="flex gap-2 w-full sm:w-auto">
