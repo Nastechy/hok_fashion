@@ -42,7 +42,7 @@ const ProductManagement = () => {
     newVariant: { name: '', sku: '', priceDelta: '', quantity: '' },
   });
 
-  const categories = ['AVAILABLE', 'BEST_SELLER', 'NEW_ARRIVAL', 'FEATURE', 'INCOMING'];
+  const categories = ['AVAILABLE', 'BEST_SELLER', 'NEW_ARRIVAL', 'FEATURE', 'INCOMING', 'SALES'];
 
   const productsQuery = useQuery({
     queryKey: ['admin-products'],

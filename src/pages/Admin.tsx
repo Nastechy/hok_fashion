@@ -1,5 +1,5 @@
-import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useMemo } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAdmin } from '@/hooks/useAdmin';
 import { useAuth } from '@/contexts/AuthContext';
 import { Header } from '@/components/Header';
@@ -16,6 +16,8 @@ const Admin = () => {
   const { user } = useAuth();
   const { isAdmin, loading } = useAdmin();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeTab = useMemo(() => searchParams.get('tab') || 'products', [searchParams]);
 
   // useEffect(() => {
   //   if (!loading && (!user || !isAdmin)) {
@@ -52,7 +54,17 @@ const Admin = () => {
           <p className="text-muted-foreground">Manage your store's products, users, and orders</p>
         </div>
 
-        <Tabs defaultValue="products" className="space-y-8">
+        <Tabs
+          value={activeTab}
+          onValueChange={(val) => {
+            setSearchParams((prev) => {
+              const params = new URLSearchParams(prev);
+              params.set('tab', val);
+              return params;
+            });
+          }}
+          className="space-y-8"
+        >
           <TabsList className="grid w-full grid-cols-5 lg:w-[640px]">
             <TabsTrigger value="products">Products</TabsTrigger>
             <TabsTrigger value="users">Users</TabsTrigger>

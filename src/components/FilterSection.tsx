@@ -27,7 +27,7 @@ const sortOptions: { value: SortOption; label: string }[] = [
   { value: 'newest', label: 'Newest' },
 ];
 
-const categories = ['All', 'AVAILABLE', 'BEST_SELLER', 'NEW_ARRIVAL', 'FEATURE', 'INCOMING'];
+const categories = ['All', 'AVAILABLE', 'BEST_SELLER', 'NEW_ARRIVAL', 'FEATURE', 'INCOMING', 'SALES'];
 const formatCategoryLabel = (category: string) =>
   category
     .replace(/_/g, ' ')

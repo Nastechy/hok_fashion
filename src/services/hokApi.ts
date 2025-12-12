@@ -113,6 +113,7 @@ export interface Order {
   receiptUrl?: string;
   receipt?: string;
   paymentProofUrl?: string;
+  friendlyId?: string;
   createdAt?: string;
   updatedAt?: string;
   items?: Array<{
@@ -120,11 +121,21 @@ export interface Order {
     quantity: number;
     price?: number;
     variant?: string;
+    imageUrl?: string;
+    imageUrls?: string[];
+    image?: string | string[];
+    productName?: string;
+    productCode?: string;
+    productImage?: string;
     product?: {
       id: string;
       name: string;
       productCode?: string;
       imageUrls?: string[];
+      images?: string[];
+      image?: string | string[];
+      image_url?: string;
+      mainImage?: string;
       category?: string;
       variants?: Array<{
         name?: string;

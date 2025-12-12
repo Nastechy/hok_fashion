@@ -35,7 +35,7 @@ export const Header = ({ onCategoryChange, selectedCategory = 'All' }: HeaderPro
   const { user, signOut } = useAuth();
   const { isAdmin } = useAdmin();
 
-  const categories = ['All', 'AVAILABLE', 'BEST_SELLER', 'NEW_ARRIVAL', 'FEATURE', 'INCOMING'];
+  const categories = ['All', 'AVAILABLE', 'BEST_SELLER', 'NEW_ARRIVAL', 'FEATURE', 'INCOMING', 'SALES'];
   const formatCategoryLabel = (category: string) =>
     category
       .replace(/_/g, ' ')

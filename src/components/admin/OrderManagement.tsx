@@ -372,7 +372,7 @@ const OrderManagement = () => {
                         variant="outline"
                         onClick={() => statusMutation.mutate({ id: order.id, status: 'CONFIRMED' })}
                       >
-                        Mark Confirmed
+                       Confirm Order
                       </Button>
                       {/* <Button
                         size="sm"
