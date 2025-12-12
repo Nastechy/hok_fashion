@@ -18,6 +18,8 @@ export const ProductGrid = ({ selectedCategory, onCategoryChange, searchQuery = 
   const [showAll, setShowAll] = useState(false);
   const isMobile = useIsMobile();
   const navigate = useNavigate();
+  const formatCategoryLabel = (category: string) =>
+    category.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
 
   const filteredProducts = useMemo(() => {
     let filtered = products;
@@ -59,7 +61,7 @@ export const ProductGrid = ({ selectedCategory, onCategoryChange, searchQuery = 
         <div className="container px-4 md:px-16">
           <div className="text-center mb-12">
             <h2 className="text-4xl font-bold text-foreground mb-4 font-playfair">
-              {selectedCategory === 'All' ? 'Our Collection' : selectedCategory}
+              {selectedCategory === 'All' ? 'Our Collection' : formatCategoryLabel(selectedCategory)}
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto font-inter">
               Discover handcrafted luxury bags that combine timeless elegance with modern functionality.

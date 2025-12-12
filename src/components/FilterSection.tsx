@@ -53,7 +53,7 @@ export const FilterSection = ({ selectedCategory, onCategoryChange, productCount
                   <p className="text-muted-foreground font-inter">
                     {productCount} {productCount === 1 ? 'product' : 'products'} found
                     {selectedCategory !== 'All' && (
-                      <span className="ml-1">in <span className="text-primary font-medium">{selectedCategory}</span></span>
+                      <span className="ml-1">in <span className="text-primary font-medium">{formatCategoryLabel(selectedCategory)}</span></span>
                     )}
                   </p>
                 </div>
@@ -79,7 +79,7 @@ export const FilterSection = ({ selectedCategory, onCategoryChange, productCount
                       variant="outline" 
                       className="font-inter bg-background/50  border-border/50 hover:bg-red transition-all duration-300"
                     >
-                      Category: {selectedCategory}
+                      Category: {formatCategoryLabel(selectedCategory)}
                       <ChevronDown className="ml-2 h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>

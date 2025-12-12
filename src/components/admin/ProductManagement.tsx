@@ -214,6 +214,8 @@ const ProductManagement = () => {
 
   const products = productsQuery.data?.data ?? [];
   const selectedImageNames = useMemo(() => formData.images.map((f) => f.name), [formData.images]);
+  const formatCategoryLabel = (category: string) =>
+    category.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
 
   if (productsQuery.isLoading) {
     return <div>Loading products...</div>;
@@ -530,7 +532,7 @@ const ProductManagement = () => {
                     {product.isFeatured && <Badge variant="outline">Featured</Badge>}
                   </CardTitle>
                   <p className="text-sm text-muted-foreground mt-1">
-                    {product.category} • ₦{product.price.toLocaleString('en-NG')} • Stock: {product.quantity ?? 0}
+                    {formatCategoryLabel(product.category || '')} • ₦{product.price.toLocaleString('en-NG')} • Stock: {product.quantity ?? 0}
                   </p>
                   {product.images && product.images.length > 0 && (
                     <div className="mt-3 flex flex-wrap gap-2">

@@ -47,19 +47,20 @@ export const ProductReviews = ({ productId, productName, initialData }: ProductR
         rating,
         title: title.trim() || undefined,
         comment: comment.trim(),
-        userName: displayName || undefined,
-        userEmail: email || undefined,
+        name: displayName || undefined,
+        email: email || undefined,
       }),
     onSuccess: () => {
       toast({
         title: 'Review submitted',
         description: 'Thanks for sharing your feedback!',
       });
+      queryClient.invalidateQueries({ queryKey: ['product-reviews', productId] });
       setRating(0);
       setHoverRating(0);
       setTitle('');
       setComment('');
-      queryClient.invalidateQueries({ queryKey: ['product-reviews', productId] });
+      setIsDialogOpen(false);
     },
     onError: (error: any) => {
       toast({
@@ -147,7 +148,7 @@ export const ProductReviews = ({ productId, productName, initialData }: ProductR
                   </div>
                   <p className="text-sm text-foreground leading-relaxed">{review.comment}</p>
                   <div className="flex items-center justify-between text-xs text-muted-foreground">
-                    <span>{review.userName || 'Anonymous'}</span>
+                    <span>{review.userName || review.name || 'Anonymous'}</span>
                     {review.createdAt && <span>{new Date(review.createdAt).toLocaleDateString()}</span>}
                   </div>
                 </div>

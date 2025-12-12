@@ -146,6 +146,8 @@ export interface Review {
   comment: string;
   userName?: string;
   userEmail?: string;
+  name?: string;
+  email?: string;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -157,6 +159,8 @@ export interface CreateReviewInput {
   title?: string;
   userName?: string;
   userEmail?: string;
+  name?: string;
+  email?: string;
   orderId?: string;
 }
 
@@ -455,52 +459,41 @@ export const hokApi = {
   },
 
   async fetchProductReviews(productId: string) {
-    const getAndNormalize = async (path: string) => {
-      const response = await apiRequest<PaginatedResponse<Review> | Review[]>(path, { method: 'GET' });
-      if (Array.isArray(response)) {
-        return {
-          data: response.map(normalizeReview),
-          meta: undefined,
-        };
-      }
-      return {
-        data: (response.data || []).map(normalizeReview),
-        meta: response.meta,
-      };
-    };
-
-    try {
-      return await getAndNormalize(`/products/${productId}/reviews`);
-    } catch (error: any) {
-      const message = String(error?.message || '');
-      const looksLikeMissingProductsRoute =
-        message.includes('/products/') || message.includes('/products') || message.includes('product');
-
-      if (looksLikeMissingProductsRoute) {
-        return await getAndNormalize(`/reviews?productId=${productId}`);
-      }
-
-      throw error;
+    const response = await apiRequest<PaginatedResponse<Review> | Review[]>(
+      `/reviews/general${productId ? `?productId=${productId}` : ''}`,
+      { method: 'GET' }
+    );
+    if (Array.isArray(response)) {
+      return { data: response.map(normalizeReview), meta: undefined };
     }
+    return {
+      data: (response.data || []).map(normalizeReview),
+      meta: response.meta,
+    };
   },
 
   async createReview(input: CreateReviewInput) {
-    const endpoint = input.productId ? `/products/${input.productId}/reviews` : '/reviews';
-
     const payload: Record<string, any> = {
       rating: input.rating,
       comment: input.comment,
       title: input.title,
-      userName: input.userName,
-      userEmail: input.userEmail,
+      name: input.name || input.userName,
+      email: input.email || input.userEmail,
       orderId: input.orderId,
+      productId: input.productId,
     };
 
-    const result = await apiRequest<Review>(endpoint, {
+    const result = await apiRequest<Review>('/reviews/general', {
       method: 'POST',
       body: JSON.stringify(payload),
     });
-    return normalizeReview(result);
+    // Best-effort: some APIs return plain object, some wrap in data
+    const normalized = Array.isArray((result as any)?.data)
+      ? (result as any).data.map(normalizeReview)[0]
+      : (result as any)?.data
+        ? normalizeReview((result as any).data)
+        : normalizeReview(result);
+    return normalized;
   },
 
   async subscribeToNewsletter(email: string) {

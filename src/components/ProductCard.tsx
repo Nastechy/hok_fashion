@@ -17,6 +17,11 @@ export const ProductCard = ({ product, onViewDetails }: ProductCardProps) => {
   const { toggleItem, isWished } = useWishlist();
   const [, setIsHovered] = useState(false);
   const isFavorite = isWished(product.id);
+  const formatCategoryLabel = (category?: string) =>
+    (category || 'Unknown')
+      .replace(/_/g, ' ')
+      .toLowerCase()
+      .replace(/\b\w/g, (c) => c.toUpperCase());
 
   const cover =
     product.images?.[0] ||
@@ -87,7 +92,7 @@ export const ProductCard = ({ product, onViewDetails }: ProductCardProps) => {
           <div className="flex items-center justify-between gap-2">
             {product.category && (
               <Badge className="bg-red/90 text-red-foreground font-inter font-small backdrop-blur-sm text-[10px]">
-                {product.category}
+                {formatCategoryLabel(product.category)}
               </Badge>
             )}
             <span className="ml-auto shrink-0 rounded-md bg-muted/60 px-2 py-1 text-[0.7rem] font-mono text-muted-foreground">

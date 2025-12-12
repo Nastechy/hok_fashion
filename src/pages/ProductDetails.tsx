@@ -83,7 +83,7 @@ const ProductDetails = () => {
                 className="w-full h-[420px] md:h-[520px] object-contain rounded-md shadow-elegant"
               />
               <Badge className="absolute top-4 left-4 bg-red text-red-foreground font-inter font-medium">
-                {product.category}
+                {product.category ? product.category.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase()) : ''}
               </Badge>
             </div>
             {images.length > 1 && (

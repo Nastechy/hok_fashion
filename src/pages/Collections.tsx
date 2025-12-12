@@ -38,7 +38,9 @@ const Collections = () => {
     limit: 12,
   });
 
-  const title = normalizedCategory === 'All' ? 'All Collections' : normalizedCategory;
+  const formatCategoryLabel = (category: string) =>
+    category.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
+  const title = normalizedCategory === 'All' ? 'All Collections' : formatCategoryLabel(normalizedCategory);
   const emptyCopy = useMemo(() => {
     return `We don't have products under "${normalizedCategory}" yet. Please check back soon or explore our other collections.`;
   }, [normalizedCategory]);

@@ -50,21 +50,22 @@ export const CustomerReviews = () => {
         rating,
         title: title.trim() || undefined,
         comment: comment.trim(),
-        userName: displayName.trim() || undefined,
-        userEmail: email.trim() || undefined,
+        name: displayName.trim() || undefined,
+        email: email.trim() || undefined,
       }),
     onSuccess: () => {
       toast({
         title: 'Review submitted',
         description: 'Thanks for sharing your experience!',
       });
+      // refresh any general reviews fetch (none currently) and close dialog
+      setIsDialogOpen(false);
       setRating(0);
       setHoverRating(0);
       setTitle('');
       setComment('');
       setDisplayName('');
       setEmail('');
-      setIsDialogOpen(false);
     },
     onError: (error: any) => {
       toast({
