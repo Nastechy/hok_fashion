@@ -20,6 +20,7 @@ import FAQ from "./pages/FAQ";
 import OrderDetails from "./pages/OrderDetails";
 import Newsletter from "./pages/Newsletter";
 import ProductDetails from "./pages/ProductDetails";
+import SupportContactFab from "./components/SupportContactFab";
 
 const queryClient = new QueryClient();
 
@@ -49,6 +50,7 @@ const App = () => (
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
+            <SupportContactFab />
             </BrowserRouter>
           </TooltipProvider>
         </WishlistProvider>

@@ -57,8 +57,53 @@ const ProductDetails = () => {
     return (
       <div className="min-h-screen bg-background">
         <Header />
-        <main className="container px-4 md:px-10 py-12">
-          <p className="text-muted-foreground">Loading product...</p>
+        <main className="container px-4 md:px-10 py-10 lg:py-14">
+          <div className="mb-4">
+            <div className="h-9 w-20 rounded-md skeleton-shimmer" />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-[1.05fr_0.95fr] gap-10">
+            <div className="space-y-4">
+              <div className="relative rounded-lg bg-white p-2">
+                <div className="w-full h-[420px] md:h-[520px] rounded-md skeleton-shimmer" />
+                <div className="absolute top-4 left-4 h-8 w-24 rounded-full skeleton-shimmer" />
+              </div>
+              <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                {Array.from({ length: 4 }).map((_, idx) => (
+                  <div key={idx} className="h-20 sm:h-24 rounded-md skeleton-shimmer" />
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-4 rounded-2xl bg-background/80 p-4 md:p-6 shadow-card border border-border/70">
+              <div className="space-y-3">
+                <div className="h-8 w-3/4 rounded skeleton-shimmer" />
+                <div className="h-4 w-32 rounded skeleton-shimmer" />
+              </div>
+              <div className="h-10 w-40 rounded skeleton-shimmer" />
+              <div className="space-y-3">
+                <div className="h-4 w-20 rounded skeleton-shimmer" />
+                <div className="flex flex-wrap gap-2">
+                  {Array.from({ length: 3 }).map((_, idx) => (
+                    <div key={idx} className="h-8 w-20 rounded-full skeleton-shimmer" />
+                  ))}
+                </div>
+              </div>
+              <div className="space-y-2">
+                {Array.from({ length: 4 }).map((_, idx) => (
+                  <div key={idx} className="h-4 w-full rounded skeleton-shimmer" />
+                ))}
+              </div>
+              <div className="space-y-3 pt-2">
+                <div className="h-11 w-full rounded-md skeleton-shimmer" />
+                <div className="h-11 w-full rounded-md skeleton-shimmer" />
+              </div>
+              <div className="space-y-2">
+                {Array.from({ length: 3 }).map((_, idx) => (
+                  <div key={idx} className="h-4 w-3/4 rounded skeleton-shimmer" />
+                ))}
+              </div>
+            </div>
+          </div>
         </main>
         <Footer />
       </div>
