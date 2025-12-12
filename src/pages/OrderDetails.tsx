@@ -52,7 +52,7 @@ const OrderDetails = () => {
 
       <main className="container mx-auto px-4 md:px-16 py-10">
         <div className="max-w-5xl mx-auto space-y-6">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
             <div className="flex items-center gap-4">
               {primaryImage ? (
                 <img src={primaryImage} alt={productName} className="h-14 w-14 rounded-lg object-cover border border-border" />
@@ -67,10 +67,10 @@ const OrderDetails = () => {
                 </p>
               </div>
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 w-full sm:w-auto">
               <Button
                 variant="ghost"
-                className="border bg-secondary/60 hover:bg-secondary"
+                className="border bg-secondary/60 hover:bg-red w-full sm:w-auto justify-center"
                 onClick={() => navigate(-1)}
               >
                 <ArrowLeft className="mr-2 h-4 w-4" />
@@ -78,6 +78,7 @@ const OrderDetails = () => {
               </Button>
               <Button
                 variant="outline"
+                className="w-full sm:w-auto justify-center"
                 onClick={() => confirmPayment.mutate()}
                 disabled={confirmPayment.isPending}
               >
@@ -109,11 +110,17 @@ const OrderDetails = () => {
                   <Separator />
                   <div className="space-y-3">
                     {order.items?.map((item) => {
-                      const thumb = item.product?.imageUrls?.[0] || 'https://via.placeholder.com/80x80?text=HOK';
+                      const thumb = item.product?.imageUrls?.[0] || item.product?.images?.[0] || '';
                       const variant = item.variant || item.product?.variants?.[0]?.name || item.product?.variants?.[0]?.sku;
                       return (
                         <div key={`${item.productId}`} className="flex items-start gap-3 rounded-lg border border-border p-3">
-                          <img src={thumb} alt={item.product?.name || 'Product'} className="h-16 w-16 rounded-md object-cover" />
+                          {thumb ? (
+                            <img src={thumb} alt={item.product?.name || 'Product'} className="h-16 w-16 rounded-md object-contain bg-white border" />
+                          ) : (
+                            <div className="h-16 w-16 rounded-md bg-secondary border flex items-center justify-center text-[10px] text-muted-foreground">
+                              No Image
+                            </div>
+                          )}
                           <div className="flex-1 space-y-1 text-sm">
                             <div className="flex items-center justify-between">
                               <span className="font-semibold">{item.product?.name || item.productId}</span>

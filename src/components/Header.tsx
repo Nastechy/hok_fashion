@@ -68,8 +68,8 @@ export const Header = ({ onCategoryChange, selectedCategory = 'All' }: HeaderPro
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between gap-6">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-3 group">
-            <div className="h-10 w-10 rounded-full bg-gradient-to-br from-red/80 to-primary shadow-glow flex items-center justify-center motion-float transition-transform group-hover:scale-105">
+          <Link to="/" className="flex items-center gap-5 md:gap-3 group">
+            <div className="md:h-10 h-7 w-10  rounded-full bg-gradient-to-br from-red/80 to-primary shadow-glow flex items-center justify-center motion-float transition-transform group-hover:scale-105">
               <span className="text-sm font-semibold text-primary-foreground">H</span>
             </div>
             <div>

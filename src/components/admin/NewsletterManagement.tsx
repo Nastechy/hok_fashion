@@ -23,7 +23,7 @@ const NewsletterManagement = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     toast({
-      title: 'Draft saved (static)',
+      title: 'Draft saved',
       description: 'Hook up the newsletter send API to deliver this message.',
     });
     setSubject('');
@@ -36,7 +36,7 @@ const NewsletterManagement = () => {
     <div className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
       <Card className="border border-border shadow-card">
         <CardHeader>
-          <CardTitle className="font-playfair text-xl">Compose Newsletter (static)</CardTitle>
+          <CardTitle className="font-playfair text-xl">Compose Newsletter</CardTitle>
         </CardHeader>
         <CardContent>
           <form className="space-y-4" onSubmit={handleSubmit}>

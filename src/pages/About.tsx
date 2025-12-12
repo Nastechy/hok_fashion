@@ -58,18 +58,18 @@ const About = () => {
               <div className="relative ">
                 {bestSellerSlides.length > 0 ? (
                   <div className="relative rounded-[32px] border border-border/60 bg-white shadow-elegant p-6 md:p-8">
-                    <Carousel className="w-full" opts={{ loop: true }}>
+                    <Carousel className="w-full" opts={{ loop: true }} setApi={setCarouselApi}>
                       <CarouselContent>
                         {bestSellerSlides.map((product) => {
                           const cover = product.imageUrls?.[0] || product.images?.[0] || heroImage;
                           return (
                             <CarouselItem key={product.id}>
                               <div className="space-y-3">
-                                <div className="overflow-hidden rounded-[16px] bg-white flex items-center justify-center">
+                                <div className="overflow-hidden rounded-[20px] bg-white flex items-center justify-center">
                                   <img
                                     src={cover}
                                     alt={product.name}
-                                    className="w-full h-[400px] md:h-[500px] object-cover rounded-[28px]"
+                                    className="w-full h-[400px] md:h-[500px] object-contain"
                                   />
                                 </div>
                                 <div className="flex items-center justify-between">
@@ -93,11 +93,15 @@ const About = () => {
                     </Carousel>
                   </div>
                 ) : (
-                  <img
-                    src={heroImage}
-                    alt="HOK Fashion craftsmanship"
-                    className="w-full h-auto rounded-2xl shadow-luxury"
-                  />
+                  <div className="relative rounded-[32px] border border-border/60 bg-white shadow-elegant p-6 md:p-8">
+                    <div className="overflow-hidden rounded-[20px] bg-white flex items-center justify-center">
+                      <img
+                        src={heroImage}
+                        alt="HOK Fashion craftsmanship"
+                        className="w-full h-[400px] md:h-[500px] object-contain"
+                      />
+                    </div>
+                  </div>
                 )}
               </div>
             </div>

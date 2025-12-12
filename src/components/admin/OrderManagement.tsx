@@ -34,7 +34,11 @@ const OrderManagement = () => {
 
   const ordersQuery = useQuery({
     queryKey: ['admin-orders', dateFilter.startDate, dateFilter.endDate],
-    queryFn: () => hokApi.fetchOrders(undefined, dateFilter.startDate, dateFilter.endDate),
+    queryFn: () => {
+      const start = dateFilter.startDate ? `${dateFilter.startDate}T00:00:00.000Z` : undefined;
+      const end = dateFilter.endDate ? `${dateFilter.endDate}T23:59:59.999Z` : undefined;
+      return hokApi.fetchOrders(undefined, start, end);
+    },
   });
 
   const metricsQuery = useQuery({
@@ -126,7 +130,7 @@ const OrderManagement = () => {
           <CardTitle className="text-sm font-medium">Filters</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col gap-3 md:flex-row md:items-end">
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2 w-full md:w-auto">
             <Label htmlFor="start-date">Start date</Label>
             <Input
               id="start-date"
@@ -135,7 +139,7 @@ const OrderManagement = () => {
               onChange={(e) => setDateFilter((prev) => ({ ...prev, startDate: e.target.value }))}
             />
           </div>
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2 w-full md:w-auto">
             <Label htmlFor="end-date">End date</Label>
             <Input
               id="end-date"
@@ -168,7 +172,7 @@ const OrderManagement = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
+            {/* <DollarSign className="h-4 w-4 text-muted-foreground" /> */}
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{formatCurrency(Number(totalRevenue))}</div>
