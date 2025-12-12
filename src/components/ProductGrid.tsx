@@ -71,7 +71,7 @@ export const ProductGrid = ({ selectedCategory, onCategoryChange, searchQuery = 
           {isLoading ? (
             <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 md:gap-8 gap-2">
               {Array.from({ length: 8 }).map((_, idx) => (
-                <div key={idx} className="h-72 w-full rounded-xl bg-muted/30 border border-border/60 animate-pulse" />
+                <div key={idx} className="h-72 w-full rounded-xl border border-border/60 skeleton-shimmer" />
               ))}
             </div>
           ) : (

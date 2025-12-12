@@ -36,6 +36,7 @@ const ProductManagement = () => {
     images: [] as File[],
     videos: [] as File[],
     existingImages: [] as string[],
+    existingVideos: [] as string[],
     newImagePreviews: [] as string[],
     variants: [] as { name: string; sku: string; priceDelta: string; quantity: string }[],
     newVariant: { name: '', sku: '', priceDelta: '', quantity: '' },
@@ -108,6 +109,7 @@ const ProductManagement = () => {
       images: [],
       videos: [],
       existingImages: [],
+      existingVideos: [],
       newImagePreviews: [],
       variants: [],
       newVariant: { name: '', sku: '', priceDelta: '', quantity: '' },
@@ -134,6 +136,7 @@ const ProductManagement = () => {
         images: [],
         videos: [],
         existingImages: product.images || product.imageUrls || [],
+        existingVideos: product.videos || product.videoUrls || [],
         newImagePreviews: [],
         variants: product.variants?.map(v => ({
           name: v.name || '',
@@ -187,9 +190,12 @@ const ProductManagement = () => {
       isAvailable: formData.isAvailable,
       quantity: Math.max(0, parseInt(formData.stock_quantity) || 0),
       features: formData.features,
-      images: formData.images,
-      videos: formData.videos,
+      images: [], // kept for compatibility, new uploads sent via newImages/newVideos
+      videos: [],
+      newImages: formData.images,
+      newVideos: formData.videos,
       existingImages: formData.existingImages,
+      existingVideos: formData.existingVideos,
       variants: formData.variants
         .filter(v => v.name && v.sku)
         .map(v => ({
@@ -218,7 +224,30 @@ const ProductManagement = () => {
     category.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
 
   if (productsQuery.isLoading) {
-    return <div>Loading products...</div>;
+    return (
+      <div className="space-y-4">
+        <div className="flex justify-between items-center">
+          <h2 className="text-2xl font-bold">Product Management</h2>
+        </div>
+        <div className="grid gap-4">
+          {Array.from({ length: 4 }).map((_, idx) => (
+            <Card key={idx} className="shadow-elegant">
+              <CardHeader>
+                <div className="h-4 w-32 rounded skeleton-shimmer" />
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="h-4 w-48 rounded skeleton-shimmer" />
+                <div className="flex gap-2">
+                  <div className="h-6 w-16 rounded skeleton-shimmer" />
+                  <div className="h-6 w-12 rounded skeleton-shimmer" />
+                </div>
+                <div className="h-24 rounded skeleton-shimmer" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -372,7 +401,7 @@ const ProductManagement = () => {
                     accept="video/*"
                     onChange={(e) => {
                       const files = Array.from(e.target.files || []);
-                      setFormData(prev => ({ ...prev, videos: files }));
+                      setFormData(prev => ({ ...prev, videos: [...prev.videos, ...files] }));
                     }}
                   />
                   {formData.videos.length > 0 && (

@@ -67,14 +67,13 @@ export const Header = ({ onCategoryChange, selectedCategory = 'All' }: HeaderPro
     <header className="sticky top-0 z-50 bg-gradient-to-r from-white/90 via-white/80 to-white/70 border-b border-border/60 backdrop-blur-xl shadow-sm">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between gap-6">
-          {/* Logo */}
-          <Link to="/" className="flex items-center gap-5 md:gap-3 group">
-            <div className="md:h-10 h-7 w-10  rounded-full bg-gradient-to-br from-red/80 to-primary shadow-glow flex items-center justify-center motion-float transition-transform group-hover:scale-105">
+          <Link to="/" className="flex items-center gap-2 md:gap-3 group">
+            <div className="h-10 w-10 rounded-full bg-gradient-to-br from-red/80 to-primary shadow-glow flex items-center justify-center motion-float transition-transform group-hover:scale-105">
               <span className="text-sm font-semibold text-primary-foreground">H</span>
             </div>
             <div>
               <h1 className="text-2xl font-bold text-foreground font-playfair leading-tight group-hover:text-primary transition-colors">HOK Fashion</h1>
-              <p className="text-xs text-muted-foreground font-inter tracking-wide uppercase">Luxury Handbags</p>
+              <p className="hidden md:block text-xs text-muted-foreground font-inter tracking-wide uppercase">Luxury Handbags</p>
             </div>
           </Link>
 

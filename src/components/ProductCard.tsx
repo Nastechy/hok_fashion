@@ -96,7 +96,7 @@ export const ProductCard = ({ product, onViewDetails }: ProductCardProps) => {
               </Badge>
             )}
             <span className="ml-auto shrink-0 rounded-md bg-muted/60 px-2 py-1 text-[0.7rem] font-mono text-muted-foreground">
-              {product.id.slice(0, 8)}
+              {(product.productCode || product.id).slice(0, 8)}
             </span>
           </div>
 

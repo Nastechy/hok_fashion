@@ -124,6 +124,23 @@ const OrderManagement = () => {
         <h2 className="text-2xl font-bold">Order Management</h2>
       </div>
 
+      {ordersQuery.isLoading ? (
+        <div className="grid gap-4">
+          {Array.from({ length: 3 }).map((_, idx) => (
+            <Card key={idx} className="shadow-card">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <div className="h-4 w-32 rounded skeleton-shimmer" />
+                <div className="h-4 w-6 rounded skeleton-shimmer" />
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="h-4 w-24 rounded skeleton-shimmer" />
+                <div className="h-24 rounded skeleton-shimmer" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      ) : null}
+
       {/* Filters */}
       <Card>
         <CardHeader className="pb-3">
