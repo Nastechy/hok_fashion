@@ -1,11 +1,12 @@
 Options -Indexes
+DirectoryIndex index.html
 RewriteEngine On
 RewriteBase /
 
-# Allow direct access to existing files/directories
+# Serve existing files/folders as-is (assets, favicons, etc)
 RewriteCond %{REQUEST_FILENAME} -f [OR]
 RewriteCond %{REQUEST_FILENAME} -d
 RewriteRule ^ - [L]
 
-# Single-page app fallback to Vite build output
-RewriteRule . /index.html [L]
+# SPA fallback: send everything else to the built index.html
+RewriteRule ^.*$ /index.html [L]

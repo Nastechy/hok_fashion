@@ -146,26 +146,27 @@ export const Footer = () => {
           <div className="space-y-4">
             <h4 className="text-lg font-semibold font-playfair">Customer Service</h4>
             <ul className="space-y-2">
-              <li>
-                <Link to="/contact" className="text-primary-foreground/80 hover:text-red transition-colors font-inter">
-                  Contact Us
-                </Link>
-              </li>
-              <li>
+               <li>
                 <Link to="/auth" className="text-primary-foreground/80 hover:text-red transition-colors font-inter">
                   Sign In
                 </Link>
               </li>
+               <li>
+                <Link to="/newsletter" className="text-primary-foreground/80 hover:text-red transition-colors font-inter">
+                  Newsletter
+                </Link>
+              </li>
+              <li>
+                <Link to="/contact" className="text-primary-foreground/80 hover:text-red transition-colors font-inter">
+                  Contact Us
+                </Link>
+              </li>          
               <li>
                 <Link to="/faq" className="text-primary-foreground/80 hover:text-red transition-colors font-inter">
                   FAQ & Support
                 </Link>
               </li>
-              <li>
-                <Link to="/newsletter" className="text-primary-foreground/80 hover:text-red transition-colors font-inter">
-                  Newsletter
-                </Link>
-              </li>
+             
             </ul>
           </div>
 
