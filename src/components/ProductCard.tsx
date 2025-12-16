@@ -22,6 +22,13 @@ export const ProductCard = ({ product, onViewDetails }: ProductCardProps) => {
       .replace(/_/g, ' ')
       .toLowerCase()
       .replace(/\b\w/g, (c) => c.toUpperCase());
+  const handleImageClick = () => onViewDetails(product);
+  const handleImageKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      onViewDetails(product);
+    }
+  };
 
   const cover =
     product.images?.[0] ||
@@ -53,7 +60,13 @@ export const ProductCard = ({ product, onViewDetails }: ProductCardProps) => {
       onMouseLeave={() => setIsHovered(false)}
     >
       <CardContent className="flex h-full flex-col p-0">
-        <div className="relative overflow-hidden rounded-t-lg bg-white">
+        <div
+          className="relative overflow-hidden rounded-t-lg bg-white cursor-pointer"
+          role="button"
+          tabIndex={0}
+          onClick={handleImageClick}
+          onKeyDown={handleImageKeyDown}
+        >
           <img
             src={cover}
             alt={product.name}

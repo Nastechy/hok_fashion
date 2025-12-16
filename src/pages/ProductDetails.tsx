@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { hokApi, Product } from '@/services/hokApi';
@@ -25,6 +25,10 @@ const ProductDetails = () => {
     queryFn: () => hokApi.fetchProduct(id || ''),
     enabled: Boolean(id),
   });
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
 
   const images = useMemo(() => (product ? product.images || product.imageUrls || [] : []), [product]);
   const cover = images[activeIndex] || 'https://via.placeholder.com/500x500?text=HOK';
