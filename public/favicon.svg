@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="HOK Fashion">
+  <defs>
+    <linearGradient id="g" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#c71f37"/>
+      <stop offset="100%" stop-color="#7f0a1d"/>
+    </linearGradient>
+  </defs>
+  <rect x="4" y="4" width="56" height="56" rx="12" fill="url(#g)" />
+  <rect x="10" y="10" width="44" height="44" rx="10" fill="none" stroke="#f7d7d7" stroke-width="2.5" />
+  <text x="32" y="44" text-anchor="middle" font-family="Georgia, 'Playfair Display', serif" font-size="38" font-weight="700" fill="#fff">
+    H
+  </text>
+</svg>
