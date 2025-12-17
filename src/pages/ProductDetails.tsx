@@ -119,7 +119,12 @@ const ProductDetails = () => {
       <Header />
       <main className="container px-4 md:px-10 py-10 lg:py-14">
         <div className="mb-4">
-          <Button variant="ghost" size="sm" onClick={() => navigate(-1)}>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate(-1)}
+            className="border border-border shadow-sm"
+          >
             ← Back
           </Button>
         </div>

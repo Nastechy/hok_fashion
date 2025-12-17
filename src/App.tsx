@@ -21,6 +21,7 @@ import OrderDetails from "./pages/OrderDetails";
 import Newsletter from "./pages/Newsletter";
 import ProductDetails from "./pages/ProductDetails";
 import SupportContactFab from "./components/SupportContactFab";
+import ScrollToTop from "./components/ScrollToTop";
 
 const queryClient = new QueryClient();
 
@@ -33,24 +34,25 @@ const App = () => (
             <Toaster />
             <Sonner />
             <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/contact" element={<Contact />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/lookbook" element={<Lookbook />} />
-              <Route path="/payment" element={<Payment />} />
-              <Route path="/billing" element={<Billing />} />
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/admin" element={<Admin />} />
-              <Route path="/collections/:category" element={<Collections />} />
-              <Route path="/faq" element={<FAQ />} />
-              <Route path="/newsletter" element={<Newsletter />} />
-              <Route path="/products/:id" element={<ProductDetails />} />
-              <Route path="/orders/:orderId" element={<OrderDetails />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-            <SupportContactFab />
+              <ScrollToTop />
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/contact" element={<Contact />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/lookbook" element={<Lookbook />} />
+                <Route path="/payment" element={<Payment />} />
+                <Route path="/billing" element={<Billing />} />
+                <Route path="/auth" element={<Auth />} />
+                <Route path="/admin" element={<Admin />} />
+                <Route path="/collections/:category" element={<Collections />} />
+                <Route path="/faq" element={<FAQ />} />
+                <Route path="/newsletter" element={<Newsletter />} />
+                <Route path="/products/:id" element={<ProductDetails />} />
+                <Route path="/orders/:orderId" element={<OrderDetails />} />
+                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+              <SupportContactFab />
             </BrowserRouter>
           </TooltipProvider>
         </WishlistProvider>
