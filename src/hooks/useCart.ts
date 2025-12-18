@@ -2,11 +2,14 @@ import { useState, useCallback, useMemo, useEffect } from 'react';
 import { toast } from '@/hooks/use-toast';
 
 export interface CartItem {
-  id: string;
+  id: string; // cart item id (product + variant)
+  productId: string;
   name: string;
   price: number;
   image: string;
   quantity: number;
+  variantId?: string;
+  variantName?: string;
 }
 
 export const useCart = () => {
@@ -19,7 +22,15 @@ export const useCart = () => {
       try {
         const stored = localStorage.getItem(STORAGE_KEY);
         if (stored) {
-          setItems(JSON.parse(stored));
+          const parsed: any[] = JSON.parse(stored);
+          const normalized = Array.isArray(parsed)
+            ? parsed.map((item) => ({
+                ...item,
+                productId: item.productId || item.id,
+                id: item.id || `${item.productId || item.id}${item.variantId ? `:${item.variantId}` : ''}`,
+              }))
+            : [];
+          setItems(normalized);
         } else {
           setItems([]);
         }
@@ -41,14 +52,16 @@ export const useCart = () => {
     return () => window.removeEventListener('storage', handleStorage);
   }, []);
 
-  const addItem = useCallback(async (product: Omit<CartItem, 'quantity'>) => {
+  const addItem = useCallback(async (product: Omit<CartItem, 'quantity' | 'id'> & { quantity?: number }) => {
     setItems(prev => {
-      const existingItem = prev.find(item => item.id === product.id);
+      const cartId = `${product.productId}${product.variantId ? `:${product.variantId}` : ''}`;
+      const desiredQuantity = Math.max(1, product.quantity ?? 1);
+      const existingItem = prev.find(item => item.id === cartId);
       const updated = existingItem
         ? prev.map(item =>
-            item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
+            item.id === cartId ? { ...item, quantity: item.quantity + desiredQuantity } : item
           )
-        : [...prev, { ...product, quantity: 1 }];
+        : [...prev, { ...product, id: cartId, quantity: desiredQuantity }];
       localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
       return updated;
     });

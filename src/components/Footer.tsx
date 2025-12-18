@@ -51,7 +51,7 @@ export const Footer = () => {
     <footer className="bg-primary text-primary-foreground">
       <div className="container mx-auto px-4 py-10 md:py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div className="space-y-4">
+          <div className="space-y-4">
             <h3 className="text-2xl font-bold font-playfair">HOK Fashion</h3>
             <p className="text-primary-foreground/80 leading-relaxed font-inter">
               Nigeria's premier luxury handbag brand. Crafting exquisite pieces
@@ -146,12 +146,12 @@ export const Footer = () => {
           <div className="space-y-4">
             <h4 className="text-lg font-semibold font-playfair">Customer Service</h4>
             <ul className="space-y-2">
-               <li>
+              <li>
                 <Link to="/auth" className="text-primary-foreground/80 hover:text-red transition-colors font-inter">
                   Sign In
                 </Link>
               </li>
-               <li>
+              <li>
                 <Link to="/newsletter" className="text-primary-foreground/80 hover:text-red transition-colors font-inter">
                   Newsletter
                 </Link>
@@ -160,13 +160,13 @@ export const Footer = () => {
                 <Link to="/contact" className="text-primary-foreground/80 hover:text-red transition-colors font-inter">
                   Contact Us
                 </Link>
-              </li>          
+              </li>
               <li>
                 <Link to="/faq" className="text-primary-foreground/80 hover:text-red transition-colors font-inter">
                   FAQ & Support
                 </Link>
               </li>
-             
+
             </ul>
           </div>
 

@@ -35,8 +35,8 @@ const ProductManagement = () => {
     features: '',
     images: [] as File[],
     videos: [] as File[],
-    existingImages: [] as string[],
-    existingVideos: [] as string[],
+    keptImages: [] as string[],
+    keptVideos: [] as string[],
     newImagePreviews: [] as string[],
     variants: [] as { name: string; sku: string; priceDelta: string; quantity: string }[],
     newVariant: { name: '', sku: '', priceDelta: '', quantity: '' },
@@ -108,8 +108,8 @@ const ProductManagement = () => {
       features: '',
       images: [],
       videos: [],
-      existingImages: [],
-      existingVideos: [],
+      keptImages: [],
+      keptVideos: [],
       newImagePreviews: [],
       variants: [],
       newVariant: { name: '', sku: '', priceDelta: '', quantity: '' },
@@ -135,8 +135,8 @@ const ProductManagement = () => {
         features: product.features?.join(', ') || '',
         images: [],
         videos: [],
-        existingImages: product.images || product.imageUrls || [],
-        existingVideos: product.videos || product.videoUrls || [],
+        keptImages: product.images || product.imageUrls || [],
+        keptVideos: product.videos || product.videoUrls || [],
         newImagePreviews: [],
         variants: product.variants?.map(v => ({
           name: v.name || '',
@@ -189,13 +189,11 @@ const ProductManagement = () => {
       isFeatured: formData.isFeatured,
       isAvailable: formData.isAvailable,
       quantity: Math.max(0, parseInt(formData.stock_quantity) || 0),
-      features: formData.features,
-      images: [], // kept for compatibility, new uploads sent via newImages/newVideos
-      videos: [],
+      features: formData.features || undefined,
+      images: formData.keptImages.length ? formData.keptImages : undefined,
+      videos: formData.keptVideos.length ? formData.keptVideos : undefined,
       newImages: formData.images,
       newVideos: formData.videos,
-      existingImages: formData.existingImages,
-      existingVideos: formData.existingVideos,
       variants: formData.variants
         .filter(v => v.name && v.sku)
         .map(v => ({
@@ -409,14 +407,39 @@ const ProductManagement = () => {
                       {formData.videos.length} file(s) selected
                     </p>
                   )}
+                  {formData.keptVideos.length > 0 && (
+                    <div className="space-y-2">
+                      <p className="text-xs text-muted-foreground">Existing Videos</p>
+                      <div className="flex flex-col gap-2">
+                        {formData.keptVideos.map((vid, idx) => (
+                          <div key={vid + idx} className="flex items-center justify-between rounded-md border px-2 py-1 text-xs">
+                            <span className="truncate max-w-[220px]">{vid}</span>
+                            <button
+                              type="button"
+                              className="text-destructive hover:underline"
+                              onClick={() =>
+                                setFormData((prev) => ({
+                                  ...prev,
+                                  keptVideos: prev.keptVideos.filter((_, i) => i !== idx),
+                                }))
+                              }
+                            >
+                              Remove
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                      <p className="text-[11px] text-muted-foreground">Removed videos will be dropped on save.</p>
+                    </div>
+                  )}
                 </div>
               </div>
 
-              {formData.existingImages.length > 0 && (
+              {formData.keptImages.length > 0 && (
                 <div className="space-y-2">
                   <Label>Existing Images</Label>
                   <div className="flex flex-wrap gap-2">
-                    {formData.existingImages.map((img, idx) => (
+                    {formData.keptImages.map((img, idx) => (
                       <div key={img + idx} className="relative h-16 w-16 rounded-md overflow-hidden border">
                         <img src={img} alt={`existing-${idx}`} className="h-full w-full object-cover" />
                         <button
@@ -425,7 +448,7 @@ const ProductManagement = () => {
                           onClick={() =>
                             setFormData((prev) => ({
                               ...prev,
-                              existingImages: prev.existingImages.filter((_, i) => i !== idx),
+                              keptImages: prev.keptImages.filter((_, i) => i !== idx),
                             }))
                           }
                         >

@@ -45,7 +45,7 @@ export const ProductCard = ({ product, onViewDetails }: ProductCardProps) => {
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation();
     addItem({
-      id: product.id,
+      productId: product.id,
       name: product.name,
       price: product.price,
       image: cover,

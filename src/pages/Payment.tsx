@@ -35,7 +35,11 @@ const Payment = () => {
     mutationFn: () =>
       hokApi.createOrder(
         {
-          items: items.map(item => ({ productId: item.id, quantity: item.quantity })),
+          items: items.map(item => ({
+            productId: item.productId || item.id,
+            variantId: item.variantId,
+            quantity: item.quantity,
+          })),
           shippingAddress: form.address,
           note: form.note,
           receiptFile,
@@ -139,6 +143,9 @@ const Payment = () => {
                         />
                         <div>
                           <h3 className="font-medium">{item.name}</h3>
+                          {item.variantName && (
+                            <p className="text-xs text-muted-foreground">Colour: {item.variantName}</p>
+                          )}
                           <p className="text-sm text-muted-foreground">Qty: {item.quantity}</p>
                         </div>
                       </div>

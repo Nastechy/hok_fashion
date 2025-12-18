@@ -5,6 +5,9 @@ import { hokApi, Product } from '@/services/hokApi';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
+import { useToast } from '@/hooks/use-toast';
 import { Check, Heart, Star } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
@@ -16,9 +19,13 @@ import { useNavigate } from 'react-router-dom';
 const ProductDetails = () => {
   const { id } = useParams<{ id: string }>();
   const [activeIndex, setActiveIndex] = useState(0);
+  const [selectedVariantId, setSelectedVariantId] = useState<string | undefined>(undefined);
+  const [variantQuantity, setVariantQuantity] = useState(1);
+  const [variantStock, setVariantStock] = useState<number | undefined>(undefined);
   const { addItem } = useCart();
   const { toggleItem, isWished } = useWishlist();
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   const { data: product, isLoading } = useQuery({
     queryKey: ['product', id],
@@ -33,17 +40,54 @@ const ProductDetails = () => {
   const images = useMemo(() => (product ? product.images || product.imageUrls || [] : []), [product]);
   const cover = images[activeIndex] || 'https://via.placeholder.com/500x500?text=HOK';
   const isFavorite = product ? isWished(product.id) : false;
+  const selectedVariant = useMemo(
+    () => product?.variants?.find((variant) => (variant.id || variant.name) === selectedVariantId),
+    [product?.variants, selectedVariantId]
+  );
+  const priceWithVariant = (product?.price ?? 0) + (selectedVariant?.priceDelta ?? 0);
+
+  useEffect(() => {
+    if (product?.variants && product.variants.length > 0) {
+      const defaultId = product.variants[0].id || product.variants[0].name;
+      setSelectedVariantId(defaultId);
+      setVariantQuantity(1);
+      setVariantStock(product.variants[0].quantity);
+    }
+  }, [product?.variants]);
 
   const formatCurrency = (value?: number) =>
     (typeof value === 'number' ? value : 0).toLocaleString('en-NG', { style: 'currency', currency: 'NGN', minimumFractionDigits: 0 });
 
   const handleAddToCart = () => {
     if (!product) return;
+    if (product.variants?.length && !selectedVariantId) {
+      toast({
+        title: "Select a color",
+        description: "Please choose an available color before adding to cart.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const quantity = Math.max(1, Number(variantQuantity) || 1);
+    if (typeof variantStock === 'number' && variantStock < quantity) {
+      toast({
+        title: "Insufficient stock",
+        description: `Only ${variantStock} available for this color.`,
+        variant: "destructive",
+      });
+      return;
+    }
+
     addItem({
-      id: product.id,
+      productId: product.id,
       name: product.name,
-      price: product.price ?? 0,
+      price: priceWithVariant,
       image: cover,
+      variantId: selectedVariant?.id || selectedVariant?.name,
+      variantName: selectedVariant?.name,
+      variantQuantity: selectedVariant?.quantity,
+      quantity,
     });
   };
 
@@ -177,19 +221,37 @@ const ProductDetails = () => {
             </div>
 
             <div className="text-3xl font-bold text-red font-playfair">
-              {typeof product.price === 'number' ? formatCurrency(product.price) : 'Price on request'}
+              {typeof product.price === 'number' ? formatCurrency(priceWithVariant) : 'Price on request'}
             </div>
 
             {product.variants && product.variants.length > 0 && (
               <div className="space-y-3">
-                <h4 className="font-semibold text-lg font-playfair">Available Variants</h4>
-                <div className="flex flex-wrap gap-2">
-                  {product.variants.map((variant, idx) => (
-                    <Badge key={`${variant.sku || variant.name || idx}`} variant="outline">
-                      {variant.name || variant.sku} {variant.priceDelta ? `(+${formatCurrency(variant.priceDelta)})` : ''}
-                    </Badge>
-                  ))}
-                </div>
+                <h4 className="font-semibold text-lg font-playfair">Available Colors</h4>
+                <Select
+                  value={selectedVariantId}
+                  onValueChange={(value) => {
+                    setSelectedVariantId(value);
+                    const nextVariant = product.variants?.find((variant) => (variant.id || variant.name) === value);
+                    setVariantStock(nextVariant?.quantity);
+                  }}
+                >
+                  <SelectTrigger className="w-full sm:w-64">
+                    <SelectValue placeholder="Select a color" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {product.variants.map((variant, idx) => {
+                      const id = variant.id || variant.name || `variant-${idx}`;
+                      const label = variant.name || variant.sku || `Variant ${idx + 1}`;
+                      const delta = variant.priceDelta ? ` (+${formatCurrency(variant.priceDelta)})` : '';
+                      const qtyLabel = typeof variant.quantity === 'number' ? ` • ${variant.quantity} in stock` : '';
+                      return (
+                        <SelectItem key={id} value={id}>
+                          {label}{delta}{qtyLabel}
+                        </SelectItem>
+                      );
+                    })}
+                  </SelectContent>
+                </Select>
               </div>
             )}
 
@@ -217,13 +279,25 @@ const ProductDetails = () => {
             <Separator />
 
             <div className="space-y-3 pt-2">
+              <div className="flex items-center gap-3">
+                <div className="flex flex-col gap-1">
+                  <span className="text-sm font-medium">Quantity</span>
+                  <Input
+                    type="number"
+                    min={1}
+                    value={variantQuantity}
+                    onChange={(e) => setVariantQuantity(Math.max(1, Number(e.target.value) || 1))}
+                    className="w-24"
+                  />
+                </div>
+              </div>
               <Button
                 variant="luxury"
                 size="lg"
                 className="w-full"
                 onClick={handleAddToCart}
               >
-                Add to Cart {typeof product.price === 'number' ? `- ${formatCurrency(product.price)}` : ''}
+                Add to Cart {typeof product.price === 'number' ? `- ${formatCurrency(priceWithVariant)}` : ''}
               </Button>
               <Button
                 variant={isFavorite ? 'outline' : 'elegant'}

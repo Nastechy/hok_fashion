@@ -19,7 +19,7 @@ export const WishlistSheet = ({ children }: WishlistSheetProps) => {
 
   const handleMoveToCart = (item: (typeof items)[number]) => {
     addItem({
-      id: item.id,
+      productId: item.id,
       name: item.name,
       price: item.price,
       image: item.image || '',
