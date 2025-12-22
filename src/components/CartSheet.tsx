@@ -93,7 +93,7 @@ export const CartSheet = ({ children }: CartSheetProps) => {
                 <span>{formatCurrency(total)}</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span>Processing fee (1.5%)</span>
+                <span>Processing fee</span>
                 <span>{formatCurrency(processingFee)}</span>
               </div>
               <Separator />
