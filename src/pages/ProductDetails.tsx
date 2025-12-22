@@ -5,10 +5,9 @@ import { hokApi, Product } from '@/services/hokApi';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { Check, Heart, Star } from 'lucide-react';
+import { Check, Heart, Minus, Plus, Star } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { useCart } from '@/contexts/CartContext';
@@ -45,6 +44,7 @@ const ProductDetails = () => {
     [product?.variants, selectedVariantId]
   );
   const priceWithVariant = (product?.price ?? 0) + (selectedVariant?.priceDelta ?? 0);
+  const totalPrice = priceWithVariant * Math.max(0, Number(variantQuantity) || 0);
 
   useEffect(() => {
     if (product?.variants && product.variants.length > 0) {
@@ -69,7 +69,15 @@ const ProductDetails = () => {
       return;
     }
 
-    const quantity = Math.max(1, Number(variantQuantity) || 1);
+    const quantity = Math.max(0, Number(variantQuantity) || 0);
+    if (quantity < 1) {
+      toast({
+        title: "Select a quantity",
+        description: "Please choose at least 1 item before adding to cart.",
+        variant: "destructive",
+      });
+      return;
+    }
     if (typeof variantStock === 'number' && variantStock < quantity) {
       toast({
         title: "Insufficient stock",
@@ -227,31 +235,71 @@ const ProductDetails = () => {
             {product.variants && product.variants.length > 0 && (
               <div className="space-y-3">
                 <h4 className="font-semibold text-lg font-playfair">Available Colors</h4>
-                <Select
-                  value={selectedVariantId}
-                  onValueChange={(value) => {
-                    setSelectedVariantId(value);
-                    const nextVariant = product.variants?.find((variant) => (variant.id || variant.name) === value);
-                    setVariantStock(nextVariant?.quantity);
-                  }}
-                >
-                  <SelectTrigger className="w-full sm:w-64">
-                    <SelectValue placeholder="Select a color" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {product.variants.map((variant, idx) => {
-                      const id = variant.id || variant.name || `variant-${idx}`;
-                      const label = variant.name || variant.sku || `Variant ${idx + 1}`;
-                      const delta = variant.priceDelta ? ` (+${formatCurrency(variant.priceDelta)})` : '';
-                      const qtyLabel = typeof variant.quantity === 'number' ? ` • ${variant.quantity} in stock` : '';
-                      return (
-                        <SelectItem key={id} value={id}>
-                          {label}{delta}{qtyLabel}
-                        </SelectItem>
-                      );
-                    })}
-                  </SelectContent>
-                </Select>
+                <div className="flex flex-wrap gap-2">
+                  {product.variants.map((variant, idx) => {
+                    const id = variant.id || variant.name || `variant-${idx}`;
+                    const label = variant.name || variant.sku || `Variant ${idx + 1}`;
+                    const delta = variant.priceDelta ? ` (+${formatCurrency(variant.priceDelta)})` : '';
+                    const qtyLabel = typeof variant.quantity === 'number' ? `${variant.quantity} in stock` : '';
+                    const isSelected = selectedVariantId === id;
+                    return (
+                      <button
+                        key={id}
+                        type="button"
+                        aria-pressed={isSelected}
+                        onClick={() => {
+                          setSelectedVariantId(id);
+                          setVariantStock(variant.quantity);
+                        }}
+                        className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm font-medium transition-colors ${
+                          isSelected
+                            ? 'border-red bg-red text-red-foreground shadow-sm'
+                            : 'border-border bg-background hover:bg-secondary'
+                        }`}
+                      >
+                        <span>{label}{delta}</span>
+                        {qtyLabel && (
+                          <span className={`text-xs ${isSelected ? 'text-red-foreground/80' : 'text-muted-foreground'}`}>
+                            {qtyLabel}
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {product.variants && product.variants.length > 0 && (
+              <div className="space-y-2">
+                <span className="text-sm font-medium">Quantity</span>
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="number"
+                    min={0}
+                    value={variantQuantity}
+                    onChange={(e) => setVariantQuantity(Math.max(0, Number(e.target.value) || 0))}
+                    className="w-24"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    className="h-10 w-10"
+                    onClick={() => setVariantQuantity((prev) => Math.max(0, Number(prev) - 1))}
+                  >
+                    <Minus className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    className="h-10 w-10"
+                    onClick={() => setVariantQuantity((prev) => Math.max(1, Number(prev) + 1))}
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
             )}
 
@@ -279,25 +327,13 @@ const ProductDetails = () => {
             <Separator />
 
             <div className="space-y-3 pt-2">
-              <div className="flex items-center gap-3">
-                <div className="flex flex-col gap-1">
-                  <span className="text-sm font-medium">Quantity</span>
-                  <Input
-                    type="number"
-                    min={1}
-                    value={variantQuantity}
-                    onChange={(e) => setVariantQuantity(Math.max(1, Number(e.target.value) || 1))}
-                    className="w-24"
-                  />
-                </div>
-              </div>
               <Button
                 variant="luxury"
                 size="lg"
                 className="w-full"
                 onClick={handleAddToCart}
               >
-                Add to Cart {typeof product.price === 'number' ? `- ${formatCurrency(priceWithVariant)}` : ''}
+                Add to Cart {typeof product.price === 'number' ? `- ${formatCurrency(totalPrice)}` : ''}
               </Button>
               <Button
                 variant={isFavorite ? 'outline' : 'elegant'}
