@@ -15,6 +15,8 @@ export const CartSheet = ({ children }: CartSheetProps) => {
   const navigate = useNavigate();
   const formatCurrency = (value: number) =>
     value.toLocaleString('en-NG', { style: 'currency', currency: 'NGN', minimumFractionDigits: 0 });
+  const processingFee = Math.min(Math.round(total * 0.015), 2000);
+  const grandTotal = total + processingFee;
 
   const handleCheckout = () => {
     navigate('/payment');
@@ -91,13 +93,13 @@ export const CartSheet = ({ children }: CartSheetProps) => {
                 <span>{formatCurrency(total)}</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span>Shipping</span>
-                <span>Free</span>
+                <span>Processing fee (1.5%)</span>
+                <span>{formatCurrency(processingFee)}</span>
               </div>
               <Separator />
               <div className="flex justify-between font-semibold text-lg">
                 <span>Total</span>
-                <span className="text-red font-playfair">{formatCurrency(total)}</span>
+                <span className="text-red font-playfair">{formatCurrency(grandTotal)}</span>
               </div>
             </div>
             <div className="space-y-2">

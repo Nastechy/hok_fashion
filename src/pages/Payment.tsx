@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -24,10 +25,10 @@ const Payment = () => {
     lastName: '',
     email: '',
     phone: '',
-    address: '',
     note: '',
   });
   const [receiptFile, setReceiptFile] = useState<File | null>(null);
+  const [showDeliveryNotice, setShowDeliveryNotice] = useState(false);
 
   const isGuest = !user;
 
@@ -40,7 +41,6 @@ const Payment = () => {
             variantId: item.variantId,
             quantity: item.quantity,
           })),
-          shippingAddress: form.address,
           note: form.note,
           receiptFile,
           customerEmail: isGuest ? form.email : undefined,
@@ -90,10 +90,10 @@ const Payment = () => {
       return;
     }
 
-    if (!form.firstName || !form.lastName || !form.phone || !form.address || !(form.email || user?.email)) {
+    if (!form.firstName || !form.lastName || !form.phone || !(form.email || user?.email)) {
       toast({
         title: "Billing details missing",
-        description: "Please fill first name, last name, phone, email, and address before submitting.",
+        description: "Please fill first name, last name, phone, and email before submitting.",
         variant: "destructive",
       });
       return;
@@ -108,11 +108,14 @@ const Payment = () => {
       return;
     }
 
+    setShowDeliveryNotice(true);
     checkoutMutation.mutate();
   };
 
   const formatCurrency = (value: number) =>
     value.toLocaleString('en-NG', { style: 'currency', currency: 'NGN', minimumFractionDigits: 0 });
+  const processingFee = Math.min(Math.round(total * 0.015), 2000);
+  const checkoutTotal = total + processingFee;
 
   return (
     <div className="min-h-screen bg-background">
@@ -120,7 +123,17 @@ const Payment = () => {
       
       <main className="container mx-auto px-0 md:px-16 py-10 overflow-x-hidden">
         <div className="max-w-6xl w-full mx-auto">
-          <h1 className="text-4xl font-bold text-center mb-12 font-playfair">Checkout</h1>
+          <div className="mb-12 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <h1 className="text-4xl font-bold font-playfair">Checkout</h1>
+            <Button
+              variant="outline"
+              className="self-start sm:self-auto"
+              type="button"
+              onClick={() => navigate('/collections/All')}
+            >
+              Continue Shopping
+            </Button>
+          </div>
           
           <div className="grid lg:grid-cols-2 gap-6 lg:gap-12 items-start w-full">
             {/* Order Summary */}
@@ -153,9 +166,18 @@ const Payment = () => {
                     </div>
                   ))}
                   <Separator />
+                  <div className="flex justify-between text-sm">
+                    <span>Subtotal</span>
+                    <span>{formatCurrency(total)}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span>Processing fee (1.5%)</span>
+                    <span>{formatCurrency(processingFee)}</span>
+                  </div>
+                  <Separator />
                   <div className="flex justify-between items-center text-lg font-bold">
                     <span>Total</span>
-                    <span className="text-red">{formatCurrency(total)}</span>
+                    <span className="text-red">{formatCurrency(checkoutTotal)}</span>
                   </div>
                 </CardContent>
               </Card>
@@ -188,10 +210,6 @@ const Payment = () => {
                     <Input id="phone" className="h-12" value={form.phone} onChange={handleInputChange('phone')} />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="address">Shipping Address</Label>
-                    <Input id="address" className="h-12" value={form.address} onChange={handleInputChange('address')} />
-                  </div>
-                  <div className="space-y-2">
                     <Label htmlFor="note">Order Note</Label>
                     <Input id="note" className="h-12" value={form.note} onChange={handleInputChange('note')} placeholder="Optional note for your order" />
                   </div>
@@ -215,7 +233,7 @@ const Payment = () => {
                       <p className="text-sm">Account Number: <span className="font-semibold">0123456789</span></p>
                       <p className="text-sm">Bank: GTBank</p>
                       <p className="text-sm">Reference: <span className="font-semibold">Order Payment</span></p>
-                      <p className="text-sm">Amount: <span className="font-semibold">{formatCurrency(total)}</span></p>
+                      <p className="text-sm">Amount: <span className="font-semibold">{formatCurrency(checkoutTotal)}</span></p>
                     </div>
                   </div>
 
@@ -250,7 +268,7 @@ const Payment = () => {
                     disabled={checkoutMutation.isPending || !receiptFile}
                     onClick={handleSubmit}
                   >
-                    {checkoutMutation.isPending ? 'Processing...' : `Submit Payment Proof - ${formatCurrency(total)}`}
+                    {checkoutMutation.isPending ? 'Processing...' : `Submit Payment Proof - ${formatCurrency(checkoutTotal)}`}
                   </Button>
                 </CardContent>
               </Card>
@@ -258,6 +276,20 @@ const Payment = () => {
           </div>
         </div>
       </main>
+
+      <Dialog open={showDeliveryNotice} onOpenChange={setShowDeliveryNotice}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="font-playfair">Delivery Arrangement</DialogTitle>
+            <DialogDescription>
+              Contact the store for your delivery arrangement.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end">
+            <Button variant="outline" onClick={() => setShowDeliveryNotice(false)}>Got it</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <Footer />
     </div>
