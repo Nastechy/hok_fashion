@@ -93,7 +93,7 @@ export const ProductGrid = ({ selectedCategory, onCategoryChange, searchQuery = 
                 onClick={() => setShowAll(true)}
                 className="px-8 py-2"
               >
-                View More ({filteredProducts.length - 5} more products)
+                View more
               </Button>
             </div>
           )}
