@@ -240,9 +240,9 @@ const Payment = () => {
                       Kindly transfer the total to the account below and upload your payment receipt for confirmation.
                     </p>
                     <div className="rounded-xl border border-border p-4 bg-secondary/40 space-y-2">
-                      <p className="text-sm font-semibold">HOK Fashion Ltd.</p>
-                      <p className="text-sm">Account Number: <span className="font-semibold">0123456789</span></p>
-                      <p className="text-sm">Bank: GTBank</p>
+                      <p className="text-sm font-semibold">Okeke Anulika Happiness</p>
+                      <p className="text-sm">Account Number: <span className="font-semibold">2007114694</span></p>
+                      <p className="text-sm">Bank: Kuda Bank</p>
                       <p className="text-sm">Reference: <span className="font-semibold">Order Payment</span></p>
                       <p className="text-sm">Amount: <span className="font-semibold">{formatCurrency(checkoutTotal)}</span></p>
                     </div>
