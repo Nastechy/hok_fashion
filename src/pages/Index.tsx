@@ -17,6 +17,7 @@ import { useNavigate } from 'react-router-dom';
 const Index = () => {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
+  const [showAllMobile, setShowAllMobile] = useState(false);
   const [sortBy, setSortBy] = useState<SortOption>('featured');
   const productGridRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
@@ -65,21 +66,20 @@ const Index = () => {
           searchQuery={searchQuery}
           products={products}
           isLoading={isLoading}
+          onShowAllChange={setShowAllMobile}
+          footer={
+            !isLoading && products.length > 0 && (!isMobile || showAllMobile) ? (
+              <button
+                onClick={handleViewAll}
+                className="px-6 py-3 text-sm font-semibold rounded-full border border-border bg-background hover:bg-secondary transition-all shadow-lg"
+              >
+                View All Collections
+              </button>
+            ) : null
+          }
         />
-        {!isLoading && products.length > 0 && (
-          <div className="flex justify-center mt-6">
-            <button
-              onClick={handleViewAll}
-              className="px-6 py-3 text-sm font-semibold rounded-full border border-border bg-background hover:bg-secondary transition-all shadow-lg"
-            >
-              View All Collections
-            </button>
-          </div>
-        )}
       </div>
 
-      {/* <NewArrivals /> */}
-      {/* <BestSellers /> */}
       <CustomerReviews />
       <Features />
       <Footer />

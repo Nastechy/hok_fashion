@@ -12,9 +12,20 @@ interface ProductGridProps {
   products: Product[];
   isLoading?: boolean;
   showAllOnMobile?: boolean;
+  footer?: React.ReactNode;
+  onShowAllChange?: (value: boolean) => void;
 }
 
-export const ProductGrid = ({ selectedCategory, onCategoryChange, searchQuery = '', products, isLoading = false, showAllOnMobile = false }: ProductGridProps) => {
+export const ProductGrid = ({
+  selectedCategory,
+  onCategoryChange,
+  searchQuery = '',
+  products,
+  isLoading = false,
+  showAllOnMobile = false,
+  footer,
+  onShowAllChange,
+}: ProductGridProps) => {
   const [showAll, setShowAll] = useState(false);
   const isMobile = useIsMobile();
   const navigate = useNavigate();
@@ -46,9 +57,9 @@ export const ProductGrid = ({ selectedCategory, onCategoryChange, searchQuery = 
     return filteredProducts.slice(0, 5);
   }, [filteredProducts, isMobile, showAll, showAllOnMobile]);
 
-  // Reset showAll when category or search changes
   useEffect(() => {
     setShowAll(false);
+    onShowAllChange?.(false);
   }, [selectedCategory, searchQuery, products]);
 
   const handleViewDetails = (product: Product) => {
@@ -57,7 +68,7 @@ export const ProductGrid = ({ selectedCategory, onCategoryChange, searchQuery = 
 
   return (
     <>
-      <section id="collection-grid" className="py-6 md:py-16 bg-background">
+      <section id="collection-grid" className="py-6 md:py-10 bg-background">
         <div className="container px-4 md:px-16">
           <div className="text-center mb-12">
             <h2 className="text-4xl font-bold text-foreground mb-4 font-playfair">
@@ -75,7 +86,7 @@ export const ProductGrid = ({ selectedCategory, onCategoryChange, searchQuery = 
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 md:gap-8 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 md:gap-8 gap-4">
               {displayedProducts.map((product) => (
                 <ProductCard
                   key={product.id}
@@ -90,11 +101,20 @@ export const ProductGrid = ({ selectedCategory, onCategoryChange, searchQuery = 
             <div className="text-center mt-8">
               <Button 
                 variant="outline" 
-                onClick={() => setShowAll(true)}
+                onClick={() => {
+                  setShowAll(true);
+                  onShowAllChange?.(true);
+                }}
                 className="px-8 py-2"
               >
                 View more
               </Button>
+            </div>
+          )}
+
+          {footer && (!isMobile || showAll || showAllOnMobile) && (
+            <div className="flex justify-center mt-8 md:mt-12">
+              {footer}
             </div>
           )}
 
