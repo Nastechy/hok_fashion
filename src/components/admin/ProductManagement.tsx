@@ -623,7 +623,7 @@ const ProductManagement = () => {
                   </p>
                   {product.images && product.images.length > 0 && (
                     <div className="mt-3 flex flex-wrap gap-2">
-                      {product.images.slice(0, 4).map((img, idx) => (
+                      {product.images.map((img, idx) => (
                         <img
                           key={img + idx}
                           src={img}
@@ -631,11 +631,6 @@ const ProductManagement = () => {
                           className="h-16 w-16 rounded-md object-cover border"
                         />
                       ))}
-                      {product.images.length > 4 && (
-                        <Badge variant="outline" className="text-[11px]">
-                          +{product.images.length - 4} more
-                        </Badge>
-                      )}
                     </div>
                   )}
                 </div>
