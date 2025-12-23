@@ -34,6 +34,12 @@ export const Header = ({ onCategoryChange, selectedCategory = 'All' }: HeaderPro
   const { count: wishlistCount } = useWishlist();
   const { user, signOut } = useAuth();
   const { isAdmin } = useAdmin();
+  const handleSignOut = async () => {
+    await signOut();
+    if (location.pathname.startsWith('/admin')) {
+      navigate('/');
+    }
+  };
 
   const categories = ['All', 'AVAILABLE', 'BEST_SELLER', 'NEW_ARRIVAL', 'FEATURE', 'INCOMING', 'SALES'];
   const formatCategoryLabel = (category: string) =>
@@ -222,7 +228,7 @@ export const Header = ({ onCategoryChange, selectedCategory = 'All' }: HeaderPro
                   <DropdownMenuItem onClick={() => window.location.href = '/billing'}>
                     Order History
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => signOut()}>
+                  <DropdownMenuItem onClick={handleSignOut}>
                     <LogOut className="mr-2 h-4 w-4" />
                     Sign Out
                   </DropdownMenuItem>
@@ -370,8 +376,8 @@ export const Header = ({ onCategoryChange, selectedCategory = 'All' }: HeaderPro
                             Order History
                           </button>
                           <button
-                            onClick={() => {
-                              signOut();
+                            onClick={async () => {
+                              await handleSignOut();
                               setIsMenuOpen(false);
                             }}
                             className="w-full text-left p-3 text-sm font-medium transition-colors hover:bg-red hover:text-white rounded-md font-inter text-muted-foreground"

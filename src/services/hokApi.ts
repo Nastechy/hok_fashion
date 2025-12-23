@@ -464,6 +464,18 @@ export const hokApi = {
     });
   },
 
+  async sendOrderDispatchedEmail(id: string) {
+    return apiRequest<{ message?: string }>(`/orders/${id}/email/dispatched`, {
+      method: 'POST',
+    });
+  },
+
+  async sendOrderDeliveredEmail(id: string) {
+    return apiRequest<{ message?: string }>(`/orders/${id}/email/received`, {
+      method: 'POST',
+    });
+  },
+
   async fetchMetricsOverview(params: { startDate?: string; endDate?: string; status?: string } = {}) {
     const search = new URLSearchParams();
     if (params.startDate) search.append('startDate', params.startDate);

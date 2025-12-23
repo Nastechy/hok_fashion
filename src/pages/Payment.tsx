@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -26,12 +26,14 @@ const Payment = () => {
     lastName: '',
     email: '',
     phone: '',
+    address: '',
     note: '',
   });
   const [receiptFile, setReceiptFile] = useState<File | null>(null);
   const [showDeliveryNotice, setShowDeliveryNotice] = useState(false);
   const [shouldNavigateAfterNotice, setShouldNavigateAfterNotice] = useState(false);
   const [orderSubmitted, setOrderSubmitted] = useState(false);
+  const receiptInputRef = useRef<HTMLInputElement | null>(null);
 
   const isGuest = !user;
 
@@ -44,6 +46,7 @@ const Payment = () => {
             variantId: item.variantId,
             quantity: item.quantity,
           })),
+          shippingAddress: form.address,
           note: form.note,
           receiptFile,
           customerEmail: isGuest ? form.email : undefined,
@@ -95,10 +98,10 @@ const Payment = () => {
       return;
     }
 
-    if (!form.firstName || !form.lastName || !form.phone || !(form.email || user?.email)) {
+    if (!form.firstName || !form.lastName || !form.phone || !form.address || !(form.email || user?.email)) {
       toast({
         title: "Billing details missing",
-        description: "Please fill first name, last name, phone, and email before submitting.",
+        description: "Please fill first name, last name, phone, email, and address before submitting.",
         variant: "destructive",
       });
       return;
@@ -214,6 +217,10 @@ const Payment = () => {
                     <Input id="phone" className="h-12" value={form.phone} onChange={handleInputChange('phone')} />
                   </div>
                   <div className="space-y-2">
+                    <Label htmlFor="address">Shipping Address</Label>
+                    <Input id="address" className="h-12" value={form.address} onChange={handleInputChange('address')} placeholder="Enter your shipping address" />
+                  </div>
+                  <div className="space-y-2">
                     <Label htmlFor="note">Order Note</Label>
                     <Input id="note" className="h-12" value={form.note} onChange={handleInputChange('note')} placeholder="Optional note for your order" />
                   </div>
@@ -245,14 +252,27 @@ const Payment = () => {
                     <Label htmlFor="receipt">Upload Payment Receipt (required)</Label>
                     <div className="flex items-center gap-3">
                       <Input
+                        ref={receiptInputRef}
                         id="receipt"
                         type="file"
                         accept="image/*,.pdf"
                         onChange={(e) => setReceiptFile(e.target.files?.[0] || null)}
+                        className="sr-only"
                       />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="h-10"
+                        onClick={() => receiptInputRef.current?.click()}
+                      >
+                        Choose file
+                      </Button>
+                      <span className="text-xs text-muted-foreground">
+                        {receiptFile ? receiptFile.name : 'No file chosen'}
+                      </span>
                       <Upload className="h-4 w-4 text-muted-foreground" />
                     </div>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-[11px] text-muted-foreground">
                       Accepted: images or PDF. You must upload proof before submitting.
                     </p>
                     {receiptFile && (

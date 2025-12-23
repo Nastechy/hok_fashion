@@ -206,10 +206,10 @@ const OrderDetails = () => {
 
                 <Card>
                   <CardHeader>
-                    <CardTitle>Billing Address</CardTitle>
+                    <CardTitle>Shipping Address</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-2 text-sm">
-                    <p>{order.billingAddress || order.shippingAddress || 'Not provided'}</p>
+                    <p>{order.shippingAddress || order.billingAddress || 'Not provided'}</p>
                     {order.note && <p className="text-muted-foreground">Note: {order.note}</p>}
                   </CardContent>
                 </Card>

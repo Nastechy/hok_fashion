@@ -22,6 +22,7 @@ const OrderManagement = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [dateFilter, setDateFilter] = useState({ startDate: '', endDate: '' });
+  const [appliedRange, setAppliedRange] = useState({ startDate: '', endDate: '' });
   const [offlineOrder, setOfflineOrder] = useState({
     productId: '',
     quantity: '1',
@@ -32,14 +33,12 @@ const OrderManagement = () => {
     note: '',
   });
   const [showOfflineForm, setShowOfflineForm] = useState(false);
+  const [dispatchedIds, setDispatchedIds] = useState<Record<string, boolean>>({});
+  const [deliveredIds, setDeliveredIds] = useState<Record<string, boolean>>({});
 
   const ordersQuery = useQuery({
-    queryKey: ['admin-orders', dateFilter.startDate, dateFilter.endDate],
-    queryFn: () => {
-      const start = dateFilter.startDate ? `${dateFilter.startDate}T00:00:00.000Z` : undefined;
-      const end = dateFilter.endDate ? `${dateFilter.endDate}T23:59:59.999Z` : undefined;
-      return hokApi.fetchOrders(undefined, start, end);
-    },
+    queryKey: ['admin-orders'],
+    queryFn: () => hokApi.fetchOrders(),
   });
 
   const metricsQuery = useQuery({
@@ -62,6 +61,48 @@ const OrderManagement = () => {
       toast({ title: "Update failed", description, variant: "destructive" });
     },
   });
+  const dispatchEmailMutation = useMutation({
+    mutationFn: (id: string) => hokApi.sendOrderDispatchedEmail(id),
+    onSuccess: (_, id) => {
+      toast({ title: "Email sent", description: "Dispatched email sent to the customer." });
+      setDispatchedIds((prev) => ({ ...prev, [id]: true }));
+    },
+    onError: (error: any) => {
+      const statusCode = error?.statusCode || error?.status;
+      const description =
+        statusCode === 404
+          ? "Order not found. Refresh the list and try again."
+          : "Unable to send the dispatched email right now. Please try again.";
+      toast({ title: "Email failed", description, variant: "destructive" });
+    },
+  });
+  const deliveredEmailMutation = useMutation({
+    mutationFn: (id: string) => hokApi.sendOrderDeliveredEmail(id),
+    onSuccess: (_, id) => {
+      toast({ title: "Email sent", description: "Received email sent to the customer." });
+      setDeliveredIds((prev) => ({ ...prev, [id]: true }));
+    },
+    onError: (error: any) => {
+      const statusCode = error?.statusCode || error?.status;
+      const description =
+        statusCode === 404
+          ? "Order not found. Refresh the list and try again."
+          : "Unable to send the delivered email right now. Please try again.";
+      toast({ title: "Email failed", description, variant: "destructive" });
+    },
+  });
+  const allowedStatuses = ['PENDING', 'CONFIRMED', 'CANCELLED'];
+  const handleStatusUpdate = (id: string, status: string) => {
+    if (!allowedStatuses.includes(status)) {
+      toast({
+        title: 'Status unavailable',
+        description: 'This status is not supported by the API yet.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    statusMutation.mutate({ id, status });
+  };
 
   const confirmPaymentMutation = useMutation({
     mutationFn: ({ id, reference }: { id: string; reference?: string }) => hokApi.confirmOrderPayment(id, { reference }),
@@ -151,7 +192,7 @@ const OrderManagement = () => {
         return 'secondary';
       case 'dispatched':
         return 'outline';
-      case 'received':
+      case 'delivered':
         return 'secondary';
       case 'cancelled':
         return 'destructive';
@@ -161,6 +202,20 @@ const OrderManagement = () => {
   };
 
   const orders: Order[] = ordersQuery.data || [];
+  const filteredOrders = orders.filter((order) => {
+    if (!appliedRange.startDate && !appliedRange.endDate) return true;
+    if (!order.createdAt) return false;
+    const createdAt = new Date(order.createdAt).getTime();
+    const start = appliedRange.startDate
+      ? new Date(`${appliedRange.startDate}T00:00:00.000Z`).getTime()
+      : undefined;
+    const end = appliedRange.endDate
+      ? new Date(`${appliedRange.endDate}T23:59:59.999Z`).getTime()
+      : undefined;
+    if (start && createdAt < start) return false;
+    if (end && createdAt > end) return false;
+    return true;
+  });
   const totalRevenue = metricsQuery.data?.totalRevenue ?? orders.reduce((sum, order) => sum + Number(order.totalAmount || 0), 0);
   const totalOrders = metricsQuery.data?.totalOrders ?? orders.length;
   const pendingOrders = metricsQuery.data?.pendingOrders ?? orders.filter(order => (order.status || '').toLowerCase() === 'pending').length;
@@ -229,12 +284,13 @@ const OrderManagement = () => {
                 variant="outline"
                 onClick={() => {
                   setDateFilter({ startDate: '', endDate: '' });
+                  setAppliedRange({ startDate: '', endDate: '' });
                 }}
               >
                 Clear
               </Button>
-              <Button onClick={() => ordersQuery.refetch()} disabled={ordersQuery.isFetching}>
-                {ordersQuery.isFetching ? 'Filtering...' : 'Apply'}
+              <Button onClick={() => setAppliedRange(dateFilter)}>
+                Apply
               </Button>
             </div>
           </div>
@@ -352,16 +408,16 @@ const OrderManagement = () => {
         <CardHeader className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <CardTitle>Recent Orders</CardTitle>
-            {(dateFilter.startDate || dateFilter.endDate) && (
+            {(appliedRange.startDate || appliedRange.endDate) && (
               <p className="text-sm text-muted-foreground">
                 Showing orders
-                {dateFilter.startDate ? ` from ${dateFilter.startDate}` : ''} 
-                {dateFilter.endDate ? ` to ${dateFilter.endDate}` : ''}
+                {appliedRange.startDate ? ` from ${appliedRange.startDate}` : ''} 
+                {appliedRange.endDate ? ` to ${appliedRange.endDate}` : ''}
               </p>
             )}
           </div>
           <div className="text-sm text-muted-foreground">
-            {ordersQuery.isFetching ? 'Refreshing...' : `${orders.length} order${orders.length === 1 ? '' : 's'}`}
+            {`${filteredOrders.length} order${filteredOrders.length === 1 ? '' : 's'}`}
           </div>
         </CardHeader>
         <CardContent>
@@ -378,14 +434,20 @@ const OrderManagement = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {orders.length === 0 && (
+              {filteredOrders.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={7} className="text-center text-sm text-muted-foreground py-6">
                     No orders for this range. Try another date or clear filters.
                   </TableCell>
                 </TableRow>
               )}
-              {orders.map((order) => (
+              {filteredOrders.map((order) => {
+                const status = (order.status || '').toUpperCase();
+                const isDispatched = Boolean(dispatchedIds[order.id]) || status === 'DISPATCHED';
+                const isDelivered = Boolean(deliveredIds[order.id]) || status === 'RECEIVED';
+                const canDispatch = status === 'CONFIRMED' && !isDispatched;
+                const canDeliver = (status === 'DISPATCHED' || isDispatched) && !isDelivered;
+                return (
                 <TableRow key={order.id}>
                   {/*
                     Status flow: CONFIRMED -> DISPATCHED -> RECEIVED
@@ -430,22 +492,6 @@ const OrderManagement = () => {
                   </TableCell>
                   <TableCell>
                     <div className="flex flex-col gap-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        disabled={(order.status || '').toUpperCase() !== 'CONFIRMED'}
-                        onClick={() => statusMutation.mutate({ id: order.id, status: 'DISPATCHED' })}
-                      >
-                        Mark Dispatched
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        disabled={(order.status || '').toUpperCase() !== 'DISPATCHED'}
-                        onClick={() => statusMutation.mutate({ id: order.id, status: 'RECEIVED' })}
-                      >
-                        Mark Received
-                      </Button>
                       {/* <Button
                         size="sm"
                         variant="outline"
@@ -462,10 +508,27 @@ const OrderManagement = () => {
                         <FileText className="mr-2 h-4 w-4" />
                         View details
                       </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        disabled={dispatchEmailMutation.isPending || !canDispatch}
+                        onClick={() => dispatchEmailMutation.mutate(order.id)}
+                      >
+                        Mark Dispatched
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        disabled={deliveredEmailMutation.isPending || !canDeliver}
+                        onClick={() => deliveredEmailMutation.mutate(order.id)}
+                      >
+                        Mark Delivered
+                      </Button>
                     </div>
                   </TableCell>
                 </TableRow>
-              ))}
+                );
+              })}
             </TableBody>
           </Table>
         </CardContent>
