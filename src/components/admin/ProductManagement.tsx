@@ -567,9 +567,15 @@ const ProductManagement = () => {
               </div> */}
 
               <div className="flex gap-2 pt-4">
-                <Button type="submit">
+                <Button type="submit" disabled={createProduct.isPending || updateProduct.isPending}>
                   <Save className="w-4 h-4 mr-2" />
-                  {editingProduct ? 'Update' : 'Create'}
+                  {editingProduct
+                    ? updateProduct.isPending
+                      ? 'Updating...'
+                      : 'Update'
+                    : createProduct.isPending
+                      ? 'Creating...'
+                      : 'Create'}
                 </Button>
                 <Button type="button" variant="outline" onClick={closeDialog}>
                   <X className="w-4 h-4 mr-2" />
