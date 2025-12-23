@@ -296,6 +296,7 @@ const ProductManagement = () => {
                     step="0.01"
                     value={formData.price}
                     onChange={(e) => setFormData(prev => ({ ...prev, price: e.target.value }))}
+                    onWheel={(e) => e.currentTarget.blur()}
                   />
                 </div>
               </div>
@@ -353,6 +354,7 @@ const ProductManagement = () => {
                     type="number"
                     value={formData.stock_quantity}
                     onChange={(e) => setFormData(prev => ({ ...prev, stock_quantity: e.target.value }))}
+                    onWheel={(e) => e.currentTarget.blur()}
                   />
                 </div>
               </div>
@@ -506,12 +508,14 @@ const ProductManagement = () => {
                     type="number"
                     value={formData.newVariant.priceDelta}
                     onChange={(e) => setFormData(prev => ({ ...prev, newVariant: { ...prev.newVariant, priceDelta: e.target.value } }))}
+                    onWheel={(e) => e.currentTarget.blur()}
                   />
                   <Input
                     placeholder="Quantity"
                     type="number"
                     value={formData.newVariant.quantity}
                     onChange={(e) => setFormData(prev => ({ ...prev, newVariant: { ...prev.newVariant, quantity: e.target.value } }))}
+                    onWheel={(e) => e.currentTarget.blur()}
                   />
                 </div>
                 {formData.variants.length > 0 && (

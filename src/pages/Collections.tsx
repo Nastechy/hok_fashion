@@ -35,7 +35,6 @@ const Collections = () => {
     category: selectedCategory === 'All' ? undefined : selectedCategory,
     search: searchQuery,
     sortOption: sortBy,
-    limit: 12,
   });
 
   const formatCategoryLabel = (category: string) =>
