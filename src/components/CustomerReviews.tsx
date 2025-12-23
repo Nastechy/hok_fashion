@@ -304,8 +304,8 @@ export const CustomerReviews = () => {
               </CarouselItem>
             ))}
           </CarouselContent>
-          <CarouselPrevious className="-left-16 bg-background/90 shadow-card" />
-          <CarouselNext className="-right-16 bg-background/90 shadow-card" />
+          <CarouselPrevious className="left-3 bg-background/90 shadow-card sm:-left-16" />
+          <CarouselNext className="right-3 bg-background/90 shadow-card sm:-right-16" />
         </Carousel>
       </div>
     </section>
