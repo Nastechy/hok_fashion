@@ -98,7 +98,7 @@ export const ProductGrid = ({ selectedCategory, onCategoryChange, searchQuery = 
             </div>
           )}
 
-          {filteredProducts.length === 0 && (
+          {!isLoading && filteredProducts.length === 0 && (
             <div className="text-center py-6 lg:py-16">
               <p className="text-xl text-muted-foreground">
                 No products found in this category.

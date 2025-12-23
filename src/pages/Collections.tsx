@@ -4,10 +4,10 @@ import { Button } from '@/components/ui/button';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { ProductGrid } from '@/components/ProductGrid';
-import { useProducts } from '@/hooks/useProducts';
-import { SortOption } from '@/services/hokApi';
+import { SortOption, hokApi, Product } from '@/services/hokApi';
 import { FilterSection } from '@/components/FilterSection';
 import { ScrollToTopButton } from '@/components/ScrollToTopButton';
+import { useQuery } from '@tanstack/react-query';
 
 const Collections = () => {
   const { category = 'All' } = useParams();
@@ -31,11 +31,32 @@ const Collections = () => {
     return () => window.removeEventListener('resize', updateIsDesktop);
   }, []);
 
-  const { products, isLoading, meta } = useProducts({
-    category: selectedCategory === 'All' ? undefined : selectedCategory,
-    search: searchQuery,
-    sortOption: sortBy,
+  const { data: productResult, isLoading, isFetching } = useQuery({
+    queryKey: ['collections-products', selectedCategory, searchQuery, sortBy],
+    queryFn: async () => {
+      const limit = 50;
+      let page = 1;
+      let all: Product[] = [];
+      let total: number | undefined;
+      while (true) {
+        const response = await hokApi.fetchProducts({
+          category: selectedCategory === 'All' ? undefined : selectedCategory,
+          search: searchQuery,
+          sortOption: sortBy,
+          limit,
+          page,
+        });
+        all = all.concat(response.data || []);
+        total = response.meta?.total ?? total;
+        if (response.data.length < limit) break;
+        if (typeof total === 'number' && all.length >= total) break;
+        page += 1;
+      }
+      return { data: all, total: total ?? all.length };
+    },
+    keepPreviousData: true,
   });
+  const products = productResult?.data ?? [];
 
   const formatCategoryLabel = (category: string) =>
     category.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
@@ -49,7 +70,7 @@ const Collections = () => {
     navigate(`/collections/${encodeURIComponent(nextCategory)}`);
   };
 
-  const productCount = meta?.total ?? products.length;
+  const productCount = productResult?.total ?? products.length;
 
   return (
     <div className="min-h-screen bg-background">
@@ -90,6 +111,12 @@ const Collections = () => {
           searchQuery={searchQuery}
           showAllOnMobile
         />
+
+        {!isLoading && isFetching && products.length > 0 && (
+          <div className="text-center py-4">
+            <p className="text-sm text-muted-foreground">Loading more...</p>
+          </div>
+        )}
 
         {!isLoading && products.length === 0 && (
           <div className="text-center py-12">
