@@ -123,11 +123,11 @@ const Payment = () => {
       
       <main className="container mx-auto px-0 md:px-16 py-10 overflow-x-hidden">
         <div className="max-w-6xl w-full mx-auto">
-          <div className="mb-12 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <h1 className="text-4xl font-bold font-playfair">Checkout</h1>
+          <div className="mb-12 flex items-center justify-between gap-4 px-2 sm:px-0">
+            <h1 className="text-2xl sm:text-4xl font-bold font-playfair">Checkout</h1>
             <Button
-              variant="outline"
-              className="self-start sm:self-auto"
+              variant="luxury"
+              className="shrink-0"
               type="button"
               onClick={() => navigate('/collections/All')}
             >
