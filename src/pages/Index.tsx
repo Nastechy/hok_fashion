@@ -66,14 +66,16 @@ const Index = () => {
           products={products}
           isLoading={isLoading}
         />
-        <div className="flex justify-center mt-6">
-          <button
-            onClick={handleViewAll}
-            className="px-6 py-3 text-sm font-semibold rounded-full border border-border bg-background hover:bg-secondary transition-all shadow-lg"
-          >
-            View All Collections
-          </button>
-        </div>
+        {!isLoading && products.length > 0 && (
+          <div className="flex justify-center mt-6">
+            <button
+              onClick={handleViewAll}
+              className="px-6 py-3 text-sm font-semibold rounded-full border border-border bg-background hover:bg-secondary transition-all shadow-lg"
+            >
+              View All Collections
+            </button>
+          </div>
+        )}
       </div>
 
       {/* <NewArrivals /> */}
