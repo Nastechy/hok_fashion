@@ -52,7 +52,7 @@ const ProductManagement = () => {
   });
 
   const createProduct = useMutation({
-    mutationFn: (payload: CreateProductInput) => hokApi.createProduct(payload),
+    mutationFn: (payload: Partial<CreateProductInput>) => hokApi.createProduct(payload),
     onSuccess: () => {
       toast({ title: "Success", description: "Product created successfully" });
       productsQuery.refetch();
@@ -179,32 +179,33 @@ const ProductManagement = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    const productData: CreateProductInput = {
-      name: formData.name,
-      description: formData.description,
-      price: parseFloat(formData.price),
-      productCode: formData.productCode,
-      collectionType: formData.collectionType,
-      category: formData.category,
-      isBestSeller: formData.isBestSeller,
-      isNewArrival: formData.isNewArrival,
-      isFeatured: formData.isFeatured,
-      isAvailable: formData.isAvailable,
-      quantity: Math.max(0, parseInt(formData.stock_quantity) || 0),
-      features: formData.features || undefined,
-      images: formData.keptImages.length ? formData.keptImages : undefined,
-      videos: formData.keptVideos.length ? formData.keptVideos : undefined,
-      newImages: formData.images,
-      newVideos: formData.videos,
-      variants: formData.variants
+    const productData: Partial<CreateProductInput> = {};
+    if (formData.name.trim()) productData.name = formData.name.trim();
+    if (formData.description.trim()) productData.description = formData.description.trim();
+    if (formData.price.trim()) productData.price = parseFloat(formData.price);
+    if (formData.productCode.trim()) productData.productCode = formData.productCode.trim();
+    if (formData.collectionType.trim()) productData.collectionType = formData.collectionType.trim();
+    if (formData.category) productData.category = formData.category;
+    if (typeof formData.isBestSeller === 'boolean') productData.isBestSeller = formData.isBestSeller;
+    if (typeof formData.isNewArrival === 'boolean') productData.isNewArrival = formData.isNewArrival;
+    if (typeof formData.isFeatured === 'boolean') productData.isFeatured = formData.isFeatured;
+    if (typeof formData.isAvailable === 'boolean') productData.isAvailable = formData.isAvailable;
+    if (formData.stock_quantity.trim()) productData.quantity = Math.max(0, parseInt(formData.stock_quantity) || 0);
+    if (formData.features.trim()) productData.features = formData.features.trim();
+    if (formData.keptImages.length) productData.images = formData.keptImages;
+    if (formData.keptVideos.length) productData.videos = formData.keptVideos;
+    if (formData.images.length) productData.newImages = formData.images;
+    if (formData.videos.length) productData.newVideos = formData.videos;
+    if (formData.variants.length) {
+      productData.variants = formData.variants
         .filter(v => v.name && v.sku)
         .map(v => ({
           name: v.name,
           sku: v.sku,
           priceDelta: Number(v.priceDelta) || 0,
           quantity: Math.max(0, Number(v.quantity) || 0),
-        })),
-    };
+        }));
+    }
 
     if (editingProduct) {
       updateProduct.mutate({ id: editingProduct.id, payload: productData });
@@ -285,7 +286,6 @@ const ProductManagement = () => {
                     id="name"
                     value={formData.name}
                     onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                    required
                   />
                 </div>
                 <div>
@@ -296,7 +296,6 @@ const ProductManagement = () => {
                     step="0.01"
                     value={formData.price}
                     onChange={(e) => setFormData(prev => ({ ...prev, price: e.target.value }))}
-                    required
                   />
                 </div>
               </div>
@@ -308,7 +307,6 @@ const ProductManagement = () => {
                     id="productCode"
                     value={formData.productCode}
                     onChange={(e) => setFormData(prev => ({ ...prev, productCode: e.target.value }))}
-                    required
                   />
                 </div>
                 <div>

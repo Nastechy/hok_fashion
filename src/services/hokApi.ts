@@ -59,11 +59,11 @@ export interface ProductFilters {
 }
 
 export interface CreateProductInput {
-  name: string;
-  price: number;
-  productCode: string;
-  quantity: number;
-  category: string;
+  name?: string;
+  price?: number;
+  productCode?: string;
+  quantity?: number;
+  category?: string;
   description?: string;
   features?: string;
   images?: string[];
@@ -331,25 +331,23 @@ export const hokApi = {
     return normalizeProduct(response);
   },
 
-  async createProduct(input: CreateProductInput) {
+  async createProduct(input: Partial<CreateProductInput>) {
     const form = new FormData();
-    form.append('name', input.name);
-    form.append('price', String(input.price));
-    form.append('productCode', input.productCode);
-    form.append('quantity', String(Math.max(0, input.quantity)));
-    form.append('category', input.category);
+    if (input.name) form.append('name', input.name);
+    if (typeof input.price === 'number' && !Number.isNaN(input.price)) form.append('price', String(input.price));
+    if (input.productCode) form.append('productCode', input.productCode);
+    if (typeof input.quantity === 'number') form.append('quantity', String(Math.max(0, input.quantity)));
+    if (input.category) form.append('category', input.category);
     if (input.collectionType) form.append('collectionType', input.collectionType);
     if (input.description) form.append('description', input.description);
-    if (input.features?.length) form.append('features', input.features);
+    if (input.features) form.append('features', String(input.features));
     if (typeof input.isFeatured === 'boolean') form.append('isFeatured', String(input.isFeatured));
     if (typeof input.isAvailable === 'boolean') form.append('isAvailable', String(input.isAvailable));
     if (typeof input.isBestSeller === 'boolean') form.append('isBestSeller', String(input.isBestSeller));
     if (typeof input.isNewArrival === 'boolean') form.append('isNewArrival', String(input.isNewArrival));
     if (input.variants?.length) form.append('variants', JSON.stringify(input.variants));
-    if (input.images?.length) form.append('images', JSON.stringify(input.images));
-    if (input.videos?.length) form.append('videos', JSON.stringify(input.videos));
-    input.newImages?.forEach((file) => form.append('newImages', file));
-    input.newVideos?.forEach((file) => form.append('newVideos', file));
+    input.newImages?.forEach((file) => form.append('images', file));
+    input.newVideos?.forEach((file) => form.append('videos', file));
 
     const result = await apiRequest<Product>('/products', {
       method: 'POST',
