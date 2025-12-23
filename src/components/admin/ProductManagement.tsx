@@ -18,6 +18,8 @@ import { useMemo } from 'react';
 const ProductManagement = () => {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('All');
   const { toast } = useToast();
 
   const [formData, setFormData] = useState({
@@ -220,6 +222,16 @@ const ProductManagement = () => {
   const selectedImageNames = useMemo(() => formData.images.map((f) => f.name), [formData.images]);
   const formatCategoryLabel = (category: string) =>
     category.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
+  const filteredProducts = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
+    return products.filter((product) => {
+      const matchesQuery = !query
+        || product.name.toLowerCase().includes(query)
+        || (product.productCode || '').toLowerCase().includes(query);
+      const matchesCategory = categoryFilter === 'All' || (product.category || 'AVAILABLE') === categoryFilter;
+      return matchesQuery && matchesCategory;
+    });
+  }, [products, searchQuery, categoryFilter]);
 
   if (productsQuery.isLoading) {
     return (
@@ -571,8 +583,33 @@ const ProductManagement = () => {
         </Dialog>
       </div>
 
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-background p-4 shadow-sm">
+        <div className="flex flex-wrap items-center gap-3">
+          <Input
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search by name or code"
+            className="w-64"
+          />
+          <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+            <SelectTrigger className="w-44">
+              <SelectValue placeholder="All categories" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="All">All categories</SelectItem>
+              {categories.map((cat) => (
+                <SelectItem key={cat} value={cat}>{formatCategoryLabel(cat)}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="text-sm text-muted-foreground">
+          Showing {filteredProducts.length} of {products.length}
+        </div>
+      </div>
+
       <div className="grid gap-4">
-        {products.map((product) => (
+        {filteredProducts.map((product) => (
           <Card key={product.id} className="shadow-elegant hover:shadow-luxury transition-shadow">
             <CardHeader>
               <div className="flex justify-between items-start">

@@ -136,7 +136,7 @@ export const ProductCard = ({ product, onViewDetails }: ProductCardProps) => {
                     e.stopPropagation();
                     onViewDetails(product);
                   }}
-                  className="w-full transform transition-all duration-300 hover:scale-105 sm:w-auto"
+                  className="w-full transform shadow-md transition-all duration-300 hover:scale-105 hover:shadow-lg sm:w-auto"
                 >
                   View Details
                 </Button>

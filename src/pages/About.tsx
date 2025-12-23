@@ -142,9 +142,13 @@ const About = () => {
           <div className="container px-6  md:px-16">
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
               {stats.map((stat, index) => (
-                <Card key={index} className="text-center border-0 shadow-card">
-                  <CardContent className="p-8">
-                    <div className="w-16 h-16 bg-gradient-luxury rounded-full flex items-center justify-center mx-auto mb-4">
+                <Card
+                  key={index}
+                  className="group text-center border border-transparent bg-white/80 shadow-card transition-all duration-300 hover:-translate-y-1 hover:border-red/20 hover:shadow-[0_24px_50px_-30px_rgba(153,27,27,0.8)]"
+                >
+                  <CardContent className="relative p-8">
+                    <div className="pointer-events-none absolute inset-x-6 top-6 h-[2px] bg-gradient-to-r from-transparent via-red/40 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                    <div className="w-16 h-16 bg-gradient-luxury rounded-full flex items-center justify-center mx-auto mb-4 transition-transform duration-300 group-hover:scale-105">
                       <stat.icon className="h-8 w-8 text-red-foreground" />
                     </div>
                     <div className="text-3xl font-bold text-red mb-2 font-playfair">
@@ -171,8 +175,9 @@ const About = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <Card className="text-center border-0 shadow-card">
-                <CardContent className="p-8">
+              <Card className="group text-center border border-border bg-background/70 shadow-lg transition-all duration-300 hover:-translate-y-2 hover:border-red/30 hover:bg-white hover:shadow-[0_30px_60px_-35px_rgba(15,23,42,0.35)]">
+                <CardContent className="relative p-8">
+                  <div className="pointer-events-none absolute -right-8 -top-8 h-16 w-16 rounded-full bg-red/10 opacity-0 blur-2xl transition-opacity duration-300 group-hover:opacity-100" />
                   <h3 className="text-xl font-semibold text-foreground mb-4 font-playfair">
                     Quality First
                   </h3>
@@ -183,8 +188,9 @@ const About = () => {
                 </CardContent>
               </Card>
 
-              <Card className="text-center border-0 shadow-card">
-                <CardContent className="p-8">
+              <Card className="group text-center border border-border bg-background/70 shadow-lg transition-all duration-300 hover:-translate-y-2 hover:border-red/30 hover:bg-white hover:shadow-[0_30px_60px_-35px_rgba(15,23,42,0.35)]">
+                <CardContent className="relative p-8">
+                  <div className="pointer-events-none absolute -right-8 -top-8 h-16 w-16 rounded-full bg-red/10 opacity-0 blur-2xl transition-opacity duration-300 group-hover:opacity-100" />
                   <h3 className="text-xl font-semibold text-foreground mb-4 font-playfair">
                     Timeless Design
                   </h3>
@@ -195,8 +201,9 @@ const About = () => {
                 </CardContent>
               </Card>
 
-              <Card className="text-center border-0 shadow-card">
-                <CardContent className="p-8">
+              <Card className="group text-center border border-border bg-background/70 shadow-lg transition-all duration-300 hover:-translate-y-2 hover:border-red/30 hover:bg-white hover:shadow-[0_30px_60px_-35px_rgba(15,23,42,0.35)]">
+                <CardContent className="relative p-8">
+                  <div className="pointer-events-none absolute -right-8 -top-8 h-16 w-16 rounded-full bg-red/10 opacity-0 blur-2xl transition-opacity duration-300 group-hover:opacity-100" />
                   <h3 className="text-xl font-semibold text-foreground mb-4 font-playfair">
                     Customer Care
                   </h3>

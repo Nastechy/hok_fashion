@@ -7,12 +7,14 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from '@/hooks/use-toast';
-import { Loader2 } from 'lucide-react';
+import { Eye, EyeOff, Loader2 } from 'lucide-react';
 
 export default function Auth() {
   const { signIn, signUp, user, loading } = useAuth();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
+  const [showSignInPassword, setShowSignInPassword] = useState(false);
+  const [showSignUpPassword, setShowSignUpPassword] = useState(false);
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -113,13 +115,24 @@ export default function Auth() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="signin-password">Password</Label>
-                  <Input
-                    id="signin-password"
-                    name="password"
-                    type="password"
-                    placeholder="Enter your password"
-                    required
-                  />
+                  <div className="relative">
+                    <Input
+                      id="signin-password"
+                      name="password"
+                      type={showSignInPassword ? 'text' : 'password'}
+                      placeholder="Enter your password"
+                      required
+                      className="pr-10"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowSignInPassword((prev) => !prev)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
+                      aria-label={showSignInPassword ? 'Hide password' : 'Show password'}
+                    >
+                      {showSignInPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
                 </div>
                 <Button type="submit" className="w-full" disabled={isLoading}>
                   {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
@@ -160,13 +173,24 @@ export default function Auth() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="signup-password">Password</Label>
-                  <Input
-                    id="signup-password"
-                    name="password"
-                    type="password"
-                    placeholder="Create a password"
-                    required
-                  />
+                  <div className="relative">
+                    <Input
+                      id="signup-password"
+                      name="password"
+                      type={showSignUpPassword ? 'text' : 'password'}
+                      placeholder="Create a password"
+                      required
+                      className="pr-10"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowSignUpPassword((prev) => !prev)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
+                      aria-label={showSignUpPassword ? 'Hide password' : 'Show password'}
+                    >
+                      {showSignUpPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
                 </div>
                 <Button type="submit" className="w-full" disabled={isLoading}>
                   {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

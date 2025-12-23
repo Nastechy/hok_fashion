@@ -19,7 +19,7 @@ const ProductDetails = () => {
   const { id } = useParams<{ id: string }>();
   const [activeIndex, setActiveIndex] = useState(0);
   const [selectedVariantId, setSelectedVariantId] = useState<string | undefined>(undefined);
-  const [variantQuantity, setVariantQuantity] = useState(1);
+  const [variantQuantity, setVariantQuantity] = useState(0);
   const [variantStock, setVariantStock] = useState<number | undefined>(undefined);
   const { addItem } = useCart();
   const { toggleItem, isWished } = useWishlist();
@@ -182,11 +182,11 @@ const ProductDetails = () => {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-[1.05fr_0.95fr] gap-10">
           <div className="space-y-4">
-            <div className="relative rounded-lg bg-white p-2">
+            <div className="group relative rounded-lg bg-white p-2 overflow-hidden">
               <img
                 src={cover}
                 alt={product.name}
-                className="w-full h-[420px] md:h-[520px] object-contain rounded-md shadow-elegant"
+                className="w-full h-[420px] md:h-[520px] object-contain rounded-md shadow-elegant transition-transform duration-300 ease-out group-hover:scale-110"
               />
               <Badge className="absolute top-4 left-4 bg-red text-red-foreground font-inter font-medium">
                 {product.category ? product.category.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase()) : ''}

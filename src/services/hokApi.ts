@@ -185,7 +185,8 @@ export interface NewsletterSubscriber {
 
 export interface ContactMessage {
   id: string;
-  name: string;
+  firstName?: string;
+  lastName?: string;
   email: string;
   subject?: string;
   message: string;
@@ -475,7 +476,7 @@ export const hokApi = {
 
   async fetchProductReviews(productId: string) {
     const response = await apiRequest<PaginatedResponse<Review> | Review[]>(
-      `/reviews/general${productId ? `?productId=${productId}` : ''}`,
+      `/products/${productId}/reviews`,
       { method: 'GET' }
     );
     if (Array.isArray(response)) {
@@ -487,7 +488,20 @@ export const hokApi = {
     };
   },
 
-  async createReview(input: CreateReviewInput) {
+  async fetchGeneralReviews(limit = 50) {
+    const params = new URLSearchParams();
+    if (limit) params.append('limit', String(limit));
+    const response = await apiRequest<PaginatedResponse<Review> | Review[]>(
+      `/reviews/general${params.toString() ? `?${params.toString()}` : ''}`,
+      { method: 'GET' }
+    );
+    if (Array.isArray(response)) {
+      return response.map(normalizeReview);
+    }
+    return (response.data || []).map(normalizeReview);
+  },
+
+  async createGeneralReview(input: CreateReviewInput) {
     const payload: Record<string, any> = {
       rating: input.rating,
       comment: input.comment,
@@ -495,7 +509,6 @@ export const hokApi = {
       name: input.name || input.userName,
       email: input.email || input.userEmail,
       orderId: input.orderId,
-      productId: input.productId,
     };
 
     const result = await apiRequest<Review>('/reviews/general', {
@@ -511,6 +524,18 @@ export const hokApi = {
     return normalized;
   },
 
+  async createProductReview(productId: string, input: { rating: number; comment: string }) {
+    const result = await apiRequest<{ review?: Review } | Review>(
+      `/products/${productId}/reviews`,
+      {
+        method: 'POST',
+        body: JSON.stringify({ rating: input.rating, comment: input.comment }),
+      }
+    );
+    const raw = (result as any)?.review ?? (result as any)?.data ?? result;
+    return normalizeReview(raw);
+  },
+
   async subscribeToNewsletter(email: string) {
     return apiRequest<{ message?: string; success?: boolean }>('/newsletter/subscribe', {
       method: 'POST',
@@ -518,7 +543,7 @@ export const hokApi = {
     });
   },
 
-  async submitContactMessage(payload: { name: string; email: string; subject?: string; message: string }) {
+  async submitContactMessage(payload: { firstName: string; lastName?: string; email: string; subject?: string; message: string }) {
     return apiRequest<{ message?: string; success?: boolean }>('/contact', {
       method: 'POST',
       body: JSON.stringify(payload),

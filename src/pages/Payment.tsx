@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -29,6 +30,8 @@ const Payment = () => {
   });
   const [receiptFile, setReceiptFile] = useState<File | null>(null);
   const [showDeliveryNotice, setShowDeliveryNotice] = useState(false);
+  const [shouldNavigateAfterNotice, setShouldNavigateAfterNotice] = useState(false);
+  const [orderSubmitted, setOrderSubmitted] = useState(false);
 
   const isGuest = !user;
 
@@ -51,11 +54,13 @@ const Payment = () => {
       ),
     onSuccess: () => {
       toast({
-        title: "Order placed",
+        title: "Order sent",
         description: "Your order has been submitted successfully.",
       });
+      setOrderSubmitted(true);
       clearCart();
-      navigate('/billing');
+      setShowDeliveryNotice(true);
+      setShouldNavigateAfterNotice(true);
     },
     onError: (error: any) => {
       toast({
@@ -108,7 +113,6 @@ const Payment = () => {
       return;
     }
 
-    setShowDeliveryNotice(true);
     checkoutMutation.mutate();
   };
 
@@ -171,7 +175,7 @@ const Payment = () => {
                     <span>{formatCurrency(total)}</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span>Processing fee</span>
+                    <span>VAT</span>
                     <span>{formatCurrency(processingFee)}</span>
                   </div>
                   <Separator />
@@ -261,15 +265,36 @@ const Payment = () => {
                     Your payment details will be verified by our team.
                   </div>
 
-                  <Button 
-                    className="w-full h-12 text-lg font-semibold"
-                    size="lg"
-                    type="button"
-                    disabled={checkoutMutation.isPending || !receiptFile}
-                    onClick={handleSubmit}
-                  >
-                    {checkoutMutation.isPending ? 'Processing...' : `Submit Payment Proof - ${formatCurrency(checkoutTotal)}`}
-                  </Button>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button 
+                        className="w-full h-12 text-lg font-semibold"
+                        size="lg"
+                        type="button"
+                        disabled={checkoutMutation.isPending || !receiptFile || orderSubmitted}
+                      >
+                        {orderSubmitted
+                          ? 'Checkout completed'
+                          : checkoutMutation.isPending
+                            ? 'Processing...'
+                            : `Complete Checkout - ${formatCurrency(checkoutTotal)}`}
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle className="font-playfair">Complete checkout</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Submit your billing details and payment information now?
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => handleSubmit()}>
+                          Complete
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 </CardContent>
               </Card>
             </div>
@@ -277,7 +302,16 @@ const Payment = () => {
         </div>
       </main>
 
-      <Dialog open={showDeliveryNotice} onOpenChange={setShowDeliveryNotice}>
+      <Dialog
+        open={showDeliveryNotice}
+        onOpenChange={(open) => {
+          setShowDeliveryNotice(open);
+          if (!open && shouldNavigateAfterNotice) {
+            setShouldNavigateAfterNotice(false);
+            navigate('/billing');
+          }
+        }}
+      >
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="font-playfair">Delivery Arrangement</DialogTitle>

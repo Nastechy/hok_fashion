@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Star, ShieldCheck } from 'lucide-react';
-import { reviews } from '@/data/reviews';
+import { reviews as fallbackReviews, Review as LocalReview } from '@/data/reviews';
 import {
   Carousel,
   CarouselApi,
@@ -22,13 +22,14 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { useMutation } from '@tanstack/react-query';
-import { hokApi } from '@/services/hokApi';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { hokApi, Review as ApiReview } from '@/services/hokApi';
 import { toast } from '@/hooks/use-toast';
 import { Send, Heart } from 'lucide-react';
 
 export const CustomerReviews = () => {
   const [api, setApi] = useState<CarouselApi | null>(null);
+  const queryClient = useQueryClient();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
@@ -37,16 +38,42 @@ export const CustomerReviews = () => {
   const [displayName, setDisplayName] = useState('');
   const [email, setEmail] = useState('');
 
-  useEffect(() => {
-    if (!api || reviews.length <= 1) return;
+  const normalizeGeneralReview = (review: ApiReview): LocalReview => ({
+    id: review.id,
+    name: review.name || review.userName || 'Customer',
+    rating: Number(review.rating || 0),
+    comment: review.comment || '',
+    product: 'HOK Fashion',
+    date: review.createdAt || new Date().toISOString(),
+    verified: false,
+  });
 
-    const timer = setInterval(() => api.scrollNext(), 4000);
+  const { data: generalReviews = fallbackReviews } = useQuery({
+    queryKey: ['general-reviews'],
+    queryFn: async () => {
+      const apiReviews = await hokApi.fetchGeneralReviews();
+      return apiReviews.length ? apiReviews.map(normalizeGeneralReview) : fallbackReviews;
+    },
+    initialData: fallbackReviews,
+    retry: 1,
+  });
+
+  useEffect(() => {
+    if (!api || generalReviews.length <= 1) return;
+
+    const timer = setInterval(() => {
+      if (api.canScrollNext()) {
+        api.scrollNext();
+      } else {
+        api.scrollTo(0);
+      }
+    }, 3000);
     return () => clearInterval(timer);
-  }, [api]);
+  }, [api, generalReviews.length]);
 
   const createReviewMutation = useMutation({
     mutationFn: () =>
-      hokApi.createReview({
+      hokApi.createGeneralReview({
         rating,
         title: title.trim() || undefined,
         comment: comment.trim(),
@@ -58,7 +85,7 @@ export const CustomerReviews = () => {
         title: 'Review submitted',
         description: 'Thanks for sharing your experience!',
       });
-      // refresh any general reviews fetch (none currently) and close dialog
+      queryClient.invalidateQueries({ queryKey: ['general-reviews'] });
       setIsDialogOpen(false);
       setRating(0);
       setHoverRating(0);
@@ -96,11 +123,19 @@ export const CustomerReviews = () => {
       });
       return;
     }
+    if (!displayName.trim() || !email.trim()) {
+      toast({
+        title: 'Add your contact details',
+        description: 'Your name and email are required for this review.',
+        variant: 'destructive',
+      });
+      return;
+    }
     createReviewMutation.mutate();
   };
 
   return (
-    <section className="py-20 bg-secondary/30">
+    <section className="mt-12 py-20  bg-[#F1EEEE]" >
       <div className="container px-4 md:px-16">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold text-foreground mb-4 font-playfair">
@@ -215,9 +250,9 @@ export const CustomerReviews = () => {
           </Dialog>
         </div>
 
-        <Carousel opts={{ loop: true }} setApi={setApi} className="relative">
+        <Carousel opts={{ loop: true, align: 'start' }} setApi={setApi} className="relative">
           <CarouselContent>
-            {reviews.map((review) => (
+            {generalReviews.map((review) => (
               <CarouselItem key={review.id} className="md:basis-1/2 lg:basis-1/3">
                 <Card className="border-0 shadow-card hover:shadow-elegant transition-all duration-300 h-full">
                   <CardContent className="p-6 h-full flex flex-col">
@@ -254,21 +289,23 @@ export const CustomerReviews = () => {
                           </AvatarFallback>
                         </Avatar>
                         <div>
-                          <p className="font-semibold text-sm font-inter">{review.name}</p>
-                          <p className="text-xs text-muted-foreground font-inter">{review.product}</p>
-                        </div>
-                      </div>
-                      <p className="text-xs text-muted-foreground font-inter">
-                        {new Date(review.date).toLocaleDateString()}
-                      </p>
+                      <p className="font-semibold text-sm font-inter">{review.name}</p>
+                      <p className="text-xs text-muted-foreground font-inter">{review.product || 'HOK Fashion'}</p>
                     </div>
+                  </div>
+                  {review.date && (
+                    <p className="text-xs text-muted-foreground font-inter">
+                      {new Date(review.date).toLocaleDateString()}
+                    </p>
+                  )}
+                </div>
                   </CardContent>
                 </Card>
               </CarouselItem>
             ))}
           </CarouselContent>
-          <CarouselPrevious className="left-0" />
-          <CarouselNext className="right-0" />
+          <CarouselPrevious className="-left-16 bg-background/90 shadow-card" />
+          <CarouselNext className="-right-16 bg-background/90 shadow-card" />
         </Carousel>
       </div>
     </section>

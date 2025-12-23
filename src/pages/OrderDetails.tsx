@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { hokApi, Order } from '@/services/hokApi';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
@@ -15,10 +15,29 @@ import heroImage from '@/assets/hero-bag.jpg';
 const OrderDetails = () => {
   const { orderId } = useParams<{ orderId: string }>();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { data: order, isLoading, isError } = useQuery<Order>({
     queryKey: ['order-detail', orderId],
     queryFn: () => hokApi.fetchOrder(orderId as string),
     enabled: Boolean(orderId),
+  });
+  const confirmOrderMutation = useMutation({
+    mutationFn: (id: string) => hokApi.updateOrderStatus(id, 'CONFIRMED'),
+    onSuccess: () => {
+      toast({
+        title: 'Order confirmed',
+        description: 'The order status has been updated.',
+      });
+      queryClient.invalidateQueries({ queryKey: ['order-detail', orderId] });
+      queryClient.invalidateQueries({ queryKey: ['admin-orders'] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: 'Confirmation failed',
+        description: error?.message || 'Unable to confirm this order.',
+        variant: 'destructive',
+      });
+    },
   });
 
   const formatCurrency = (value: number | undefined) =>
@@ -62,6 +81,19 @@ const OrderDetails = () => {
               </div>
             </div>
             <div className="flex gap-2 w-full sm:w-auto">
+              {order && (
+                <Button
+                  variant="luxury"
+                  className="w-full sm:w-auto"
+                  disabled={
+                    confirmOrderMutation.isPending
+                    || ['CONFIRMED', 'CANCELLED'].includes((order.status || '').toUpperCase())
+                  }
+                  onClick={() => confirmOrderMutation.mutate(order.id)}
+                >
+                  {confirmOrderMutation.isPending ? 'Confirming...' : 'Confirm Order'}
+                </Button>
+              )}
               <Button
                 variant="ghost"
                 className="border bg-secondary/60 hover:bg-red w-full sm:w-auto justify-center"

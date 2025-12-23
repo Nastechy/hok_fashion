@@ -39,7 +39,7 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[hsl(0_0%_97%)] via-[hsl(0_0%_94%)] to-[hsl(0_40%_92%)]">
+    <div className="min-h-screen " >
       <Header 
         onCategoryChange={setSelectedCategory} 
         selectedCategory={selectedCategory}
@@ -69,7 +69,7 @@ const Index = () => {
         <div className="flex justify-center mt-6">
           <button
             onClick={handleViewAll}
-            className="px-6 py-3 text-sm font-semibold rounded-full border border-border bg-background hover:bg-secondary transition-all shadow-card"
+            className="px-6 py-3 text-sm font-semibold rounded-full border border-border bg-background hover:bg-secondary transition-all shadow-lg"
           >
             View All Collections
           </button>

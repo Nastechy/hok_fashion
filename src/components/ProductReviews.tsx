@@ -5,7 +5,6 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Star, Send, MessageSquare, Eye } from 'lucide-react';
@@ -21,10 +20,7 @@ export const ProductReviews = ({ productId, productName, initialData }: ProductR
   const queryClient = useQueryClient();
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
-  const [title, setTitle] = useState('');
   const [comment, setComment] = useState('');
-  const [displayName, setDisplayName] = useState(user?.name || '');
-  const [email, setEmail] = useState(user?.email || '');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [showReviews, setShowReviews] = useState(true);
 
@@ -42,13 +38,9 @@ export const ProductReviews = ({ productId, productName, initialData }: ProductR
 
   const createReviewMutation = useMutation({
     mutationFn: () =>
-      hokApi.createReview({
-        productId,
+      hokApi.createProductReview(productId, {
         rating,
-        title: title.trim() || undefined,
         comment: comment.trim(),
-        name: displayName || undefined,
-        email: email || undefined,
       }),
     onSuccess: () => {
       toast({
@@ -58,11 +50,18 @@ export const ProductReviews = ({ productId, productName, initialData }: ProductR
       queryClient.invalidateQueries({ queryKey: ['product-reviews', productId] });
       setRating(0);
       setHoverRating(0);
-      setTitle('');
       setComment('');
       setIsDialogOpen(false);
     },
     onError: (error: any) => {
+      if (error?.statusCode === 401 || error?.status === 401) {
+        toast({
+          title: 'Login required',
+          description: 'Please sign in to add a product review.',
+          variant: 'destructive',
+        });
+        return;
+      }
       toast({
         title: 'Unable to submit review',
         description: error?.message || 'Please try again.',
@@ -73,6 +72,14 @@ export const ProductReviews = ({ productId, productName, initialData }: ProductR
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (!user) {
+      toast({
+        title: 'Login required',
+        description: 'Please sign in to add a product review.',
+        variant: 'destructive',
+      });
+      return;
+    }
     if (rating === 0) {
       toast({
         title: 'Select a rating',
@@ -191,16 +198,6 @@ export const ProductReviews = ({ productId, productName, initialData }: ProductR
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="review-title">Title (optional)</Label>
-              <Input
-                id="review-title"
-                placeholder="Headline for your review"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-              />
-            </div>
-
-            <div className="space-y-2">
               <Label htmlFor="review-comment">Your review</Label>
               <Textarea
                 id="review-comment"
@@ -210,30 +207,6 @@ export const ProductReviews = ({ productId, productName, initialData }: ProductR
                 rows={4}
               />
             </div>
-
-            {!user && (
-              <>
-                <div className="space-y-2">
-                  <Label htmlFor="review-name">Name</Label>
-                  <Input
-                    id="review-name"
-                    placeholder="How should we address you?"
-                    value={displayName}
-                    onChange={(e) => setDisplayName(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="review-email">Email</Label>
-                  <Input
-                    id="review-email"
-                    type="email"
-                    placeholder="We will not share this."
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
-                </div>
-              </>
-            )}
 
             <Button
               type="submit"

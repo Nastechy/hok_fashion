@@ -54,7 +54,12 @@ const OrderManagement = () => {
       ordersQuery.refetch();
     },
     onError: (error: any) => {
-      toast({ title: "Update failed", description: error?.message || "Could not update status", variant: "destructive" });
+      const statusCode = error?.statusCode || error?.status;
+      const description =
+        statusCode === 404
+          ? "Order not found. Refresh the list and try again."
+          : "Unable to update the order status right now. Please try again.";
+      toast({ title: "Update failed", description, variant: "destructive" });
     },
   });
 
@@ -65,7 +70,12 @@ const OrderManagement = () => {
       ordersQuery.refetch();
     },
     onError: (error: any) => {
-      toast({ title: "Payment update failed", description: error?.message || "Could not confirm payment", variant: "destructive" });
+      const statusCode = error?.statusCode || error?.status;
+      const description =
+        statusCode === 404
+          ? "Order not found. Refresh the list and try again."
+          : "Unable to confirm payment right now. Please try again.";
+      toast({ title: "Payment update failed", description, variant: "destructive" });
     },
   });
 
@@ -138,6 +148,10 @@ const OrderManagement = () => {
       case 'confirmed':
         return 'default';
       case 'pending':
+        return 'secondary';
+      case 'dispatched':
+        return 'outline';
+      case 'received':
         return 'secondary';
       case 'cancelled':
         return 'destructive';
@@ -373,6 +387,10 @@ const OrderManagement = () => {
               )}
               {orders.map((order) => (
                 <TableRow key={order.id}>
+                  {/*
+                    Status flow: CONFIRMED -> DISPATCHED -> RECEIVED
+                    Confirmation happens in Order Details.
+                  */}
                   <TableCell className="font-mono text-sm">
                     {order.id.slice(0, 8)}...
                   </TableCell>
@@ -415,9 +433,18 @@ const OrderManagement = () => {
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => statusMutation.mutate({ id: order.id, status: 'CONFIRMED' })}
+                        disabled={(order.status || '').toUpperCase() !== 'CONFIRMED'}
+                        onClick={() => statusMutation.mutate({ id: order.id, status: 'DISPATCHED' })}
                       >
-                       Confirm Order
+                        Mark Dispatched
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        disabled={(order.status || '').toUpperCase() !== 'DISPATCHED'}
+                        onClick={() => statusMutation.mutate({ id: order.id, status: 'RECEIVED' })}
+                      >
+                        Mark Received
                       </Button>
                       {/* <Button
                         size="sm"

@@ -16,7 +16,8 @@ const Contact = () => {
   const contactMutation = useMutation({
     mutationFn: () =>
       hokApi.submitContactMessage({
-        name: `${form.firstName} ${form.lastName}`.trim(),
+        firstName: form.firstName,
+        lastName: form.lastName,
         email: form.email,
         subject: form.subject,
         message: form.message,
@@ -155,8 +156,7 @@ const Contact = () => {
                         Subject
                       </label>
                         <Input 
-                          placeholder="Enter the subject" 
-                          required 
+                          placeholder="Enter the subject (optional)" 
                           value={form.subject}
                           onChange={(e) => setForm({ ...form, subject: e.target.value })}
                           className="font-inter"
