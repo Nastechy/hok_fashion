@@ -161,7 +161,7 @@ const ProductManagement = () => {
   };
 
   const addVariant = () => {
-    if (!formData.newVariant.name || !formData.newVariant.sku) return;
+    if (!formData.newVariant.name && !formData.newVariant.sku) return;
     setFormData(prev => ({
       ...prev,
       variants: [...prev.variants, { ...prev.newVariant }],
@@ -198,10 +198,10 @@ const ProductManagement = () => {
     if (formData.videos.length) productData.newVideos = formData.videos;
     if (formData.variants.length) {
       productData.variants = formData.variants
-        .filter(v => v.name && v.sku)
+        .filter(v => v.name || v.sku)
         .map(v => ({
-          name: v.name,
-          sku: v.sku,
+          name: v.name || undefined,
+          sku: v.sku || undefined,
           priceDelta: Number(v.priceDelta) || 0,
           quantity: Math.max(0, Number(v.quantity) || 0),
         }));

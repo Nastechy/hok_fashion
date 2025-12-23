@@ -48,10 +48,12 @@ const ProductDetails = () => {
 
   useEffect(() => {
     if (product?.variants && product.variants.length > 0) {
-      const defaultId = product.variants[0].id || product.variants[0].name;
+      const available = product.variants.filter((variant) => (variant.quantity ?? 0) > 0);
+      const defaultVariant = available[0] || product.variants[0];
+      const defaultId = defaultVariant?.id || defaultVariant?.name;
       setSelectedVariantId(defaultId);
-      setVariantQuantity(1);
-      setVariantStock(product.variants[0].quantity);
+      setVariantQuantity(0);
+      setVariantStock(defaultVariant?.quantity);
     }
   }, [product?.variants]);
 
@@ -240,27 +242,30 @@ const ProductDetails = () => {
                     const id = variant.id || variant.name || `variant-${idx}`;
                     const label = variant.name || variant.sku || `Variant ${idx + 1}`;
                     const delta = variant.priceDelta ? ` (+${formatCurrency(variant.priceDelta)})` : '';
-                    const qtyLabel = typeof variant.quantity === 'number' ? `${variant.quantity} in stock` : '';
+                    const soldOut = (variant.quantity ?? 0) <= 0;
                     const isSelected = selectedVariantId === id;
                     return (
                       <button
                         key={id}
                         type="button"
                         aria-pressed={isSelected}
+                        disabled={soldOut}
                         onClick={() => {
                           setSelectedVariantId(id);
                           setVariantStock(variant.quantity);
                         }}
                         className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm font-medium transition-colors ${
-                          isSelected
+                          soldOut
+                            ? 'border-border/50 bg-muted text-muted-foreground cursor-not-allowed'
+                            : isSelected
                             ? 'border-red bg-red text-red-foreground shadow-sm'
                             : 'border-border bg-background hover:bg-secondary'
                         }`}
                       >
                         <span>{label}{delta}</span>
-                        {qtyLabel && (
-                          <span className={`text-xs ${isSelected ? 'text-red-foreground/80' : 'text-muted-foreground'}`}>
-                            {qtyLabel}
+                        {soldOut && (
+                          <span className="rounded-full bg-secondary px-2 py-0.5 text-[10px] uppercase tracking-wide text-muted-foreground">
+                            Sold out
                           </span>
                         )}
                       </button>
