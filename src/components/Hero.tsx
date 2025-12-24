@@ -18,14 +18,14 @@ interface HeroProps {
 
 export const Hero = ({ onExploreClick }: HeroProps) => {
   const { data: newArrivalsData } = useQuery({
-    queryKey: ['hero-new-arrivals'],
-    queryFn: () => hokApi.fetchProducts({ isNewArrival: true, limit: 8 }),
+    queryKey: ['hero-sales'],
+    queryFn: () => hokApi.fetchProducts({ category: 'SALES', limit: 8 }),
   });
   const [carouselApi, setCarouselApi] = useState<CarouselApi | null>(null);
 
-  const newArrivals: Product[] = newArrivalsData?.data ?? [];
+  const salesProducts: Product[] = newArrivalsData?.data ?? [];
 
-  const slides = newArrivals.length ? newArrivals : [];
+  const slides = salesProducts.length ? salesProducts : [];
 
   useEffect(() => {
     if (!carouselApi || slides.length <= 1) return;
@@ -93,7 +93,7 @@ export const Hero = ({ onExploreClick }: HeroProps) => {
                             </div>
                             <div className="flex items-center justify-between">
                               <div>
-                                <p className="text-xs uppercase text-muted-foreground tracking-wide">New Arrival</p>
+                                <p className="text-xs uppercase text-muted-foreground tracking-wide">Sales</p>
                                 <p className="text-lg font-semibold text-foreground">{product.name}</p>
                               </div>
                               {product.price && (
