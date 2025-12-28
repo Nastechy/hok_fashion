@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { Check, Heart, Minus, Plus, Star } from 'lucide-react';
+import { Check, Heart, Minus, Plus, Star, MessageCircle, Twitter, Facebook, Link as LinkIcon } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { useCart } from '@/contexts/CartContext';
@@ -59,6 +59,27 @@ const ProductDetails = () => {
 
   const formatCurrency = (value?: number) =>
     (typeof value === 'number' ? value : 0).toLocaleString('en-NG', { style: 'currency', currency: 'NGN', minimumFractionDigits: 0 });
+
+  const shareUrl = useMemo(() => (typeof window !== 'undefined' ? window.location.href : ''), []);
+  const shareText = product ? `Check out ${product.name} from HOK Fashion House` : 'Check this product from HOK Fashion House';
+
+  const handleCopyLink = async () => {
+    if (!shareUrl) return;
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      toast({
+        title: 'Link copied',
+        description: 'Share it with your friends.',
+      });
+    } catch (error) {
+      console.error('Failed to copy link', error);
+      toast({
+        title: 'Copy failed',
+        description: 'Unable to copy the link. Please try again.',
+        variant: 'destructive',
+      });
+    }
+  };
 
   const handleAddToCart = () => {
     if (!product) return;
@@ -349,6 +370,79 @@ const ProductDetails = () => {
                 <Heart className={`mr-2 h-4 w-4 ${isFavorite ? 'fill-red text-red' : ''}`} />
                 {isFavorite ? 'Saved to Wishlist' : 'Add to Wishlist'}
               </Button>
+            </div>
+
+            <Separator />
+
+            <div className="space-y-3">
+              <h3 className="font-semibold text-lg font-playfair">Share product</h3>
+              <p className="text-sm text-muted-foreground font-inter">
+                Share this piece with friends on your favorite platform.
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  asChild
+                  className="hover:bg-muted hover:text-foreground"
+                >
+                  <a
+                    href={`https://wa.me/?text=${encodeURIComponent(`${shareText} ${shareUrl}`)}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex items-center gap-2"
+                  >
+                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#25D366] text-white">
+                      <MessageCircle className="h-4 w-4" />
+                    </span>
+                  </a>
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  asChild
+                  className="hover:bg-muted hover:text-foreground"
+                >
+                  <a
+                    href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex items-center gap-2"
+                  >
+                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-black text-white">
+                      <Twitter className="h-4 w-4" />
+                    </span>
+                  </a>
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  asChild
+                  className="hover:bg-muted hover:text-foreground"
+                >
+                  <a
+                    href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex items-center gap-2"
+                  >
+                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#1877F2] text-white">
+                      <Facebook className="h-4 w-4" />
+                    </span>
+                  </a>
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleCopyLink}
+                  className="flex items-center gap-2 hover:bg-muted hover:text-foreground"
+                >
+                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-muted text-foreground">
+                    <LinkIcon className="h-4 w-4" />
+                  </span>
+                  Copy link
+                </Button>
+              </div>
             </div>
 
             <Separator />

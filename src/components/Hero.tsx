@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import heroImage from '@/assets/hero-bag.jpg';
 import { useQuery } from '@tanstack/react-query';
 import { hokApi, Product } from '@/services/hokApi';
+import { useNavigate } from 'react-router-dom';
 import {
   Carousel,
   CarouselApi,
@@ -17,6 +18,7 @@ interface HeroProps {
 }
 
 export const Hero = ({ onExploreClick }: HeroProps) => {
+  const navigate = useNavigate();
   const { data: newArrivalsData } = useQuery({
     queryKey: ['hero-sales'],
     queryFn: () => hokApi.fetchProducts({ category: 'SALES', limit: 8 }),
@@ -88,7 +90,8 @@ export const Hero = ({ onExploreClick }: HeroProps) => {
                               <img
                                 src={cover}
                                 alt={product.name}
-                                className="w-full h-[400px] md:h-[500px] object-cover rounded-2xl"
+                                className="w-full h-[400px] md:h-[500px] object-cover rounded-2xl cursor-pointer"
+                                onClick={() => navigate(`/products/${product.id}`)}
                               />
                             </div>
                             <div className="flex items-center justify-between">
@@ -96,11 +99,6 @@ export const Hero = ({ onExploreClick }: HeroProps) => {
                                 <p className="text-xs uppercase text-muted-foreground tracking-wide">Sales</p>
                                 <p className="text-lg font-semibold text-foreground">{product.name}</p>
                               </div>
-                              {product.price && (
-                                <p className="text-red font-playfair text-lg">
-                                  {product.price.toLocaleString('en-NG', { style: 'currency', currency: 'NGN', minimumFractionDigits: 0 })}
-                                </p>
-                              )}
                             </div>
                           </div>
                         </CarouselItem>

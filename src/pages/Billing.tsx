@@ -7,13 +7,18 @@ import { Separator } from '@/components/ui/separator';
 import { Download, Eye, Calendar, CreditCard, FileText } from 'lucide-react';
 import { useOrders } from '@/hooks/useOrders';
 import { useAuth } from '@/contexts/AuthContext';
+import { useCart } from '@/contexts/CartContext';
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { toast } from '@/hooks/use-toast';
+import { buildInvoiceHtml } from '@/utils/invoice';
+import type { Order } from '@/services/hokApi';
 
 const Billing = () => {
   const { user } = useAuth();
   const { data: orders = [], isLoading } = useOrders(undefined, !!user);
   const navigate = useNavigate();
+  const { addItem } = useCart();
   const formatCurrency = (value: number) =>
     value.toLocaleString('en-NG', { style: 'currency', currency: 'NGN', minimumFractionDigits: 0 });
 
@@ -34,6 +39,79 @@ const Billing = () => {
       default:
         return 'bg-gray-500/10 text-gray-700 border-gray-200';
     }
+  };
+
+  const getItemName = (item: Order['items'][number]) =>
+    item.productName || item.product?.name || item.productCode || item.productId || 'Product';
+
+  const getItemCode = (item: Order['items'][number]) =>
+    item.productCode || item.product?.productCode || item.productId || 'N/A';
+
+  const getItemImage = (item: Order['items'][number]) =>
+    item.productImage
+    || item.imageUrl
+    || item.imageUrls?.[0]
+    || (Array.isArray(item.image) ? item.image[0] : typeof item.image === 'string' ? item.image : undefined)
+    || item.product?.imageUrls?.[0]
+    || item.product?.images?.[0]
+    || (Array.isArray(item.product?.image) ? item.product?.image?.[0] : typeof item.product?.image === 'string' ? item.product?.image : undefined)
+    || item.product?.image_url
+    || item.product?.mainImage
+    || 'https://via.placeholder.com/120x120?text=HOK';
+
+  const getOrderSubtotal = (order: Order) =>
+    order.items?.reduce(
+      (sum, item) => sum + Number(item.price || 0) * Number(item.quantity || 0),
+      0
+    ) || 0;
+
+  const getProcessingFee = (order: Order) => Math.min(Math.round(getOrderSubtotal(order) * 0.015), 2000);
+  const getOrderTotal = (order: Order) => getOrderSubtotal(order) + getProcessingFee(order);
+
+  const handleReorder = (order: Order) => {
+    if (!order.items || order.items.length === 0) {
+      toast({
+        title: 'No items to reorder',
+        description: 'This order does not contain any items.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    order.items.forEach((item) => {
+      addItem({
+        productId: item.productId,
+        name: getItemName(item),
+        price: Number(item.price || 0),
+        image: getItemImage(item),
+        quantity: Math.max(1, Number(item.quantity || 1)),
+        variantId: item.variant,
+        variantName: item.variant,
+      });
+    });
+
+    toast({
+      title: 'Reorder ready',
+      description: 'Items have been added to your cart.',
+    });
+    navigate('/payment');
+  };
+
+  const handleDownloadInvoice = (order: Order) => {
+    const html = buildInvoiceHtml(order, {
+      formatCurrency: (value) => formatCurrency(Number(value || 0)),
+      formatDate: (value) =>
+        value ? new Date(value).toLocaleDateString('en-NG', { year: 'numeric', month: 'short', day: '2-digit' }) : 'N/A',
+    });
+    const blob = new Blob([html], { type: 'text/html' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `invoice-${order.friendlyId || order.id}.html`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
   };
 
   return (
@@ -118,7 +196,7 @@ const Billing = () => {
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         <div className="space-y-1">
                           <div className="flex items-center gap-3">
-                            <h3 className="font-semibold text-lg">{order.id}</h3>
+                            <h3 className="font-semibold text-lg">{order.friendlyId || order.id}</h3>
                             <Badge className={getStatusColor(order.status || '')}>
                               {order.status || 'PENDING'}
                             </Badge>
@@ -129,7 +207,7 @@ const Billing = () => {
                           </div>
                         </div>
                         <div className="text-right">
-                          <div className="text-2xl font-bold text-red">{formatCurrency(Number(order.totalAmount || 0))}</div>
+                          <div className="text-2xl font-bold text-red">{formatCurrency(getOrderTotal(order))}</div>
                           <div className="text-sm text-muted-foreground">
                             {order.items?.length || 0} item{(order.items?.length || 0) > 1 ? 's' : ''}
                           </div>
@@ -142,14 +220,26 @@ const Billing = () => {
                         {order.items?.map((item, index) => (
                           <div key={index} className="flex justify-between items-center">
                             <div>
-                              <span className="font-medium">{item.product?.name || item.productId}</span>
-                              <span className="text-muted-foreground ml-2">x{item.quantity}</span>
+                              <div className="font-medium">{getItemName(item)}</div>
+                              <div className="text-sm text-muted-foreground">
+                                <span>{getItemCode(item)}</span>
+                                <span className="ml-2">x{item.quantity}</span>
+                              </div>
                             </div>
                             <span className="font-semibold">
                               {formatCurrency(Number(item.price || 0))}
                             </span>
                           </div>
                         ))}
+                        <div className="flex justify-between items-center">
+                          <div>
+                            <div className="font-medium">Processing fee</div>
+                            <div className="text-sm text-muted-foreground">Order service charge</div>
+                          </div>
+                          <span className="font-semibold">
+                            {formatCurrency(getProcessingFee(order))}
+                          </span>
+                        </div>
                         {(order.receiptUrl || order.paymentProofUrl) && (
                           <div className="flex items-center gap-2 text-sm">
                             <FileText className="h-4 w-4 text-muted-foreground" />
@@ -172,12 +262,20 @@ const Billing = () => {
                           <Eye className="h-4 w-4" />
                           View Details
                         </Button>
-                        <Button variant="outline" className="flex items-center gap-2">
+                        <Button
+                          variant="outline"
+                          className="flex items-center gap-2"
+                          onClick={() => handleDownloadInvoice(order)}
+                        >
                           <Download className="h-4 w-4" />
                           Download Invoice
                         </Button>
                         {order.status?.toLowerCase() === 'confirmed' && (
-                          <Button variant="outline" className="flex items-center gap-2">
+                          <Button
+                            variant="outline"
+                            className="flex items-center gap-2"
+                            onClick={() => handleReorder(order)}
+                          >
                             <CreditCard className="h-4 w-4" />
                             Reorder
                           </Button>

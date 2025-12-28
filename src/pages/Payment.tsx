@@ -154,7 +154,19 @@ const Payment = () => {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {items.map((item) => (
-                    <div key={item.id} className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-0">
+                    <div
+                      key={item.id}
+                      role="button"
+                      tabIndex={0}
+                      onClick={() => navigate(`/products/${item.productId}`)}
+                      onKeyDown={(event) => {
+                        if (event.key === 'Enter' || event.key === ' ') {
+                          event.preventDefault();
+                          navigate(`/products/${item.productId}`);
+                        }
+                      }}
+                      className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-0 rounded-lg border border-border/60 bg-white/70 p-3 cursor-pointer transition-colors hover:bg-secondary/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-red/50"
+                    >
                       <div className="flex items-center space-x-3">
                         <img
                           src={item.image}

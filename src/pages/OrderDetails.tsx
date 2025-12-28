@@ -8,6 +8,17 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { Calendar, Truck, User, FileText, ArrowLeft, ClipboardList } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import heroImage from '@/assets/hero-bag.jpg';
@@ -60,6 +71,12 @@ const OrderDetails = () => {
   const productCode = firstItem?.productCode || firstItem?.product?.productCode || firstItem?.productId || '';
   const productName = firstItem?.productName || firstItem?.product?.name || productCode || 'Order';
   const itemCount = order?.items?.length || 0;
+  const subtotal = order?.items?.reduce(
+    (sum, item) => sum + Number(item.price || 0) * Number(item.quantity || 0),
+    0
+  ) || 0;
+  const processingFee = Math.min(Math.round(subtotal * 0.015), 2000);
+  const orderTotal = subtotal + processingFee;
 
   return (
     <div className="min-h-screen bg-background">
@@ -82,17 +99,36 @@ const OrderDetails = () => {
             </div>
             <div className="flex gap-2 w-full sm:w-auto">
               {order && (
-                <Button
-                  variant="luxury"
-                  className="w-full sm:w-auto"
-                  disabled={
-                    confirmOrderMutation.isPending
-                    || ['CONFIRMED', 'CANCELLED'].includes((order.status || '').toUpperCase())
-                  }
-                  onClick={() => confirmOrderMutation.mutate(order.id)}
-                >
-                  {confirmOrderMutation.isPending ? 'Confirming...' : 'Confirm Order'}
-                </Button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="luxury"
+                      className="w-full sm:w-auto"
+                      disabled={
+                        confirmOrderMutation.isPending
+                        || ['CONFIRMED', 'CANCELLED'].includes((order.status || '').toUpperCase())
+                      }
+                    >
+                      {confirmOrderMutation.isPending ? 'Confirming...' : 'Confirm Order'}
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Confirm this order?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Confirming will update the order status and notify the customer by email.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={() => confirmOrderMutation.mutate(order.id)}
+                      >
+                        Yes, confirm
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               )}
               <Button
                 variant="ghost"
@@ -182,9 +218,20 @@ const OrderDetails = () => {
                     })}
                   </div>
                   <Separator />
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span>Subtotal</span>
+                      <span className="font-medium">{formatCurrency(subtotal)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Processing fee</span>
+                      <span className="font-medium">{formatCurrency(processingFee)}</span>
+                    </div>
+                  </div>
+                  <Separator />
                   <div className="flex justify-between text-lg font-semibold">
                     <span>Total</span>
-                    <span className="text-red">{formatCurrency(order.totalAmount)}</span>
+                    <span className="text-red">{formatCurrency(orderTotal)}</span>
                   </div>
                 </CardContent>
               </Card>

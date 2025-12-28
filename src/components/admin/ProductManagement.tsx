@@ -619,8 +619,13 @@ const ProductManagement = () => {
             <CardHeader>
               <div className="flex justify-between items-start">
                 <div>
-                  <CardTitle className="flex items-center gap-2">
+                  <CardTitle className="flex items-center gap-2 flex-wrap">
                     {product.name}
+                    {product.productCode && (
+                      <span className="text-sm font-semibold text-muted-foreground">
+                        ({product.productCode})
+                      </span>
+                    )}
                     {product.isBestSeller && <Badge variant="secondary">Best Seller</Badge>}
                     {product.isNewArrival && <Badge>New</Badge>}
                     {product.isFeatured && <Badge variant="outline">Featured</Badge>}

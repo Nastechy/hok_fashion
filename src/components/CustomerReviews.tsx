@@ -43,9 +43,9 @@ export const CustomerReviews = () => {
     name: review.name || review.userName || 'Customer',
     rating: Number(review.rating || 0),
     comment: review.comment || '',
-    product: 'HOK Fashion',
     date: review.createdAt || new Date().toISOString(),
     verified: false,
+    product: ''
   });
 
   const { data: generalReviews = fallbackReviews } = useQuery({
@@ -290,7 +290,9 @@ export const CustomerReviews = () => {
                         </Avatar>
                         <div>
                       <p className="font-semibold text-sm font-inter">{review.name}</p>
-                      <p className="text-xs text-muted-foreground font-inter">{review.product || 'HOK Fashion'}</p>
+                      {review.product && (
+                        <p className="text-xs text-muted-foreground font-inter">{review.product}</p>
+                      )}
                     </div>
                   </div>
                   {review.date && (

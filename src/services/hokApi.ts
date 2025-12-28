@@ -193,6 +193,14 @@ export interface ContactMessage {
   createdAt?: string;
 }
 
+export interface WishlistItem {
+  id: string;
+  name: string;
+  price: number;
+  image?: string;
+  productCode?: string;
+}
+
 const buildQuery = (filters: ProductFilters) => {
   const params = new URLSearchParams();
   if (filters.limit) params.append('limit', String(filters.limit));
@@ -290,6 +298,29 @@ const normalizeOrder = (order: any): Order => ({
     price: Number(item.price ?? item.price_at_time ?? 0),
   })),
 });
+
+const normalizeWishlistItem = (entry: any): WishlistItem => {
+  const product = entry?.product ?? entry?.item ?? entry;
+  const id = product?.id || entry?.productId || entry?.product_id || entry?.id || '';
+  const name = product?.name || entry?.name || 'Product';
+  const price = Number(product?.price ?? entry?.price ?? 0);
+  const image =
+    product?.imageUrls?.[0]
+    || product?.images?.[0]
+    || (Array.isArray(product?.image) ? product.image[0] : product?.image)
+    || entry?.image
+    || entry?.imageUrl
+    || entry?.image_url;
+  const productCode = product?.productCode || entry?.productCode || entry?.product_code;
+
+  return {
+    id,
+    name,
+    price,
+    image,
+    productCode,
+  };
+};
 
 export const hokApi = {
   async login(email: string, password: string) {
@@ -481,6 +512,35 @@ export const hokApi = {
     if (params.status) search.append('status', params.status);
     return apiRequest<MetricsOverview | any>(`/metrics/overview${search.toString() ? `?${search.toString()}` : ''}`, {
       method: 'GET',
+    });
+  },
+
+  async fetchWishlist() {
+    const response = await apiRequest<any>(`/wishlists`, { method: 'GET' });
+    const items = Array.isArray(response)
+      ? response
+      : Array.isArray(response?.data)
+        ? response.data
+        : Array.isArray(response?.items)
+          ? response.items
+          : Array.isArray(response?.wishlist)
+            ? response.wishlist
+            : [];
+    return items.map(normalizeWishlistItem).filter((item: WishlistItem) => item.id);
+  },
+
+  async addToWishlist(productId: string) {
+    const response = await apiRequest<any>(`/wishlists`, {
+      method: 'POST',
+      body: JSON.stringify({ productId }),
+    });
+    return normalizeWishlistItem(response);
+  },
+
+  async removeFromWishlist(productId: string) {
+    return apiRequest<{ message?: string }>(`/wishlists`, {
+      method: 'DELETE',
+      body: JSON.stringify({ productId }),
     });
   },
 

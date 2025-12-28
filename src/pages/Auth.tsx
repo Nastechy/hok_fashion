@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useMemo } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,17 +12,30 @@ import { Eye, EyeOff, Loader2 } from 'lucide-react';
 export default function Auth() {
   const { signIn, signUp, user, loading } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [isLoading, setIsLoading] = useState(false);
   const [showSignInPassword, setShowSignInPassword] = useState(false);
   const [showSignUpPassword, setShowSignUpPassword] = useState(false);
 
+  const returnTarget = useMemo(() => {
+    const params = new URLSearchParams(location.search);
+    const paramTarget = params.get('returnTo');
+    const storedTarget = sessionStorage.getItem('hok_return_to');
+    const target = paramTarget || storedTarget || '';
+    if (!target || !target.startsWith('/') || target.startsWith('/auth')) {
+      return '';
+    }
+    return target;
+  }, [location.search]);
+
   // Redirect if already authenticated
   useEffect(() => {
     if (!loading && user) {
-      const target = (user.role || '').toUpperCase() === 'ADMIN' ? '/admin' : '/';
+      const target = returnTarget || ((user.role || '').toUpperCase() === 'ADMIN' ? '/admin' : '/');
+      sessionStorage.removeItem('hok_return_to');
       navigate(target, { replace: true });
     }
-  }, [user, loading, navigate]);
+  }, [user, loading, navigate, returnTarget]);
 
   const handleSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -73,7 +86,9 @@ export default function Auth() {
         title: "Account created!",
         description: "You are now signed in.",
       });
-      navigate('/');
+      const target = returnTarget || '/';
+      sessionStorage.removeItem('hok_return_to');
+      navigate(target);
     }
 
     setIsLoading(false);

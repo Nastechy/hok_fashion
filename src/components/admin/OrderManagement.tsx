@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -11,6 +12,25 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { hokApi, Order } from '@/services/hokApi';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
@@ -35,6 +55,8 @@ const OrderManagement = () => {
   const [showOfflineForm, setShowOfflineForm] = useState(false);
   const [dispatchedIds, setDispatchedIds] = useState<Record<string, boolean>>({});
   const [deliveredIds, setDeliveredIds] = useState<Record<string, boolean>>({});
+  const [actionOrder, setActionOrder] = useState<Order | null>(null);
+  const [handledOrder, setHandledOrder] = useState<Order | null>(null);
 
   const ordersQuery = useQuery({
     queryKey: ['admin-orders'],
@@ -201,6 +223,24 @@ const OrderManagement = () => {
     }
   };
 
+  const getActorLabel = (value: unknown) => {
+    if (!value) return '';
+    if (typeof value === 'string') return value;
+    if (typeof value === 'object') {
+      const actor = value as { name?: string; fullName?: string; email?: string; id?: string };
+      return actor.name || actor.fullName || actor.email || actor.id || '';
+    }
+    return '';
+  };
+
+  const getOrderActor = (order: Order, keys: string[]) => {
+    for (const key of keys) {
+      const label = getActorLabel((order as unknown as Record<string, unknown>)[key]);
+      if (label) return label;
+    }
+    return '—';
+  };
+
   const orders: Order[] = ordersQuery.data || [];
   const filteredOrders = orders.filter((order) => {
     if (!appliedRange.startDate && !appliedRange.endDate) return true;
@@ -216,6 +256,14 @@ const OrderManagement = () => {
     if (end && createdAt > end) return false;
     return true;
   });
+  const getOrderSubtotal = (order: Order) =>
+    order.items?.reduce(
+      (sum, item) => sum + Number(item.price || 0) * Number(item.quantity || 0),
+      0
+    ) || 0;
+  const getProcessingFee = (order: Order) => Math.min(Math.round(getOrderSubtotal(order) * 0.015), 2000);
+  const totalProcessingFees = filteredOrders.reduce((sum, order) => sum + getProcessingFee(order), 0);
+
   const totalRevenue = metricsQuery.data?.totalRevenue ?? orders.reduce((sum, order) => sum + Number(order.totalAmount || 0), 0);
   const totalOrders = metricsQuery.data?.totalOrders ?? orders.length;
   const pendingOrders = metricsQuery.data?.pendingOrders ?? orders.filter(order => (order.status || '').toLowerCase() === 'pending').length;
@@ -298,7 +346,7 @@ const OrderManagement = () => {
       </Card>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
@@ -326,6 +374,15 @@ const OrderManagement = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{pendingOrders}</div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Processing Fees</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{formatCurrency(totalProcessingFees)}</div>
           </CardContent>
         </Card>
       </div>
@@ -431,12 +488,13 @@ const OrderManagement = () => {
                 <TableHead>Status</TableHead>
                 <TableHead>Date</TableHead>
                 <TableHead>Actions</TableHead>
+                <TableHead>Handled By</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filteredOrders.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center text-sm text-muted-foreground py-6">
+                  <TableCell colSpan={8} className="text-center text-sm text-muted-foreground py-6">
                     No orders for this range. Try another date or clear filters.
                   </TableCell>
                 </TableRow>
@@ -447,6 +505,32 @@ const OrderManagement = () => {
                 const isDelivered = Boolean(deliveredIds[order.id]) || status === 'RECEIVED';
                 const canDispatch = status === 'CONFIRMED' && !isDispatched;
                 const canDeliver = (status === 'DISPATCHED' || isDispatched) && !isDelivered;
+                const confirmedBy = getOrderActor(order, [
+                  'confirmedBy',
+                  'confirmedByUser',
+                  'confirmedByName',
+                  'confirmedByEmail',
+                  'confirmedById',
+                ]);
+                const dispatchedBy = getOrderActor(order, [
+                  'dispatchedBy',
+                  'dispatchedByUser',
+                  'dispatchedByName',
+                  'dispatchedByEmail',
+                  'dispatchedById',
+                ]);
+                const deliveredBy = getOrderActor(order, [
+                  'deliveredBy',
+                  'receivedBy',
+                  'deliveredByUser',
+                  'receivedByUser',
+                  'deliveredByName',
+                  'receivedByName',
+                  'deliveredByEmail',
+                  'receivedByEmail',
+                  'deliveredById',
+                  'receivedById',
+                ]);
                 return (
                 <TableRow key={order.id}>
                   {/*
@@ -454,7 +538,7 @@ const OrderManagement = () => {
                     Confirmation happens in Order Details.
                   */}
                   <TableCell className="font-mono text-sm">
-                    {order.id.slice(0, 8)}...
+                    {order.friendlyId || order.id}
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
@@ -508,23 +592,15 @@ const OrderManagement = () => {
                         <FileText className="mr-2 h-4 w-4" />
                         View details
                       </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        disabled={dispatchEmailMutation.isPending || !canDispatch}
-                        onClick={() => dispatchEmailMutation.mutate(order.id)}
-                      >
-                        Mark Dispatched
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        disabled={deliveredEmailMutation.isPending || !canDeliver}
-                        onClick={() => deliveredEmailMutation.mutate(order.id)}
-                      >
-                        Mark Delivered
+                      <Button size="sm" variant="outline" onClick={() => setActionOrder(order)}>
+                        Actions
                       </Button>
                     </div>
+                  </TableCell>
+                  <TableCell>
+                    <Button size="sm" variant="outline" onClick={() => setHandledOrder(order)}>
+                      View
+                    </Button>
                   </TableCell>
                 </TableRow>
                 );
@@ -533,6 +609,191 @@ const OrderManagement = () => {
           </Table>
         </CardContent>
       </Card>
+
+      <Dialog open={Boolean(actionOrder)} onOpenChange={(open) => !open && setActionOrder(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Order actions</DialogTitle>
+            <DialogDescription>
+              Update the status or send notifications for this order.
+            </DialogDescription>
+          </DialogHeader>
+          {actionOrder && (
+            <div className="space-y-3 text-sm">
+              <div>
+                <span className="font-medium">Order:</span> {actionOrder.friendlyId || actionOrder.id}
+              </div>
+              <div>
+                <span className="font-medium">Status:</span> {actionOrder.status || 'PENDING'}
+              </div>
+            </div>
+          )}
+          <DialogFooter className="flex flex-col gap-2 sm:flex-row sm:gap-3 sm:justify-start">
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="min-w-[140px] w-full sm:w-auto border-green-600 text-green-700 hover:bg-green-600 hover:text-white"
+                  disabled={
+                    confirmPaymentMutation.isPending
+                    || !actionOrder
+                    || (actionOrder.status || '').toUpperCase() === 'CONFIRMED'
+                  }
+                >
+                  Confirm Payment
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Confirm payment?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Do you want to confirm payment for this order?
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    className="bg-green-600 hover:bg-green-700 text-white"
+                    onClick={() => {
+                      if (!actionOrder) return;
+                      confirmPaymentMutation.mutate({ id: actionOrder.id, reference: actionOrder.id });
+                    }}
+                  >
+                    Yes, confirm
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="min-w-[140px] w-full sm:w-auto border-amber-600 text-amber-700 hover:bg-amber-600 hover:text-white"
+                  disabled={
+                    dispatchEmailMutation.isPending
+                    || !actionOrder
+                    || (() => {
+                      const status = (actionOrder.status || '').toUpperCase();
+                      const isDispatched = Boolean(dispatchedIds[actionOrder.id]) || status === 'DISPATCHED';
+                      return !(status === 'CONFIRMED' && !isDispatched);
+                    })()
+                  }
+                >
+                  Mark Dispatched
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Mark as dispatched?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Do you want to mark this order as dispatched and notify the customer?
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    className="bg-amber-600 hover:bg-amber-700 text-white"
+                    onClick={() => {
+                      if (!actionOrder) return;
+                      dispatchEmailMutation.mutate(actionOrder.id);
+                    }}
+                  >
+                    Yes, dispatch
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="min-w-[140px] w-full sm:w-auto border-blue-600 text-blue-700 hover:bg-blue-600 hover:text-white"
+                  disabled={
+                    deliveredEmailMutation.isPending
+                    || !actionOrder
+                    || (() => {
+                      const status = (actionOrder.status || '').toUpperCase();
+                      const isDispatched = Boolean(dispatchedIds[actionOrder.id]) || status === 'DISPATCHED';
+                      const isDelivered = Boolean(deliveredIds[actionOrder.id]) || status === 'RECEIVED';
+                      return !((status === 'DISPATCHED' || isDispatched) && !isDelivered);
+                    })()
+                  }
+                >
+                  Mark Delivered
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Mark as delivered?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Do you want to mark this order as delivered and notify the customer?
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                    onClick={() => {
+                      if (!actionOrder) return;
+                      deliveredEmailMutation.mutate(actionOrder.id);
+                    }}
+                  >
+                    Yes, deliver
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={Boolean(handledOrder)} onOpenChange={(open) => !open && setHandledOrder(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Handled By</DialogTitle>
+            <DialogDescription>
+              Admins who updated this order.
+            </DialogDescription>
+          </DialogHeader>
+          {handledOrder && (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Action</TableHead>
+                  <TableHead>Admin</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                <TableRow>
+                  <TableCell>Confirmed</TableCell>
+                  <TableCell>
+                    {getOrderActor(handledOrder, ['confirmedBy', 'confirmedByUser', 'confirmedByName', 'confirmedByEmail', 'confirmedById'])}
+                  </TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>Dispatched</TableCell>
+                  <TableCell>
+                    {getOrderActor(handledOrder, ['dispatchedBy', 'dispatchedByUser', 'dispatchedByName', 'dispatchedByEmail', 'dispatchedById'])}
+                  </TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>Delivered</TableCell>
+                  <TableCell>
+                    {getOrderActor(handledOrder, ['deliveredBy', 'receivedBy', 'deliveredByUser', 'receivedByUser', 'deliveredByName', 'receivedByName', 'deliveredByEmail', 'receivedByEmail', 'deliveredById', 'receivedById'])}
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setHandledOrder(null)}>
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
