@@ -5,6 +5,7 @@ import { Separator } from '@/components/ui/separator';
 import { useWishlist } from '@/contexts/WishlistContext';
 import { useCart } from '@/contexts/CartContext';
 import { HeartOff, ShoppingCart, X } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface WishlistSheetProps {
   children: ReactNode;
@@ -13,6 +14,7 @@ interface WishlistSheetProps {
 export const WishlistSheet = ({ children }: WishlistSheetProps) => {
   const { items, removeItem, clearWishlist } = useWishlist();
   const { addItem } = useCart();
+  const navigate = useNavigate();
 
   const formatCurrency = (value: number) =>
     value.toLocaleString('en-NG', { style: 'currency', currency: 'NGN', minimumFractionDigits: 0 });
@@ -44,23 +46,31 @@ export const WishlistSheet = ({ children }: WishlistSheetProps) => {
             <div className="space-y-4">
               {items.map((item) => (
                 <div key={item.id} className="flex items-start gap-4 rounded-lg bg-secondary/50 p-4">
-                  <img
-                    src={item.image || 'https://via.placeholder.com/100x100?text=HOK'}
-                    alt={item.name}
-                    className="h-16 w-16 rounded-md object-cover"
-                  />
-                  <div className="flex-1 min-w-0 space-y-1">
-                    <p className="font-medium text-sm truncate">{item.name}</p>
-                    <p className="text-sm text-red font-semibold">{formatCurrency(item.price)}</p>
-                    <div className="flex gap-2 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => navigate(`/products/${item.id}`)}
+                    className="flex items-start gap-4 text-left"
+                  >
+                    <img
+                      src={item.image || 'https://via.placeholder.com/100x100?text=HOK'}
+                      alt={item.name}
+                      className="h-16 w-16 rounded-md object-cover"
+                    />
+                    <div className="flex-1 min-w-0 space-y-1">
+                      <p className="font-medium text-sm truncate">{item.name}</p>
+                      <p className="text-sm text-red font-semibold">{formatCurrency(item.price)}</p>
+                    </div>
+                  </button>
+                  <div className="flex-1 min-w-0" />
+                  <div className="flex items-center gap-2">
                       <Button
                         size="sm"
-                        variant="default"
-                        className="h-8"
+                        variant="outline"
+                        className="h-8 px-3 text-xs"
                         onClick={() => handleMoveToCart(item)}
                       >
                         <ShoppingCart className="mr-2 h-3 w-3" />
-                        Add to Cart
+                        Add
                       </Button>
                       <Button
                         size="icon"
@@ -71,7 +81,6 @@ export const WishlistSheet = ({ children }: WishlistSheetProps) => {
                       >
                         <X className="h-4 w-4" />
                       </Button>
-                    </div>
                   </div>
                 </div>
               ))}

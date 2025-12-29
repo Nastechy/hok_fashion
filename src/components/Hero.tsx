@@ -21,7 +21,7 @@ export const Hero = ({ onExploreClick }: HeroProps) => {
   const navigate = useNavigate();
   const { data: newArrivalsData } = useQuery({
     queryKey: ['hero-sales'],
-    queryFn: () => hokApi.fetchProducts({ category: 'SALES', limit: 8 }),
+    queryFn: () => hokApi.fetchProducts({ isFeatured: true, limit: 8 }),
   });
   const [carouselApi, setCarouselApi] = useState<CarouselApi | null>(null);
 
@@ -96,7 +96,7 @@ export const Hero = ({ onExploreClick }: HeroProps) => {
                             </div>
                             <div className="flex items-center justify-between">
                               <div>
-                                <p className="text-xs uppercase text-muted-foreground tracking-wide">Sales</p>
+                                <p className="text-xs uppercase text-muted-foreground tracking-wide">Featured</p>
                                 <p className="text-lg font-semibold text-foreground">{product.name}</p>
                               </div>
                             </div>

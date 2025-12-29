@@ -45,6 +45,7 @@ const ProductDetails = () => {
   );
   const priceWithVariant = (product?.price ?? 0) + (selectedVariant?.priceDelta ?? 0);
   const totalPrice = priceWithVariant * Math.max(0, Number(variantQuantity) || 0);
+  const maxAvailable = typeof variantStock === 'number' ? Math.max(0, variantStock) : undefined;
 
   useEffect(() => {
     if (product?.variants && product.variants.length > 0) {
@@ -303,8 +304,13 @@ const ProductDetails = () => {
                   <Input
                     type="number"
                     min={0}
+                    max={maxAvailable}
                     value={variantQuantity}
-                    onChange={(e) => setVariantQuantity(Math.max(0, Number(e.target.value) || 0))}
+                    onChange={(e) => {
+                      const next = Math.max(0, Number(e.target.value) || 0);
+                      const clamped = typeof maxAvailable === 'number' ? Math.min(next, maxAvailable) : next;
+                      setVariantQuantity(clamped);
+                    }}
                     className="w-24"
                   />
                   <Button
@@ -321,7 +327,20 @@ const ProductDetails = () => {
                     variant="outline"
                     size="icon"
                     className="h-10 w-10"
-                    onClick={() => setVariantQuantity((prev) => Math.max(1, Number(prev) + 1))}
+                    onClick={() => {
+                      setVariantQuantity((prev) => {
+                        const next = Math.max(1, Number(prev) + 1);
+                        if (typeof maxAvailable === 'number' && next > maxAvailable) {
+                          toast({
+                            title: 'Limited stock',
+                            description: `Only ${maxAvailable} available for this option.`,
+                            variant: 'destructive',
+                          });
+                          return maxAvailable;
+                        }
+                        return next;
+                      });
+                    }}
                   >
                     <Plus className="h-4 w-4" />
                   </Button>

@@ -9,7 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Plus, Edit, Trash2, Save, X } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-// import { Switch } from '@/components/ui/switch';
+import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { hokApi, Product, CreateProductInput } from '@/services/hokApi';
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -152,6 +152,20 @@ const ProductManagement = () => {
       resetForm();
     }
     setIsDialogOpen(true);
+  };
+
+  const handleExclusiveToggle = (key: 'isBestSeller' | 'isNewArrival' | 'isFeatured', checked: boolean) => {
+    setFormData((prev) => {
+      if (!checked) {
+        return { ...prev, [key]: false };
+      }
+      return {
+        ...prev,
+        isBestSeller: key === 'isBestSeller',
+        isNewArrival: key === 'isNewArrival',
+        isFeatured: key === 'isFeatured',
+      };
+    });
   };
 
   const closeDialog = () => {
@@ -532,12 +546,12 @@ const ProductManagement = () => {
                 )}
               </div>
 
-              {/* <div className="flex items-center space-x-6">
+              <div className="flex flex-wrap items-center gap-6">
                 <div className="flex items-center space-x-2">
                   <Switch
                     id="best_seller"
                     checked={formData.isBestSeller}
-                    onCheckedChange={(checked) => setFormData(prev => ({ ...prev, isBestSeller: checked }))}
+                    onCheckedChange={(checked) => handleExclusiveToggle('isBestSeller', checked)}
                   />
                   <Label htmlFor="best_seller">Best Seller</Label>
                 </div>
@@ -545,7 +559,7 @@ const ProductManagement = () => {
                   <Switch
                     id="new_arrival"
                     checked={formData.isNewArrival}
-                    onCheckedChange={(checked) => setFormData(prev => ({ ...prev, isNewArrival: checked }))}
+                    onCheckedChange={(checked) => handleExclusiveToggle('isNewArrival', checked)}
                   />
                   <Label htmlFor="new_arrival">New Arrival</Label>
                 </div>
@@ -553,7 +567,7 @@ const ProductManagement = () => {
                   <Switch
                     id="featured"
                     checked={formData.isFeatured}
-                    onCheckedChange={(checked) => setFormData(prev => ({ ...prev, isFeatured: checked }))}
+                    onCheckedChange={(checked) => handleExclusiveToggle('isFeatured', checked)}
                   />
                   <Label htmlFor="featured">Featured</Label>
                 </div>
@@ -565,7 +579,7 @@ const ProductManagement = () => {
                   />
                   <Label htmlFor="available">Available</Label>
                 </div>
-              </div> */}
+              </div>
 
               <div className="flex gap-2 pt-4">
                 <Button type="submit" disabled={createProduct.isPending || updateProduct.isPending}>

@@ -262,7 +262,8 @@ const OrderManagement = () => {
       0
     ) || 0;
   const getProcessingFee = (order: Order) => Math.min(Math.round(getOrderSubtotal(order) * 0.015), 2000);
-  const totalProcessingFees = filteredOrders.reduce((sum, order) => sum + getProcessingFee(order), 0);
+  const totalProcessingFees = metricsQuery.data?.totalProcessingFee
+    ?? filteredOrders.reduce((sum, order) => sum + getProcessingFee(order), 0);
 
   const totalRevenue = metricsQuery.data?.totalRevenue ?? orders.reduce((sum, order) => sum + Number(order.totalAmount || 0), 0);
   const totalOrders = metricsQuery.data?.totalOrders ?? orders.length;

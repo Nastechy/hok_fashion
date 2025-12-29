@@ -42,34 +42,40 @@ export const CartSheet = ({ children }: CartSheetProps) => {
             <div className="space-y-4">
               {items.map((item) => (
                 <div key={item.id} className="flex items-start space-x-4 p-4 bg-secondary/50 rounded-lg">
-                  <img
-                    src={item.image}
-                    alt={item.name}
-                    className="w-16 h-16 object-cover rounded-md"
-                  />
-                  <div className="flex-1 min-w-0">
-                    <h4 className="font-medium text-sm truncate">{item.name}</h4>
+                  <button
+                    type="button"
+                    onClick={() => navigate(`/products/${item.productId}`)}
+                    className="flex items-start space-x-4 text-left"
+                  >
+                    <img
+                      src={item.image}
+                      alt={item.name}
+                      className="w-16 h-16 object-cover rounded-md"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-medium text-sm truncate">{item.name}</h4>
                     {item.variantName && <p className="text-xs text-muted-foreground truncate">Color: {item.variantName}</p>}
                     <p className="text-red font-semibold font-playfair">{formatCurrency(item.price)}</p>
-                    <div className="flex items-center space-x-2 mt-2">
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        className="h-8 w-8"
-                        onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                      >
-                        <Minus className="h-3 w-3" />
-                      </Button>
-                      <span className="text-sm font-medium w-8 text-center">{item.quantity}</span>
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        className="h-8 w-8"
-                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                      >
-                        <Plus className="h-3 w-3" />
-                      </Button>
-                    </div>
+                  </div>
+                  </button>
+                  <div className="flex items-center space-x-2 mt-2 ml-auto">
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                    >
+                      <Minus className="h-3 w-3" />
+                    </Button>
+                    <span className="text-sm font-medium w-8 text-center">{item.quantity}</span>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                    >
+                      <Plus className="h-3 w-3" />
+                    </Button>
                   </div>
                   <Button
                     variant="ghost"

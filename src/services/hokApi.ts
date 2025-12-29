@@ -149,6 +149,7 @@ export interface MetricsOverview {
   totalOrders?: number;
   pendingOrders?: number;
   bestSellers?: number;
+  totalProcessingFee?: number;
 }
 
 export interface Review {
@@ -510,9 +511,16 @@ export const hokApi = {
     if (params.startDate) search.append('startDate', params.startDate);
     if (params.endDate) search.append('endDate', params.endDate);
     if (params.status) search.append('status', params.status);
-    return apiRequest<MetricsOverview | any>(`/metrics/overview${search.toString() ? `?${search.toString()}` : ''}`, {
+    const response = await apiRequest<MetricsOverview | any>(`/metrics/overview${search.toString() ? `?${search.toString()}` : ''}`, {
       method: 'GET',
     });
+    return {
+      totalRevenue: Number(response?.totalRevenue ?? response?.revenue ?? 0),
+      totalOrders: Number(response?.totalOrders ?? response?.orders?.total ?? 0),
+      pendingOrders: Number(response?.pendingOrders ?? response?.orders?.pending ?? 0),
+      bestSellers: Number(response?.bestSellers ?? response?.products?.bestSellers ?? 0),
+      totalProcessingFee: Number(response?.totalProcessingFee ?? response?.processingFeeTotal ?? response?.processingFees ?? 0),
+    } as MetricsOverview;
   },
 
   async fetchWishlist() {
