@@ -21,7 +21,7 @@ export const Hero = ({ onExploreClick }: HeroProps) => {
   const navigate = useNavigate();
   const { data: newArrivalsData } = useQuery({
     queryKey: ['hero-sales'],
-    queryFn: () => hokApi.fetchProducts({ isFeatured: true, limit: 8 }),
+    queryFn: () => hokApi.fetchProducts({ isFeatured: true }),
   });
   const [carouselApi, setCarouselApi] = useState<CarouselApi | null>(null);
 
