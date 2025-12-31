@@ -6,7 +6,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { toast } from '@/hooks/use-toast';
+import { hokApi } from '@/services/hokApi';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
 
 export default function Auth() {
@@ -14,6 +16,13 @@ export default function Auth() {
   const navigate = useNavigate();
   const location = useLocation();
   const [isLoading, setIsLoading] = useState(false);
+  const [tabValue, setTabValue] = useState('signin');
+  const [resetOpen, setResetOpen] = useState(false);
+  const [resetStep, setResetStep] = useState<'request' | 'confirm'>('request');
+  const [resetEmail, setResetEmail] = useState('');
+  const [resetOtp, setResetOtp] = useState('');
+  const [resetPassword, setResetPassword] = useState('');
+  const [resetLoading, setResetLoading] = useState(false);
   const [showSignInPassword, setShowSignInPassword] = useState(false);
   const [showSignUpPassword, setShowSignUpPassword] = useState(false);
 
@@ -94,6 +103,61 @@ export default function Auth() {
     setIsLoading(false);
   };
 
+  const handleOpenReset = () => {
+    setResetStep('request');
+    setResetEmail('');
+    setResetOtp('');
+    setResetPassword('');
+    setResetOpen(true);
+  };
+
+  const handleRequestReset = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setResetLoading(true);
+    try {
+      await hokApi.requestPasswordReset(resetEmail.trim());
+      toast({
+        title: 'Reset code sent',
+        description: 'Check your email for the OTP code.',
+      });
+      setResetStep('confirm');
+    } catch (error: any) {
+      toast({
+        title: 'Request failed',
+        description: error?.message || 'Unable to send reset code.',
+        variant: 'destructive',
+      });
+    } finally {
+      setResetLoading(false);
+    }
+  };
+
+  const handleConfirmReset = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setResetLoading(true);
+    try {
+      await hokApi.confirmPasswordReset({
+        email: resetEmail.trim(),
+        otp: resetOtp.trim(),
+        newPassword: resetPassword,
+      });
+      toast({
+        title: 'Password updated',
+        description: 'You can now sign in with your new password.',
+      });
+      setResetOpen(false);
+      setTabValue('signin');
+    } catch (error: any) {
+      toast({
+        title: 'Reset failed',
+        description: error?.message || 'Unable to reset password.',
+        variant: 'destructive',
+      });
+    } finally {
+      setResetLoading(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -110,7 +174,7 @@ export default function Auth() {
           <CardDescription>Sign in to your account or create a new one</CardDescription>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="signin" className="w-full">
+          <Tabs value={tabValue} onValueChange={setTabValue} className="w-full">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="signin">Sign In</TabsTrigger>
               <TabsTrigger value="signup">Sign Up</TabsTrigger>
@@ -152,6 +216,14 @@ export default function Auth() {
                 <Button type="submit" className="w-full" disabled={isLoading}>
                   {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   Sign In
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className="w-full text-sm"
+                  onClick={handleOpenReset}
+                >
+                  Forgot password?
                 </Button>
               </form>
             </TabsContent>
@@ -216,6 +288,63 @@ export default function Auth() {
           </Tabs>
         </CardContent>
       </Card>
+
+      <Dialog open={resetOpen} onOpenChange={setResetOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {resetStep === 'request' ? 'Reset your password' : 'Enter reset code'}
+            </DialogTitle>
+          </DialogHeader>
+          {resetStep === 'request' ? (
+            <form onSubmit={handleRequestReset} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="reset-email">Email</Label>
+                <Input
+                  id="reset-email"
+                  type="email"
+                  placeholder="Enter your email"
+                  value={resetEmail}
+                  onChange={(e) => setResetEmail(e.target.value)}
+                  required
+                />
+              </div>
+              <Button type="submit" className="w-full" disabled={resetLoading}>
+                {resetLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Send reset code
+              </Button>
+            </form>
+          ) : (
+            <form onSubmit={handleConfirmReset} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="reset-otp">OTP code</Label>
+                <Input
+                  id="reset-otp"
+                  placeholder="Enter the 6-digit code"
+                  value={resetOtp}
+                  onChange={(e) => setResetOtp(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="reset-password">New password</Label>
+                <Input
+                  id="reset-password"
+                  type="password"
+                  placeholder="Create a new password"
+                  value={resetPassword}
+                  onChange={(e) => setResetPassword(e.target.value)}
+                  required
+                />
+              </div>
+              <Button type="submit" className="w-full" disabled={resetLoading}>
+                {resetLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Update password
+              </Button>
+            </form>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

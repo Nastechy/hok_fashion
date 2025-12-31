@@ -61,7 +61,11 @@ const ProductDetails = () => {
   const formatCurrency = (value?: number) =>
     (typeof value === 'number' ? value : 0).toLocaleString('en-NG', { style: 'currency', currency: 'NGN', minimumFractionDigits: 0 });
 
-  const shareUrl = useMemo(() => (typeof window !== 'undefined' ? window.location.href : ''), []);
+  const shareUrl = useMemo(() => {
+    if (typeof window === 'undefined') return '';
+    const slug = product?.slug || product?.id || '';
+    return slug ? `${window.location.origin}/products/${slug}` : window.location.href;
+  }, [product?.id, product?.slug]);
   const shareText = product ? `Check out ${product.name} from HOK Fashion House` : 'Check this product from HOK Fashion House';
 
   const handleCopyLink = async () => {

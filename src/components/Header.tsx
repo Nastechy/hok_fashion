@@ -56,7 +56,13 @@ export const Header = ({ onCategoryChange, selectedCategory = 'All' }: HeaderPro
 
   const searchResults: Product[] = searchData?.data ?? [];
 
-  const getImage = (product: Product) => product.imageUrls?.[0] || '';
+  const getImage = (product: Product) =>
+    product.imageUrls?.[0]
+    || product.images?.[0]
+    || (Array.isArray(product.image) ? product.image[0] : product.image)
+    || product.image_url
+    || product.mainImage
+    || '';
   const formatCurrency = (value: number) =>
     value.toLocaleString('en-NG', { style: 'currency', currency: 'NGN', minimumFractionDigits: 0 });
 
@@ -176,7 +182,14 @@ export const Header = ({ onCategoryChange, selectedCategory = 'All' }: HeaderPro
                               <img 
                                 src={getImage(product)} 
                                 alt={product.name}
-                                className="w-12 h-12 object-cover rounded-md"
+                                className="w-12 h-12 object-cover rounded-md border bg-white"
+                                onError={(event) => {
+                                  const target = event.currentTarget;
+                                  if (!target.dataset.fallback) {
+                                    target.dataset.fallback = '1';
+                                    target.src = 'https://via.placeholder.com/64x64?text=HOK';
+                                  }
+                                }}
                               />
                               <div className="flex-1">
                                 <h4 className="font-medium font-inter text-sm">{product.name}</h4>
@@ -212,7 +225,7 @@ export const Header = ({ onCategoryChange, selectedCategory = 'All' }: HeaderPro
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48">
                   <div className="px-2 py-1.5 text-sm font-medium">
-                    {user.email}
+                    {user.name ? `${user.name} 😍` : user.email}
                   </div>
                   <DropdownMenuSeparator />
                   {isAdmin && (

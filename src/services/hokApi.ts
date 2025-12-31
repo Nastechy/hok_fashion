@@ -6,10 +6,14 @@ export interface Product {
   id: string;
   name: string;
   price: number;
+  slug?: string;
   images?: string[];
   videos?: string[];
   imageUrls?: string[];
   videoUrls?: string[];
+  image?: string | string[];
+  image_url?: string;
+  mainImage?: string;
   productCode?: string;
   collectionType?: string;
   classification?: string;
@@ -336,6 +340,26 @@ export const hokApi = {
       method: 'POST',
       body: JSON.stringify(payload),
     });
+  },
+
+  async requestPasswordReset(email: string) {
+    return apiRequest<{ message?: string; expiresAt?: number; otp?: string }>(
+      '/auth/password-reset/request',
+      {
+        method: 'POST',
+        body: JSON.stringify({ email }),
+      }
+    );
+  },
+
+  async confirmPasswordReset(payload: { email: string; otp: string; newPassword: string }) {
+    return apiRequest<{ message?: string }>(
+      '/auth/password-reset/confirm',
+      {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      }
+    );
   },
 
   async fetchProfile() {
