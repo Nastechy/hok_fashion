@@ -196,8 +196,15 @@ const OrderDetails = () => {
                       const variant = item.variant || item.product?.variants?.[0]?.name || item.product?.variants?.[0]?.sku;
                       const code = item.productCode || item.product?.productCode || item.productId;
                       const name = item.productName || item.product?.name || code || 'Product';
+                      const productSlug = item.product?.slug;
+                      const productLink = productSlug || item.productId;
                       return (
-                        <div key={`${item.productId}`} className="flex items-start gap-3 rounded-lg border border-border p-3">
+                        <button
+                          key={`${item.productId}`}
+                          type="button"
+                          onClick={() => navigate(`/products/${productLink}`)}
+                          className="flex w-full items-start gap-3 rounded-lg border border-border p-3 text-left transition-colors hover:bg-secondary/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-red/50"
+                        >
                           <img
                             src={thumb}
                             alt={name}
@@ -213,7 +220,7 @@ const OrderDetails = () => {
                             {item.product?.category && <p className="text-muted-foreground">Category: {item.product.category}</p>}
                             {code && <p className="text-muted-foreground">Product code: {code}</p>}
                           </div>
-                        </div>
+                        </button>
                       );
                     })}
                   </div>

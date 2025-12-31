@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from 'react';
-import { ShoppingCart, Menu, Search, ChevronDown, User, LogOut, Heart } from 'lucide-react';
+import { ShoppingCart, Menu, Search, ChevronDown, User, LogOut, Heart, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Badge } from '@/components/ui/badge';
@@ -48,7 +48,7 @@ export const Header = ({ onCategoryChange, selectedCategory = 'All' }: HeaderPro
       .toLowerCase()
       .replace(/\b\w/g, (char) => char.toUpperCase());
 
-  const { data: searchData } = useQuery({
+  const { data: searchData, isFetching: isSearchLoading } = useQuery({
     queryKey: ['header-search', searchTerm],
     queryFn: () => hokApi.fetchProducts({ search: searchTerm, limit: 8 }),
     enabled: searchTerm.trim().length > 1,
@@ -168,16 +168,25 @@ export const Header = ({ onCategoryChange, selectedCategory = 'All' }: HeaderPro
                   
                   {searchTerm.trim() && (
                     <div className="max-h-60 overflow-y-auto space-y-2">
-                      {searchResults.length > 0 ? (
+                      {isSearchLoading ? (
+                        <div className="flex items-center justify-center gap-2 py-6 text-sm text-muted-foreground font-inter">
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          Searching...
+                        </div>
+                      ) : searchResults.length > 0 ? (
                         <>
                           <p className="text-sm text-muted-foreground font-inter">
                             {searchResults.length} result{searchResults.length !== 1 ? 's' : ''} found
                           </p>
                           {searchResults.map((product) => (
-                            <div
+                            <Link
                               key={product.id}
-                              onClick={() => handleSearchSelect(product)}
-                              className="flex items-center space-x-3 p-3 rounded-lg hover:bg-secondary cursor-pointer transition-colors"
+                              to={`/products/${product.slug || product.id}`}
+                              onClick={() => {
+                                setSearchOpen(false);
+                                setSearchTerm('');
+                              }}
+                              className="flex items-center space-x-3 p-3 rounded-lg hover:bg-secondary transition-colors"
                             >
                               <img 
                                 src={getImage(product)} 
@@ -197,7 +206,7 @@ export const Header = ({ onCategoryChange, selectedCategory = 'All' }: HeaderPro
                                   {product.category} • {formatCurrency(product.price)}
                                 </p>
                               </div>
-                            </div>
+                            </Link>
                           ))}
                         </>
                       ) : (
